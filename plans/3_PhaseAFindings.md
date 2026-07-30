@@ -99,7 +99,30 @@ padded to look filled. No missing slot was identified — the two documents' har
 (unreachable code, inert validation, delegated error display) landed in existing sections
 without strain.
 
-**Fixed by:** nothing. No evidence for a Phase 0 template revision from this sample.
+**Fixed by:** nothing — *for `requirement.md`*. See the addendum: the JSON tiers are a
+different story.
+
+### F5a — addendum: the JSON tiers did need fields, found by validating rather than reading
+
+F5 was written from reading the two documents. Writing `templates/schema/signature.schema.json`
+and running it against the same two `signature.json` files found six fields the POC reached for
+that the template does not define — invisible to a read-through, mechanical to find:
+
+| field | what it encodes |
+|---|---|
+| `injectedDependencies[].effectivelyUnused` | F4's finding: injected, but reachable only from dead code |
+| `lifecycle.fieldInitializerDoesWork` | the `c.ts:43` ordering hazard — work in a field initializer runs before `ngOnInit` |
+| `stateOutline.fields[].isArrowFunctionProperty` | `this` bound at construction; porting to a method changes it |
+| `metrics.unreachableMethodCount` | |
+| `metrics.effectivelyUnusedDependencyCount` | |
+| `$comment_<suffix>` annotations | the tier format's stated convention, used but never specified |
+
+So the corrected form of F5: **`requirement.md`'s section structure needs no revision; the JSON
+tiers needed six additions.** Both halves came from Phase A, which is the argument for running
+it before building the extractor — but only the second half was findable by machine, and the
+first was findable only by reading. Neither method substitutes for the other.
+
+Nothing was deleted. No field defined in the templates went unused across both components.
 
 ---
 

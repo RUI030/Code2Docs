@@ -1,0 +1,13 @@
+{
+  "name": "code2docs",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Reads an Angular codebase and writes down what it does.",
+  "scripts": {
+    "validate": "node tools/validate.mjs"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1"
+  }
+}

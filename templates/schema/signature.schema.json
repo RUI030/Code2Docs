@@ -1,0 +1,738 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code2docs/schema/signature.schema.json",
+  "title": "signature.json -- hot tier",
+  "$comment": "Answers 'what is this?'. 100% deterministic: no LLM output, byte-reproducible from unchanged source. additionalProperties is false throughout, because a typo in an emitted field name would otherwise pass silently and the field would simply never be read.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "unit",
+    "manifest",
+    "publicApi",
+    "injectedDependencies",
+    "lifecycle",
+    "stateOutline",
+    "provenance"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "unit": {
+      "type": "object",
+      "required": [
+        "id",
+        "kind",
+        "className",
+        "path",
+        "files"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/unitId"
+        },
+        "kind": {
+          "$ref": "common.schema.json#/$defs/unitKind"
+        },
+        "className": {
+          "$ref": "common.schema.json#/$defs/identifier"
+        },
+        "selector": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "standalone": {
+          "type": "boolean"
+        },
+        "declaredInModule": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        },
+        "isDefaultExport": {
+          "type": "boolean"
+        },
+        "siblings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "files": {
+          "type": "object",
+          "required": [
+            "typescript"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "typescript": {
+              "type": "string",
+              "minLength": 1
+            },
+            "template": {
+              "$ref": "common.schema.json#/$defs/nullableString"
+            },
+            "templateInline": {
+              "type": "boolean"
+            },
+            "styles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "specs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "patternProperties": {
+            "^\\$comment": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      }
+    },
+    "manifest": {
+      "$comment": "Null means the tier was not produced for this unit -- a Phase A run produces only some of them.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "dependencies": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        },
+        "functions": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        },
+        "template": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        },
+        "analysis": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        },
+        "requirement": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        },
+        "migrationNotes": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        },
+        "repoIndex": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        }
+      },
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      }
+    },
+    "publicApi": {
+      "type": "object",
+      "required": [
+        "inputs",
+        "outputs",
+        "publicMethods"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "inputs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "type",
+              "loc"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^input:[A-Za-z_$][A-Za-z0-9_$]*$"
+              },
+              "name": {
+                "$ref": "common.schema.json#/$defs/identifier"
+              },
+              "alias": {
+                "$ref": "common.schema.json#/$defs/nullableString"
+              },
+              "type": {
+                "type": "string"
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "defaultExpression": {
+                "$ref": "common.schema.json#/$defs/nullableString"
+              },
+              "declarationStyle": {
+                "type": "string",
+                "enum": [
+                  "decorator",
+                  "signal",
+                  "setter"
+                ]
+              },
+              "transform": {
+                "$ref": "common.schema.json#/$defs/nullableString"
+              },
+              "loc": {
+                "$ref": "common.schema.json#/$defs/loc"
+              }
+            },
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "outputs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "loc"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^output:[A-Za-z_$][A-Za-z0-9_$]*$"
+              },
+              "name": {
+                "$ref": "common.schema.json#/$defs/identifier"
+              },
+              "alias": {
+                "$ref": "common.schema.json#/$defs/nullableString"
+              },
+              "payloadType": {
+                "type": "string"
+              },
+              "declarationStyle": {
+                "type": "string",
+                "enum": [
+                  "eventemitter",
+                  "output-fn",
+                  "subject"
+                ]
+              },
+              "emittedFrom": {
+                "type": "array",
+                "items": {
+                  "$ref": "common.schema.json#/$defs/memberId"
+                }
+              },
+              "loc": {
+                "$ref": "common.schema.json#/$defs/loc"
+              }
+            },
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "twoWayBindings": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "name"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^model:[A-Za-z_$][A-Za-z0-9_$]*$"
+              },
+              "name": {
+                "$ref": "common.schema.json#/$defs/identifier"
+              },
+              "type": {
+                "type": "string"
+              },
+              "loc": {
+                "$ref": "common.schema.json#/$defs/loc"
+              }
+            },
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "publicMethods": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/memberId"
+          }
+        },
+        "templateReachableMembers": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/memberId"
+          }
+        }
+      },
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      }
+    },
+    "injectedDependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "propertyName",
+          "token",
+          "origin",
+          "injectionStyle"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^dep:[A-Za-z_$][A-Za-z0-9_$]*$"
+          },
+          "propertyName": {
+            "$ref": "common.schema.json#/$defs/identifier"
+          },
+          "token": {
+            "type": "string",
+            "minLength": 1
+          },
+          "resolvedUnitId": {
+            "anyOf": [
+              {
+                "$ref": "common.schema.json#/$defs/unitId"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "origin": {
+            "type": "string",
+            "enum": [
+              "angular",
+              "rxjs",
+              "third-party",
+              "internal"
+            ]
+          },
+          "injectionStyle": {
+            "type": "string",
+            "enum": [
+              "constructor-param",
+              "inject-fn"
+            ]
+          },
+          "modifiers": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "optional": {
+                "type": "boolean"
+              },
+              "self": {
+                "type": "boolean"
+              },
+              "skipSelf": {
+                "type": "boolean"
+              },
+              "host": {
+                "type": "boolean"
+              }
+            },
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            }
+          },
+          "loc": {
+            "$ref": "common.schema.json#/$defs/loc"
+          },
+          "effectivelyUnused": {
+            "$comment": "True when the dependency is injected but reachable only from unreachable code (F4). Distinct from simply unused: the injection is real, the usage is dead.",
+            "type": "boolean"
+          }
+        },
+        "patternProperties": {
+          "^\\$comment": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "required": [
+        "implementedHooks",
+        "cleanupStrategy"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "implementedHooks": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/identifier"
+          }
+        },
+        "declaredInterfaces": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/identifier"
+          }
+        },
+        "constructorDoesWork": {
+          "type": "boolean"
+        },
+        "cleanupStrategy": {
+          "type": "string",
+          "enum": [
+            "ngOnDestroy-unsubscribe",
+            "takeUntilDestroyed",
+            "DestroyRef",
+            "async-pipe-only",
+            "none"
+          ]
+        },
+        "fieldInitializerDoesWork": {
+          "$comment": "A field initializer that calls a service runs during construction, before ngOnInit, creating an ordering requirement a rewrite can silently break.",
+          "type": "boolean"
+        }
+      },
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      }
+    },
+    "stateOutline": {
+      "type": "object",
+      "required": [
+        "fields",
+        "methodIds"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "visibility",
+              "loc"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^field:[A-Za-z_$][A-Za-z0-9_$]*$"
+              },
+              "name": {
+                "$ref": "common.schema.json#/$defs/identifier"
+              },
+              "type": {
+                "type": "string"
+              },
+              "visibility": {
+                "type": "string",
+                "enum": [
+                  "public",
+                  "protected",
+                  "private"
+                ]
+              },
+              "readonly": {
+                "type": "boolean"
+              },
+              "initializerExpression": {
+                "$ref": "common.schema.json#/$defs/nullableString"
+              },
+              "roleHints": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "isSignal": {
+                    "type": "boolean"
+                  },
+                  "signalKind": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "enum": [
+                      "signal",
+                      "computed",
+                      "linkedSignal",
+                      "toSignal",
+                      null
+                    ]
+                  },
+                  "isRxjs": {
+                    "type": "boolean"
+                  },
+                  "rxjsKind": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "enum": [
+                      "Observable",
+                      "Subject",
+                      "BehaviorSubject",
+                      "ReplaySubject",
+                      "Subscription",
+                      null
+                    ]
+                  },
+                  "isFormEntity": {
+                    "type": "boolean"
+                  },
+                  "formKind": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "enum": [
+                      "FormGroup",
+                      "FormControl",
+                      "FormArray",
+                      "FormRecord",
+                      null
+                    ]
+                  },
+                  "isConstant": {
+                    "type": "boolean"
+                  }
+                },
+                "patternProperties": {
+                  "^\\$comment": {
+                    "type": "string"
+                  }
+                }
+              },
+              "loc": {
+                "$ref": "common.schema.json#/$defs/loc"
+              },
+              "isArrowFunctionProperty": {
+                "$comment": "Arrow-function class property rather than a method: `this` is bound at construction, which a naive port to a method changes.",
+                "type": "boolean"
+              }
+            },
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "methodIds": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/memberId"
+          }
+        },
+        "accessorIds": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/memberId"
+          }
+        },
+        "formIds": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/memberId"
+          }
+        },
+        "streamIds": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/memberId"
+          }
+        }
+      },
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      }
+    },
+    "decorator": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "changeDetection": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "Default",
+            "OnPush",
+            null
+          ]
+        },
+        "encapsulation": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "Emulated",
+            "None",
+            "ShadowDom",
+            null
+          ]
+        },
+        "providers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "imports": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hostDirectives": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "animations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tsLineCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "templateLineCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "methodCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "publicApiSurface": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "injectedDependencyCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxCyclomaticComplexity": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxTemplateNestingDepth": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unreachableMethodCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "effectivelyUnusedDependencyCount": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "source",
+        "generatedAt",
+        "parseStatus"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "$ref": "common.schema.json#/$defs/provenanceSource"
+        },
+        "resolverVersion": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        },
+        "generatedAt": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceRevision": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        },
+        "inputHash": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        },
+        "parseStatus": {
+          "$ref": "common.schema.json#/$defs/parseStatus"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "patternProperties": {
+    "^\\$comment": {
+      "type": "string"
+    }
+  }
+}
