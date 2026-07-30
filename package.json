@@ -5,7 +5,9 @@
   "type": "module",
   "description": "Reads an Angular codebase and writes down what it does.",
   "scripts": {
-    "validate": "node tools/validate.mjs"
+    "validate": "node tools/validate.mjs",
+    "check": "node tools/check-integrity.mjs",
+    "test": "npm run validate && npm run check"
   },
   "devDependencies": {
     "ajv": "^8.17.1"

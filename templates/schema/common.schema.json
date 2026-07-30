@@ -3,115 +3,181 @@
   "$id": "https://code2docs/schema/common.schema.json",
   "title": "Shared definitions and id conventions",
   "$comment": "The id space is the load-bearing part of the whole design: the five tiers are one dataset split by access pattern, joined only by these ids (invariant #1), and every doc claim cites them as evidence (invariant #2). Drift here is expensive because each later stage references them, so the conventions are pinned as patterns rather than left to convention.",
-
   "$defs": {
     "identifier": {
       "$comment": "A TypeScript identifier. Deliberately excludes '<' and '>' so template placeholders like '<name>' fail validation rather than passing as data.",
       "type": "string",
       "pattern": "^[A-Za-z_$][A-Za-z0-9_$]*$"
     },
-
     "unitKind": {
       "type": "string",
-      "enum": ["component", "service", "directive", "pipe", "guard", "interceptor", "route-resolver", "module", "model", "store", "util", "unknown"]
+      "enum": [
+        "component",
+        "service",
+        "directive",
+        "pipe",
+        "guard",
+        "interceptor",
+        "route-resolver",
+        "module",
+        "model",
+        "store",
+        "util",
+        "unknown"
+      ]
     },
-
     "unitId": {
-      "$comment": "<kind>:<path>:<ClassName> — three colon-separated parts. The path segment is relative to the Angular source root. Note the arity: this is what distinguishes a 'model:' unit id from a 'model:' two-way-binding member id, which has two parts.",
+      "$comment": "<kind>:<path>:<ClassName> \u2014 three colon-separated parts. The path segment is relative to the Angular source root. Note the arity: this is what distinguishes a 'model:' unit id from a 'model:' two-way-binding member id, which has two parts.",
       "type": "string",
       "pattern": "^(component|service|directive|pipe|guard|interceptor|route-resolver|module|model|store|util|unknown):[A-Za-z0-9_\\-./$]+:[A-Za-z_$][A-Za-z0-9_$]*$"
     },
-
     "memberId": {
-      "$comment": "<prefix>:<propertyName> — a symbol owned by one unit. 'model:' here is the two-way binding member (model<T>()), two parts, versus the three-part unit id above.",
+      "$comment": "<prefix>:<propertyName> \u2014 a symbol owned by one unit. 'model:' here is the two-way binding member (model<T>()), two parts, versus the three-part unit id above.",
       "type": "string",
       "pattern": "^(method|accessor|field|input|output|model|dep|form|stream|query):[A-Za-z_$][A-Za-z0-9_$]*$"
     },
-
     "typeId": {
       "type": "string",
       "pattern": "^type:[A-Za-z_$][A-Za-z0-9_$]*$"
     },
-
     "templateNodeId": {
       "$comment": "Template nodes and host bindings. Cited as evidence by uiRequirements and by analysis.json.",
       "type": "string",
       "pattern": "^(tpl|tpl-handler|hostbind|hostlisten):[A-Za-z0-9_\\-]+$"
     },
-
     "extractedId": {
       "$comment": "Numbered entities the Resolver emits.",
       "type": "string",
       "pattern": "^(test|http|nav):[0-9]+$"
     },
-
     "synthesizedId": {
       "$comment": "Numbered entities the Synthesizer emits into analysis.json and template.json#/uiRequirements. These are never cited as evidence by an ast tier -- evidence flows one way, from doc to ast.",
       "type": "string",
-      "pattern": "^(ui|resp|state|api|flow|svc|svcop|svccoupling|inv|ac|rule|edge|risk|split|q|bug):[0-9]+$"
+      "pattern": "^(ui|ext|resp|state|api|flow|svc|svcop|svccoupling|inv|ac|rule|edge|risk|split|q|bug):[0-9]+$"
     },
-
     "anyId": {
       "anyOf": [
-        { "$ref": "#/$defs/unitId" },
-        { "$ref": "#/$defs/memberId" },
-        { "$ref": "#/$defs/typeId" },
-        { "$ref": "#/$defs/templateNodeId" },
-        { "$ref": "#/$defs/extractedId" },
-        { "$ref": "#/$defs/synthesizedId" }
+        {
+          "$ref": "#/$defs/unitId"
+        },
+        {
+          "$ref": "#/$defs/memberId"
+        },
+        {
+          "$ref": "#/$defs/typeId"
+        },
+        {
+          "$ref": "#/$defs/templateNodeId"
+        },
+        {
+          "$ref": "#/$defs/extractedId"
+        },
+        {
+          "$ref": "#/$defs/synthesizedId"
+        },
+        {
+          "type": "string",
+          "pattern": "^field-initializer:[A-Za-z_$][A-Za-z0-9_$]*$"
+        }
       ]
     },
-
     "evidenceId": {
       "$comment": "What a doc claim may cite. Excludes synthesizedId: evidence must resolve to something extracted, never to another inference, or claims could support each other in a cycle with no grounding in source.",
       "anyOf": [
-        { "$ref": "#/$defs/memberId" },
-        { "$ref": "#/$defs/typeId" },
-        { "$ref": "#/$defs/templateNodeId" },
-        { "$ref": "#/$defs/extractedId" },
-        { "$ref": "#/$defs/unitId" }
+        {
+          "$ref": "#/$defs/memberId"
+        },
+        {
+          "$ref": "#/$defs/typeId"
+        },
+        {
+          "$ref": "#/$defs/templateNodeId"
+        },
+        {
+          "$ref": "#/$defs/extractedId"
+        },
+        {
+          "$ref": "#/$defs/unitId"
+        }
       ]
     },
-
     "evidenceList": {
       "type": "array",
-      "items": { "$ref": "#/$defs/evidenceId" }
+      "items": {
+        "$ref": "#/$defs/evidenceId"
+      }
     },
-
     "loc": {
       "type": "object",
       "properties": {
-        "file": { "type": "string", "minLength": 1 },
-        "line": { "type": "integer", "minimum": 0 },
-        "endLine": { "type": "integer", "minimum": 0 }
+        "file": {
+          "type": "string",
+          "minLength": 1
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "endLine": {
+          "type": "integer",
+          "minimum": 0
+        }
       },
-      "required": ["file", "line"],
+      "required": [
+        "file",
+        "line"
+      ],
       "additionalProperties": false
     },
-
     "confidence": {
       "type": "string",
-      "enum": ["high", "medium", "low"]
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ]
     },
-
     "parseStatus": {
       "type": "string",
-      "enum": ["ok", "partial", "failed"]
+      "enum": [
+        "ok",
+        "partial",
+        "failed"
+      ]
     },
-
     "schemaVersion": {
       "type": "string",
       "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
     },
-
     "provenanceSource": {
       "$comment": "'hand-derived' covers the Phase A baseline, which is neither extractor output nor model output. Without it the baseline cannot be validated by the same schema as real output, and an unvalidatable baseline is a poor diff target for Phase 1.",
       "type": "string",
-      "enum": ["ast", "llm", "hand-derived"]
+      "enum": [
+        "ast",
+        "llm",
+        "hand-derived"
+      ]
     },
-
     "nullableString": {
-      "type": ["string", "null"]
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "callSiteId": {
+      "$comment": "Somewhere code can call from. Not every caller is a method: a field initializer runs during construction (before ngOnInit), and a template binding or host listener calls in from outside the class entirely. The POC reached for 'field-initializer:<name>' and had no id for it -- see plans/3_PhaseAFindings.md F5a.",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/memberId"
+        },
+        {
+          "type": "string",
+          "pattern": "^field-initializer:[A-Za-z_$][A-Za-z0-9_$]*$"
+        },
+        {
+          "$ref": "#/$defs/templateNodeId"
+        }
+      ]
     }
   }
 }

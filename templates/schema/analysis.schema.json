@@ -1,0 +1,964 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code2docs/schema/analysis.schema.json",
+  "title": "analysis.json -- inferred aggregate tier",
+  "$comment": "The Synthesizer's reduce output and the direct backing for requirement.md. All prose is stored FINISHED so rendering is deterministic assembly, which is what makes it impossible for the md to contradict the JSON. Every claim carries evidence ids; the schema pins their shape, and tools/check-integrity.mjs pins that they resolve.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "unitId",
+    "purpose",
+    "review",
+    "provenance"
+  ],
+  "additionalProperties": false,
+  "patternProperties": {
+    "^\\$comment": {
+      "type": "string"
+    }
+  },
+  "$defs": {
+    "ev": {
+      "$ref": "common.schema.json#/$defs/evidenceList"
+    },
+    "claim": {
+      "$comment": "The recurring shape: an id, prose, and the evidence backing it.",
+      "type": "object",
+      "additionalProperties": true,
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      },
+      "properties": {
+        "id": {
+          "$ref": "common.schema.json#/$defs/synthesizedId"
+        },
+        "evidence": {
+          "$ref": "common.schema.json#/$defs/evidenceList"
+        },
+        "confidence": {
+          "$ref": "common.schema.json#/$defs/confidence"
+        }
+      }
+    }
+  },
+  "properties": {
+    "schemaVersion": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "unitId": {
+      "$ref": "common.schema.json#/$defs/unitId"
+    },
+    "rendersTo": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      },
+      "properties": {
+        "requirement": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        },
+        "migrationNotes": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        }
+      }
+    },
+    "purpose": {
+      "type": "object",
+      "required": [
+        "statement"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      },
+      "properties": {
+        "statement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "responsibilities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        },
+        "evidence": {
+          "$ref": "#/$defs/ev"
+        }
+      }
+    },
+    "stateModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      },
+      "properties": {
+        "external": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        },
+        "propsAndEvents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        },
+        "local": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        },
+        "derived": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        },
+        "form": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        },
+        "async": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        }
+      }
+    },
+    "publicContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      },
+      "properties": {
+        "consumedBy": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/unitId"
+          }
+        },
+        "methods": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        },
+        "inputContracts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        },
+        "outputContracts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        },
+        "extensionPoints": {
+          "$comment": "Members existing to be overridden by a subclass rather than called by a consumer. A generated base class puts real behavior here, so omitting them loses behavior in a rewrite.",
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        }
+      }
+    },
+    "workflows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "additionalProperties": false,
+        "patternProperties": {
+          "^\\$comment": {
+            "type": "string"
+          }
+        },
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^flow:[0-9]+$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "trigger": {
+            "type": "string"
+          },
+          "preconditions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "patternProperties": {
+                "^\\$comment": {
+                  "type": "string"
+                }
+              },
+              "properties": {
+                "order": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "action": {
+                  "type": "string"
+                },
+                "evidence": {
+                  "$ref": "#/$defs/ev"
+                }
+              }
+            }
+          },
+          "successOutcome": {
+            "type": "string"
+          },
+          "failureOutcomes": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "patternProperties": {
+                "^\\$comment": {
+                  "type": "string"
+                }
+              },
+              "properties": {
+                "condition": {
+                  "type": "string"
+                },
+                "result": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "evidence": {
+            "$ref": "#/$defs/ev"
+          }
+        }
+      }
+    },
+    "lifecycleBehavior": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      },
+      "properties": {
+        "onInitialization": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        },
+        "onInputChange": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        },
+        "onDestroy": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        },
+        "orderingConstraints": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "properties": {
+              "statement": {
+                "type": "string"
+              },
+              "evidence": {
+                "$ref": "#/$defs/ev"
+              }
+            }
+          }
+        }
+      }
+    },
+    "externalIntegrations": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      },
+      "properties": {
+        "services": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        },
+        "apis": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        },
+        "packages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        }
+      }
+    },
+    "serviceLayer": {
+      "$comment": "requirement.md section 6. Not a duplicate of externalIntegrations: that inventories which services are used, this describes state outliving the component and the coupling it creates. otherConsumers needs the Phase 2 repo index, so a component-scoped run sets consumersKnown false and raises an open question rather than guessing.",
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      },
+      "properties": {
+        "sharedState": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^svc:[0-9]+$"
+              },
+              "service": {
+                "type": "string",
+                "pattern": "^dep:[A-Za-z_$][A-Za-z0-9_$]*$"
+              },
+              "state": {
+                "type": "string"
+              },
+              "lifetime": {
+                "type": "string",
+                "enum": [
+                  "per-call",
+                  "cached-across-components",
+                  "app-singleton",
+                  "unknown"
+                ]
+              },
+              "readByThisUnit": {
+                "type": "boolean"
+              },
+              "mutatedByThisUnit": {
+                "type": "boolean"
+              },
+              "mutatingMethods": {
+                "type": "array",
+                "items": {
+                  "$ref": "common.schema.json#/$defs/callSiteId"
+                }
+              },
+              "otherConsumers": {
+                "type": "array",
+                "items": {
+                  "$ref": "common.schema.json#/$defs/unitId"
+                }
+              },
+              "consumersKnown": {
+                "type": "boolean"
+              },
+              "evidence": {
+                "$ref": "#/$defs/ev"
+              }
+            }
+          }
+        },
+        "statelessOperations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        },
+        "couplingNotes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        },
+        "applicable": {
+          "$comment": "False when the unit touches no state outliving it. Distinguishes 'no shared state' from 'not analyzed', which an empty array cannot.",
+          "type": "boolean"
+        }
+      }
+    },
+    "behavioralInvariants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "statement"
+        ],
+        "additionalProperties": false,
+        "patternProperties": {
+          "^\\$comment": {
+            "type": "string"
+          }
+        },
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^inv:[0-9]+$"
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 1
+          },
+          "whyItMatters": {
+            "type": "string"
+          },
+          "evidence": {
+            "$ref": "#/$defs/ev"
+          }
+        }
+      }
+    },
+    "acceptanceCriteria": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "scenario"
+        ],
+        "additionalProperties": false,
+        "patternProperties": {
+          "^\\$comment": {
+            "type": "string"
+          }
+        },
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^ac:[0-9]+$"
+          },
+          "scenario": {
+            "type": "string",
+            "minLength": 1
+          },
+          "given": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "when": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "then": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "derivedFrom": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/anyId"
+            }
+          },
+          "coveredByExistingTest": {
+            "$comment": "Prefer test:<n>. A bare title is the degraded form used when functions.json -- the tier that owns test ids -- was not produced; check-integrity reports those as unlinked rather than dangling.",
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^test:[0-9]+$"
+              },
+              {
+                "type": "string",
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "evidence": {
+            "$ref": "#/$defs/ev"
+          }
+        }
+      }
+    },
+    "domainRules": {
+      "$comment": "requirement.md section 8, for SME review. Most likely section to be human-edited, so the renderer treats it as human-owned once touched.",
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      },
+      "properties": {
+        "businessConstraints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        },
+        "edgeCases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/claim"
+          }
+        },
+        "terminology": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "properties": {
+              "term": {
+                "type": "string"
+              },
+              "definition": {
+                "type": "string"
+              },
+              "evidence": {
+                "$ref": "#/$defs/ev"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              }
+            }
+          }
+        },
+        "formulas": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "expression": {
+                "type": "string"
+              },
+              "evidence": {
+                "$ref": "#/$defs/ev"
+              }
+            }
+          }
+        }
+      }
+    },
+    "migration": {
+      "$comment": "Renders to migration_notes.md, never requirement.md -- this is what keeps requirement.md framework-neutral and reviewable by SMEs who do not know the target.",
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      },
+      "properties": {
+        "risks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "category",
+              "severity"
+            ],
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^risk:[0-9]+$"
+              },
+              "category": {
+                "type": "string",
+                "enum": [
+                  "rxjs-pipeline",
+                  "mutable-service-state",
+                  "direct-dom-access",
+                  "lifecycle-ordering",
+                  "di-assumption",
+                  "change-detection",
+                  "forms-semantics",
+                  "style-encapsulation",
+                  "template-directive",
+                  "routing",
+                  "third-party-dependency",
+                  "subscription-leak",
+                  "security"
+                ]
+              },
+              "severity": {
+                "type": "string",
+                "enum": [
+                  "high",
+                  "medium",
+                  "low"
+                ]
+              },
+              "description": {
+                "type": "string"
+              },
+              "behaviorAtRisk": {
+                "type": "string"
+              },
+              "evidence": {
+                "$ref": "#/$defs/ev"
+              }
+            }
+          }
+        },
+        "suggestedDecomposition": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^split:[0-9]+$"
+              },
+              "proposedUnit": {
+                "type": "string"
+              },
+              "rationale": {
+                "type": "string"
+              },
+              "coveredMembers": {
+                "type": "array",
+                "items": {
+                  "$ref": "common.schema.json#/$defs/memberId"
+                }
+              }
+            }
+          }
+        },
+        "thirdPartyEquivalence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "properties": {
+              "package": {
+                "type": "string"
+              },
+              "usedFor": {
+                "type": "string"
+              },
+              "hasDirectEquivalent": {
+                "type": "string",
+                "enum": [
+                  "yes",
+                  "no",
+                  "unknown"
+                ]
+              }
+            }
+          }
+        },
+        "deadCode": {
+          "$comment": "Members and dependencies reachable from nothing. Structured because it is a porting decision, not a hazard: dead code carried over reproduces itself, and dropping it assumes nothing outside the folder reaches in (F3). 'verified' records whether reachability was checked or asserted.",
+          "type": "object",
+          "additionalProperties": false,
+          "patternProperties": {
+            "^\\$comment": {
+              "type": "string"
+            }
+          },
+          "properties": {
+            "methods": {
+              "type": "array",
+              "items": {
+                "$ref": "common.schema.json#/$defs/memberId"
+              }
+            },
+            "dependencies": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^dep:[A-Za-z_$][A-Za-z0-9_$]*$"
+              }
+            },
+            "statement": {
+              "type": "string"
+            },
+            "verified": {
+              "type": "boolean"
+            },
+            "evidence": {
+              "$ref": "#/$defs/ev"
+            }
+          }
+        },
+        "isLowerBound": {
+          "$comment": "True when the risk list is known incomplete. An unmarked list reads as exhaustive, which is the failure mode this whole project exists to prevent.",
+          "type": "boolean"
+        }
+      }
+    },
+    "review": {
+      "$comment": "The human gate. Stage 2 must not begin while status is pending or any blocking question is open. Under D11 the count of blocking open questions is the metric carrying the skills-versus-tooling comparison.",
+      "type": "object",
+      "required": [
+        "status"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      },
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "approved",
+            "changes-requested"
+          ]
+        },
+        "openQuestions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "question",
+              "blocking"
+            ],
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^q:[0-9]+$"
+              },
+              "question": {
+                "type": "string",
+                "minLength": 1
+              },
+              "blocking": {
+                "type": "boolean"
+              },
+              "evidence": {
+                "$ref": "#/$defs/ev"
+              }
+            }
+          }
+        },
+        "suspectedDefects": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "description"
+            ],
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^bug:[0-9]+$"
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              },
+              "evidence": {
+                "$ref": "#/$defs/ev"
+              }
+            }
+          }
+        },
+        "unresolvedReferences": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "humanOwnedSections": {
+          "type": "object",
+          "additionalProperties": false,
+          "patternProperties": {
+            "^\\$comment": {
+              "type": "string"
+            }
+          },
+          "properties": {
+            "sections": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "reviewedBy": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        },
+        "reviewedAt": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        }
+      }
+    },
+    "coverageAssessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      },
+      "properties": {
+        "symbolsExplained": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "symbolsTotal": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "templateNodesCovered": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "templateNodesTotal": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "evidenceIdsResolved": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "evidenceIdsTotal": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "overallConfidence": {
+          "$ref": "common.schema.json#/$defs/confidence"
+        },
+        "d2aFindings": {
+          "$comment": "PHASE A EXPERIMENT ARTIFACT (D2a), not a permanent field. Records what did and did not survive writing requirement.md first and decomposing into JSON afterward. Remove once D2a is resolved.",
+          "type": "object",
+          "additionalProperties": true
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "source",
+        "generatedAt"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      },
+      "properties": {
+        "source": {
+          "$ref": "common.schema.json#/$defs/provenanceSource"
+        },
+        "synthesizerModel": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        },
+        "synthesizerVersion": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        },
+        "inputHash": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        },
+        "generatedAt": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

@@ -117,12 +117,74 @@ that the template does not define — invisible to a read-through, mechanical to
 | `metrics.effectivelyUnusedDependencyCount` | |
 | `$comment_<suffix>` annotations | the tier format's stated convention, used but never specified |
 
+Writing the `dependencies` and `analysis` schemas against their instances added more:
+
+| field / id | what it encodes |
+|---|---|
+| `field-initializer:<name>` | a call site that is not a method — the form is built in a field initializer, which runs during construction before `ngOnInit`. The id space had no way to name it. |
+| `ext:<n>` | a new synthesized id kind, for extension points |
+| `publicContract.extensionPoints` | members existing to be overridden by a subclass, not called by a consumer. A generated base class puts real behavior here. |
+| `serviceLayer.applicable` | distinguishes "no shared state" from "not analyzed", which an empty array cannot |
+| `migration.deadCode` | F4's finding as structured data — methods, dependencies, and whether reachability was *verified* or asserted |
+| `migration.isLowerBound` | marks a risk list as known-incomplete. Unmarked, it reads as exhaustive — the exact failure this project exists to prevent. |
+| `coverageAssessment.d2aFindings` | D2a experiment artifact; not permanent |
+
 So the corrected form of F5: **`requirement.md`'s section structure needs no revision; the JSON
-tiers needed six additions.** Both halves came from Phase A, which is the argument for running
-it before building the extractor — but only the second half was findable by machine, and the
-first was findable only by reading. Neither method substitutes for the other.
+tiers needed thirteen additions.** Both halves came from Phase A, which is the argument for
+running it before building the extractor — but only the second half was findable by machine, and
+the first was findable only by reading. Neither method substitutes for the other.
 
 Nothing was deleted. No field defined in the templates went unused across both components.
+
+### F5b — `streams` is emitted into the wrong tier, and the tier boundary needs a decision
+
+`templates/functions.json` defines `streams`. Both Phase A instances emit it at the top level of
+`dependencies.json` instead — because no `functions.json` was produced, and the subscription-leak
+analysis in the graph tier needs stream detail to say anything.
+
+The schema currently allows it in `dependencies` so the baseline validates, marked provisional.
+It needs deciding before the Resolver emits either, since two tiers both accepting `streams` is
+precisely the "same fact in two files" that invariant #1 forbids.
+
+### F6 — the baseline has six dangling evidence references
+
+`npm run check` on its first run, against the complex component:
+
+```
+DANGLING  type:IPost  cited at dependencies/outboundUnitEdges[5]/via
+DANGLING  type:IBlog  cited at dependencies/outboundUnitEdges[6]/via
+DANGLING  type:ITag   cited at dependencies/outboundUnitEdges[7]/via
+DANGLING  type:IPost  cited at analysis/domainRules/terminology[0]/evidence
+DANGLING  type:IBlog  cited at analysis/domainRules/terminology[1]/evidence
+DANGLING  type:ITag   cited at analysis/domainRules/terminology[2]/evidence
+```
+
+`dependencies.json` owns `type:` ids in its `dataTypes` array. The complex component's
+`dataTypes` is **absent entirely**, while six places cite ids that would have lived there. The
+simple component has the array, empty, and cites nothing — consistent.
+
+Under invariant #2 dangling evidence is a hard failure, so **the Phase A baseline does not pass
+the gate the project defines.** Worth stating plainly: the §8 terminology entries for *Post*,
+*Blog* and *Tag* — the SME-facing definitions — cite evidence that resolves to nothing.
+
+This is the strongest argument yet for the checker existing. Those six survived a close
+read-through of both documents during F1–F5, and took one mechanical pass to find.
+
+*Not fixed here.* The baseline is tagged `phase-a-baseline` and pinned as the Phase 2 comparison
+target; editing it now would falsify the thing it exists to preserve. It is recorded as a known
+property of the baseline instead, and is a candidate first entry for D11's blocking-question
+metric.
+
+### F7 — 24 references cannot resolve because their owning tier was never produced
+
+Distinct from F6 and not a failure: 3 ids on the simple component and 16 on the complex one are
+`tpl:` ids owned by `template.json`, which Phase A did not produce, plus 8 acceptance criteria
+citing test titles because `functions.json` — which owns `test:<n>` — was not produced either.
+The checker reports these separately as `unresolvable` and `unlinked` rather than dangling,
+because the honest reading is "not yet extracted", not "invented".
+
+They become dangling the moment those two tiers exist and omit the ids, which makes this a
+useful pre-registered check for Phase 1 rather than a problem today.
 
 ---
 

@@ -1,0 +1,234 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code2docs/schema/functions.schema.json",
+  "title": "functions.json -- detail tier (TypeScript side)",
+  "$comment": "UNVALIDATED AGAINST REAL DATA. Phase A produced no functions.json -- its manifests set the tier to null -- so this schema is derived from templates/functions.json alone. Expect it to need the same corrections the other three needed once an instance exists. Keyed by symbol id rather than an array because random access is the point: an agent jumps to one function without reading the rest. Each entry splits `ast` (deterministic, cacheable, golden-testable) from `doc` (LLM-written, re-tunable) so the two invalidate independently.",
+
+  "type": "object",
+  "required": ["schemaVersion", "unitId", "symbols", "provenance"],
+  "additionalProperties": false,
+  "patternProperties": { "^\\$comment": { "type": "string" } },
+
+  "properties": {
+    "schemaVersion": { "$ref": "common.schema.json#/$defs/schemaVersion" },
+    "unitId": { "$ref": "common.schema.json#/$defs/unitId" },
+
+    "symbols": {
+      "type": "object",
+      "propertyNames": { "$ref": "common.schema.json#/$defs/memberId" },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["ast"],
+        "additionalProperties": false,
+        "patternProperties": { "^\\$comment": { "type": "string" } },
+        "properties": {
+          "ast": {
+            "type": "object",
+            "required": ["id", "name", "loc"],
+            "additionalProperties": false,
+            "patternProperties": { "^\\$comment": { "type": "string" } },
+            "properties": {
+              "id": { "$ref": "common.schema.json#/$defs/memberId" },
+              "name": { "$ref": "common.schema.json#/$defs/identifier" },
+              "symbolKind": { "type": "string", "enum": ["method", "accessor", "constructor"] },
+              "visibility": { "type": "string", "enum": ["public", "protected", "private"] },
+              "static": { "type": "boolean" },
+              "isAsync": { "type": "boolean" },
+              "lifecycleHook": { "$ref": "common.schema.json#/$defs/nullableString" },
+              "params": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "patternProperties": { "^\\$comment": { "type": "string" } },
+                  "properties": {
+                    "name": { "type": "string" },
+                    "type": { "type": "string" },
+                    "optional": { "type": "boolean" },
+                    "defaultExpression": { "$ref": "common.schema.json#/$defs/nullableString" }
+                  }
+                }
+              },
+              "returnType": { "type": "string" },
+              "isLeaf": { "type": "boolean" },
+              "cyclomaticComplexity": { "type": "integer", "minimum": 0 },
+              "lineCount": { "type": "integer", "minimum": 0 },
+              "loc": { "$ref": "common.schema.json#/$defs/loc" },
+              "sourceExcerpt": { "$ref": "common.schema.json#/$defs/nullableString" },
+              "existingComments": {
+                "$comment": "What the original developer wrote. High-signal, and must never be confused with generated prose -- which is why it lives in ast, not doc.",
+                "type": "object",
+                "additionalProperties": false,
+                "patternProperties": { "^\\$comment": { "type": "string" } },
+                "properties": {
+                  "jsDoc": { "$ref": "common.schema.json#/$defs/nullableString" },
+                  "inline": { "type": "array", "items": { "type": "string" } }
+                }
+              },
+              "sideEffectHints": {
+                "type": "object",
+                "additionalProperties": false,
+                "patternProperties": { "^\\$comment": { "type": "string" } },
+                "properties": {
+                  "touchesDom": { "type": "boolean" },
+                  "domApis": { "type": "array", "items": { "type": "string" } },
+                  "subscribes": { "type": "boolean" },
+                  "usesTimers": { "type": "boolean" },
+                  "usesLocalOrSessionStorage": { "type": "boolean" },
+                  "navigates": { "type": "boolean" },
+                  "mutatesInjectedServiceState": { "type": "boolean" },
+                  "throws": { "type": "boolean" },
+                  "hasTryCatch": { "type": "boolean" }
+                }
+              }
+            }
+          },
+          "doc": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": { "^\\$comment": { "type": "string" } },
+            "properties": {
+              "explanation": { "type": "string" },
+              "order": { "type": "integer", "minimum": 0 },
+              "consumes": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/anyId" } },
+              "produces": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/anyId" } },
+              "sideEffects": { "type": "array", "items": { "type": "string" } },
+              "edgeCases": { "type": "array", "items": { "type": "string" } },
+              "isTrivial": { "type": "boolean" },
+              "batchedWith": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/memberId" } },
+              "confidence": { "$ref": "common.schema.json#/$defs/confidence" },
+              "evidence": { "$ref": "common.schema.json#/$defs/evidenceList" },
+              "explainerVersion": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "forms": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^\\$comment": { "type": "string" } },
+      "properties": {
+        "approach": { "type": "string", "enum": ["reactive", "template-driven", "mixed", "none"] },
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id"],
+            "additionalProperties": false,
+            "patternProperties": { "^\\$comment": { "type": "string" } },
+            "properties": {
+              "id": { "type": "string", "pattern": "^form:[A-Za-z_$][A-Za-z0-9_$]*$" },
+              "name": { "$ref": "common.schema.json#/$defs/identifier" },
+              "builtWith": { "type": "string" },
+              "controls": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "patternProperties": { "^\\$comment": { "type": "string" } },
+                  "properties": {
+                    "path": { "type": "string" },
+                    "type": { "type": "string", "enum": ["control", "group", "array"] },
+                    "valueType": { "type": "string" },
+                    "initialValueExpression": { "$ref": "common.schema.json#/$defs/nullableString" },
+                    "syncValidators": { "type": "array", "items": { "type": "string" } },
+                    "asyncValidators": { "type": "array", "items": { "type": "string" } },
+                    "disabledExpression": { "$ref": "common.schema.json#/$defs/nullableString" },
+                    "updateOn": { "type": ["string", "null"], "enum": ["change", "blur", "submit", null] },
+                    "boundTo": { "$ref": "common.schema.json#/$defs/templateNodeId" }
+                  }
+                }
+              },
+              "crossFieldValidators": { "type": "array", "items": { "type": "string" } },
+              "submitHandler": { "$ref": "common.schema.json#/$defs/memberId" },
+              "resetHandler": { "$ref": "common.schema.json#/$defs/memberId" },
+              "patchedBy": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/callSiteId" } },
+              "loc": { "$ref": "common.schema.json#/$defs/loc" }
+            }
+          }
+        },
+        "ngModelBindings": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/templateNodeId" } }
+      }
+    },
+
+    "streams": {
+      "$comment": "See the note in dependencies.schema.json: both Phase A instances emitted streams into the graph tier instead. The tier boundary needs deciding before the Resolver emits either.",
+      "type": "array",
+      "items": { "type": "object" }
+    },
+
+    "signals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "patternProperties": { "^\\$comment": { "type": "string" } },
+        "properties": {
+          "id": { "$ref": "common.schema.json#/$defs/memberId" },
+          "signalKind": { "type": "string", "enum": ["signal", "computed", "linkedSignal", "toSignal"] },
+          "dependsOn": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/memberId" } },
+          "writtenBy": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/callSiteId" } }
+        }
+      }
+    },
+
+    "tests": {
+      "$comment": "Behavioral ground truth -- the one place the codebase states intent rather than mechanism. This tier owns test:<n> ids, which is why analysis.json falls back to bare titles when functions.json was not produced.",
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^\\$comment": { "type": "string" } },
+      "properties": {
+        "files": { "type": "array", "items": { "type": "string" } },
+        "framework": { "type": "string", "enum": ["jest", "jasmine-karma", "vitest", "unknown"] },
+        "cases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "title"],
+            "additionalProperties": false,
+            "patternProperties": { "^\\$comment": { "type": "string" } },
+            "properties": {
+              "id": { "type": "string", "pattern": "^test:[0-9]+$" },
+              "suitePath": { "type": "array", "items": { "type": "string" } },
+              "title": { "type": "string", "minLength": 1 },
+              "targets": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/memberId" } },
+              "mocks": { "type": "array", "items": { "type": "string" } },
+              "isSkipped": { "type": "boolean" },
+              "loc": { "$ref": "common.schema.json#/$defs/loc" }
+            }
+          }
+        }
+      }
+    },
+
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^\\$comment": { "type": "string" } },
+      "properties": {
+        "symbolsTotal": { "type": "integer", "minimum": 0 },
+        "symbolsExplained": { "type": "integer", "minimum": 0 },
+        "symbolsTrivialSkipped": { "type": "integer", "minimum": 0 }
+      }
+    },
+
+    "provenance": {
+      "$comment": "Two cache keys, because the halves invalidate independently: editing source invalidates ast, changing the prompt or model invalidates doc only.",
+      "type": "object",
+      "required": ["generatedAt"],
+      "additionalProperties": false,
+      "patternProperties": { "^\\$comment": { "type": "string" } },
+      "properties": {
+        "source": { "$ref": "common.schema.json#/$defs/provenanceSource" },
+        "astInputHash": { "$ref": "common.schema.json#/$defs/nullableString" },
+        "docInputHash": { "$ref": "common.schema.json#/$defs/nullableString" },
+        "resolverVersion": { "$ref": "common.schema.json#/$defs/nullableString" },
+        "explainerModel": { "$ref": "common.schema.json#/$defs/nullableString" },
+        "generatedAt": { "type": "string", "minLength": 1 },
+        "warnings": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}
