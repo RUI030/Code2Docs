@@ -64,7 +64,12 @@ guess which component to analyze.
 ## Output location
 
 `OUTPUT/<mirrored source path>/<component>/`, mirroring the input tree so the output location
-is derivable from the source location. `OUTPUT/` is gitignored.
+is derivable from the source location. `OUTPUT/` is gitignored — it is fully regenerable.
+
+**One exception.** `OUTPUT/` being ignored means the hand-derived `signature.json` and
+`callGraph` would be lost, and those are not disposable: they are the baseline that Phase 1's
+extractor gets diffed against to measure how much recall the tooling actually bought. After a
+run, copy them to `fixtures/poc-baseline/<component>/`, which **is** tracked.
 
 ## Constraints
 

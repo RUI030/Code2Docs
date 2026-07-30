@@ -44,6 +44,10 @@ This reads the component's `.ts`, `.html`, styles, and `.spec.ts` files and writ
 | `signature.json` | What the component is: public interface, dependencies, state outline. |
 | `dependencies.json` | How it connects: in-file call graph, cross-file edges. |
 
+The hand-derived `signature.json` and `callGraph` are the baseline Phase 1's extractor gets
+measured against, so copy them to `fixtures/poc-baseline/<component>/` after a run — `OUTPUT/`
+is gitignored and they are not disposable.
+
 You can also just ask in plain language — "document the component at `INPUT/.../foo`" — and the
 relevant skills load automatically.
 
