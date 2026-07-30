@@ -175,7 +175,7 @@
           }
         },
         "extensionPoints": {
-          "$comment": "Members existing to be overridden by a subclass rather than called by a consumer. A generated base class puts real behavior here, so omitting them loses behavior in a rewrite.",
+          "$comment": "Members existing to be overridden by a subclass rather than called by a consumer. Common wherever a component extends a base class -- scaffolded or hand-written -- and easy to drop in a rewrite because nothing in this unit calls them.",
           "type": "array",
           "items": {
             "$ref": "#/$defs/claim"

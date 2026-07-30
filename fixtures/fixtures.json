@@ -1,0 +1,87 @@
+{
+  "$comment": "What each fixture isolates, and what the Resolver must get right about it. Written before the Resolver exists, so it reads as a specification rather than a description of whatever the extractor happens to do.",
+
+  "design": {
+    "handWritten": "Not sampled from a real repository. The Phase A corpus was two JHipster-generated components, and generated code is far more regular than hand-written code -- schema fields derived from it inherit that bias (3_PhaseAFindings.md F5a). These are written to isolate one construct each instead.",
+    "pairs": "Fixtures come in pairs that express the SAME semantics in different syntax. The pair is the assertion: both members must extract to equivalent output, differing only in the field that records which syntax was used. This is the check that catches D3's silent-failure mode -- a regex-based extractor tends to handle one member of a pair and quietly mis-handle the other, producing confidently wrong metadata rather than an error."
+  },
+
+  "fixtures": [
+    {
+      "id": "inputs",
+      "pair": ["inputs-decorator", "inputs-signal"],
+      "isolates": "How the public API is declared: @Input/@Output decorators versus the input()/output()/model() functions.",
+      "mustExtract": [
+        "three inputs in both members, named label, count, internalName",
+        "count is required in both -- via the decorator option in one, input.required in the other",
+        "internalName carries alias 'aliasedName' in both",
+        "one output named changed with payload type number",
+        "declarationStyle is the ONLY field that may differ: 'decorator' versus 'signal'",
+        "the signal member additionally declares model:selected, which has no decorator equivalent"
+      ]
+    },
+    {
+      "id": "di",
+      "pair": ["di-constructor", "di-inject-fn"],
+      "isolates": "How dependencies are injected: constructor parameters versus inject() field initializers.",
+      "mustExtract": [
+        "three dependencies in both, named http, route, cache",
+        "visibility preserved: http private, route protected, cache private",
+        "cache carries optional and skipSelf modifiers in both -- as parameter decorators in one, as an options object in the other",
+        "resolvedUnitId is null for the two Angular tokens and non-null for CacheService",
+        "injectionStyle is the only field that may differ",
+        "the inject() member's dependencies are field initializers, so their loc is a field, not a constructor parameter"
+      ]
+    },
+    {
+      "id": "control-flow",
+      "pair": ["control-flow-structural", "control-flow-block"],
+      "isolates": "Template control flow: structural directives (*ngIf/*ngFor/ngSwitch) versus block syntax (@if/@for/@switch).",
+      "mustExtract": [
+        "one conditional, one loop, one switch with two cases, in both",
+        "the loop's track expression: trackBy function in one, track item.id in the other",
+        "the index alias in both",
+        "the else branch in both -- an ng-template reference in one, an @else block in the other",
+        "the block member additionally declares an @empty branch, which has no structural-directive equivalent",
+        "the uppercase pipe recorded once per member",
+        "construct is the only field that may differ"
+      ]
+    },
+    {
+      "id": "forms",
+      "pair": ["forms-reactive", "forms-template-driven"],
+      "isolates": "Form construction: FormBuilder groups versus ngModel bindings.",
+      "mustExtract": [
+        "approach is 'reactive' versus 'template-driven'",
+        "an email control with required and email validators in both",
+        "the reactive member's id control is disabled AND required -- the required rule is inert because disabled controls skip validation, and this must be visible in the output rather than collapsed",
+        "getRawValue() is recorded distinctly from value(): it includes disabled controls, which is load-bearing",
+        "the template-driven member has no form group id, so form:<name> ids are absent rather than invented"
+      ]
+    },
+    {
+      "id": "teardown",
+      "pair": ["teardown-takeuntildestroyed", "teardown-manual"],
+      "isolates": "Subscription teardown: takeUntilDestroyed versus a Subscription field unsubscribed in ngOnDestroy.",
+      "mustExtract": [
+        "cleanupStrategy is 'takeUntilDestroyed' versus 'ngOnDestroy-unsubscribe'",
+        "leakRisk is 'none' for both -- neither leaks, by different means",
+        "the manual member implements OnDestroy and the other does not",
+        "the rxjs operator chain in both: map, plus takeUntilDestroyed in the first",
+        "an extractor that equates 'has ngOnDestroy' with 'safe' would pass the manual member and wrongly flag the other"
+      ]
+    }
+  ],
+
+  "notCoveredYet": {
+    "$comment": "Named so their absence is a decision rather than an oversight. Each is a construct the Phase A corpus exercised or the taxonomy names, with no fixture yet.",
+    "constructs": [
+      "content projection and ng-content slots",
+      "ViewChild/ContentChild queries, decorator and signal forms",
+      "host bindings and host listeners",
+      "computed() and linkedSignal() dependency chains",
+      "inherited members from a base class -- the extensionPoints case (F5a)",
+      "cross-component shared mutable service state, which is the highest-severity migration risk and not observable from one unit (F3)"
+    ]
+  }
+}

@@ -1,0 +1,14 @@
+@if (isReady) {
+  @for (item of items; track item.id; let i = $index) {
+    <p>{{ i }}: {{ item.name | uppercase }}</p>
+  } @empty {
+    <p>Nothing here</p>
+  }
+} @else {
+  <span>Loading…</span>
+}
+
+@switch (mode) {
+  @case ('edit') { <p>Editing</p> }
+  @default { <p>Viewing</p> }
+}

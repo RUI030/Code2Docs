@@ -1,0 +1,7 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <input formControlName="email" />
+  @if (form.get('email')!.invalid && form.get('email')!.touched) {
+    <small>Email is required</small>
+  }
+  <button type="submit" [disabled]="form.invalid">Save</button>
+</form>

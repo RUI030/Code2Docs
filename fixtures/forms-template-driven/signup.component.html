@@ -1,0 +1,7 @@
+<form #f="ngForm" (ngSubmit)="submit()">
+  <input name="email" [(ngModel)]="email" required email />
+  @if (f.controls['email']?.invalid && f.controls['email']?.touched) {
+    <small>Email is required</small>
+  }
+  <button type="submit" [disabled]="f.invalid">Save</button>
+</form>

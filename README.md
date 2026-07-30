@@ -19,12 +19,18 @@ reviewer can confirm it before anyone rebuilds anything.
 
 ## Status
 
-**Phase A: proof of concept.** One agent, reading Angular source directly, no AST tooling. The
-goal is to establish that generated requirement documents are accurate and useful *before*
-investing in extraction infrastructure. See `plans/2_ImplementationPlan.md`.
+**Phase A is complete; Phase 0 is underway.** The proof of concept ran one agent against two
+components with no AST tooling, to establish whether generated requirement documents are
+accurate and useful *before* investing in extraction infrastructure. Findings are in
+`plans/3_PhaseAFindings.md`; the producing state is tagged `phase-a-baseline`.
 
-Nothing here is production-ready. Templates and skills are expected to change based on POC
-findings — that is the point of running it first.
+The short version: the documents are accurate, and the failures are not where the plan assumed.
+Nothing was wrong with comprehension or with `requirement.md`'s structure. What failed was
+naming unanchored to real identifiers, everything living outside one component folder, and six
+evidence citations that resolve to nothing — the last found by a mechanical check after a close
+read had missed them.
+
+Nothing here is production-ready.
 
 ## Usage
 
@@ -52,6 +58,17 @@ Edit/Write in `.claude/settings.json` so no agent can overwrite a promoted basel
 
 You can also just ask in plain language — "document the component at `INPUT/.../foo`" — and the
 relevant skills load automatically.
+
+### Check the artifacts
+
+```
+npm test
+```
+
+Runs three checks: every JSON tier validates against its schema; every id referenced in one tier
+exists in the tier that owns it; and the extractor fixtures are well-formed. The second is the
+one that matters — schema validation reads one file at a time, and a dangling evidence id is
+perfectly well-formed on its own.
 
 ### Review the output
 
@@ -95,7 +112,9 @@ plans/
   1_Decisions.md           D1-D10, append-only decision records
   2_ImplementationPlan.md  phases, risks, next steps
 templates/               output shapes (5 JSON tiers + 2 rendered Markdown views)
-tools/                   Resolver CLI — Phase 1, not yet built
+  schema/                  one JSON Schema per tier; id conventions pinned as patterns
+fixtures/                hand-written Angular files, one construct each — extractor unit tests
+tools/                   validate / check-integrity / golden runners; Resolver lands here (Phase 1)
 examples/                promoted runs — reference output and Phase 1 baseline, hand-curated
 benchmarks/              cost/duration per run, per phase — the skills-vs-tooling comparison
 INPUT/                   Angular source under analysis (gitignored)
@@ -146,8 +165,8 @@ Four rules the whole design rests on. Full reasoning in `plans/1_Decisions.md`.
 
 | Phase | |
 |---|---|
-| **A** | Skills-only POC, component level, no tooling ← **here** |
-| 0 | Revise templates from POC findings; JSON schemas; referential-integrity checker |
+| A | Skills-only POC, component level, no tooling — **done** |
+| **0** | Contracts and test harness: schemas, integrity checker, fixtures ← **here** |
 | 1 | Resolver: deterministic extraction via the TypeScript Compiler API |
 | 2 | Repo inventory and cross-unit dependency graph |
 | 3 | Agent wiring, one unit end to end |
