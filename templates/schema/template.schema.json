@@ -2,188 +2,489 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://code2docs/schema/template.schema.json",
   "title": "template.json -- UI tier",
-  "$comment": "UNVALIDATED AGAINST REAL DATA. Phase A produced no template.json, so this is derived from templates/template.json alone -- expect corrections once an instance exists. Parsed template nodes and the framework-independent UI requirements derived from them, co-located so UI work is a single read. Every node carries a stable tpl:<id> that uiRequirements cite as evidence.",
-
+  "$comment": "Validated against one hand-filled instance (examples/schema-probe/activate), which needed one correction: parse.parser had no value for a hand-derived instance. That component is passive -- no bindings, events, interpolations, loops or child components -- so eleven of the eighteen node kinds were empty and remain untested. Parsed template nodes and the framework-independent UI requirements derived from them, co-located so UI work is a single read.",
   "type": "object",
-  "required": ["schemaVersion", "unitId", "parse", "ast", "provenance"],
+  "required": [
+    "schemaVersion",
+    "unitId",
+    "parse",
+    "ast",
+    "provenance"
+  ],
   "additionalProperties": false,
-  "patternProperties": { "^\\$comment": { "type": "string" } },
-
+  "patternProperties": {
+    "^\\$comment": {
+      "type": "string"
+    }
+  },
   "$defs": {
     "node": {
       "$comment": "Base shape for a located, identified template node. Individual node kinds add their own fields.",
       "type": "object",
-      "required": ["id"],
+      "required": [
+        "id"
+      ],
       "additionalProperties": true,
-      "patternProperties": { "^\\$comment": { "type": "string" } },
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      },
       "properties": {
-        "id": { "$ref": "common.schema.json#/$defs/templateNodeId" },
-        "dependsOn": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/memberId" } },
-        "loc": { "$ref": "common.schema.json#/$defs/loc" }
+        "id": {
+          "$ref": "common.schema.json#/$defs/templateNodeId"
+        },
+        "dependsOn": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/memberId"
+          }
+        },
+        "loc": {
+          "$ref": "common.schema.json#/$defs/loc"
+        }
       }
     },
-    "nodeList": { "type": "array", "items": { "$ref": "#/$defs/node" } }
+    "nodeList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/node"
+      }
+    }
   },
-
   "properties": {
-    "schemaVersion": { "$ref": "common.schema.json#/$defs/schemaVersion" },
-    "unitId": { "$ref": "common.schema.json#/$defs/unitId" },
-    "templateFile": { "$ref": "common.schema.json#/$defs/nullableString" },
-
+    "schemaVersion": {
+      "$ref": "common.schema.json#/$defs/schemaVersion"
+    },
+    "unitId": {
+      "$ref": "common.schema.json#/$defs/unitId"
+    },
+    "templateFile": {
+      "$ref": "common.schema.json#/$defs/nullableString"
+    },
     "parse": {
       "$comment": "Template parsing is the weakest extractor and every UI requirement depends on it, so parse quality is reported rather than assumed. Never silently degrade -- D3 requires parseStatus be recorded honestly whichever parser is used.",
       "type": "object",
-      "required": ["status"],
+      "required": [
+        "status"
+      ],
       "additionalProperties": false,
-      "patternProperties": { "^\\$comment": { "type": "string" } },
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      },
       "properties": {
-        "status": { "$ref": "common.schema.json#/$defs/parseStatus" },
-        "parser": { "type": "string", "enum": ["@angular/compiler", "fallback-html"] },
-        "angularVersion": { "$ref": "common.schema.json#/$defs/nullableString" },
-        "diagnostics": { "type": "array", "items": { "type": "string" } },
-        "nodesParsed": { "type": "integer", "minimum": 0 },
-        "nodesUnrecognized": { "type": "integer", "minimum": 0 }
+        "status": {
+          "$ref": "common.schema.json#/$defs/parseStatus"
+        },
+        "parser": {
+          "type": "string",
+          "enum": [
+            "@angular/compiler",
+            "fallback-html",
+            "hand-derived"
+          ],
+          "$comment": "'hand-derived' mirrors provenanceSource: a hand-filled instance is neither parser's output, and without a value for it the honest case cannot be recorded."
+        },
+        "angularVersion": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "nodesParsed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "nodesUnrecognized": {
+          "type": "integer",
+          "minimum": 0
+        }
       }
     },
-
     "ast": {
       "type": "object",
       "additionalProperties": false,
-      "patternProperties": { "^\\$comment": { "type": "string" } },
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      },
       "properties": {
-        "controlFlow": { "$ref": "#/$defs/nodeList" },
-        "propertyBindings": { "$ref": "#/$defs/nodeList" },
-        "eventBindings": { "$ref": "#/$defs/nodeList" },
-        "twoWayBindings": { "$ref": "#/$defs/nodeList" },
-        "interpolations": { "$ref": "#/$defs/nodeList" },
-        "childComponents": { "$ref": "#/$defs/nodeList" },
-        "templateRefs": { "$ref": "#/$defs/nodeList" },
-        "ngTemplates": { "$ref": "#/$defs/nodeList" },
-        "contentProjection": { "$ref": "#/$defs/nodeList" },
-        "hostBindings": { "$ref": "#/$defs/nodeList" },
-        "hostListeners": { "$ref": "#/$defs/nodeList" },
-        "accessibility": { "$ref": "#/$defs/nodeList" },
-        "i18n": { "$ref": "#/$defs/nodeList" },
-        "rawHtmlSinks": { "$ref": "#/$defs/nodeList" },
-
+        "controlFlow": {
+          "$ref": "#/$defs/nodeList"
+        },
+        "propertyBindings": {
+          "$ref": "#/$defs/nodeList"
+        },
+        "eventBindings": {
+          "$ref": "#/$defs/nodeList"
+        },
+        "twoWayBindings": {
+          "$ref": "#/$defs/nodeList"
+        },
+        "interpolations": {
+          "$ref": "#/$defs/nodeList"
+        },
+        "childComponents": {
+          "$ref": "#/$defs/nodeList"
+        },
+        "templateRefs": {
+          "$ref": "#/$defs/nodeList"
+        },
+        "ngTemplates": {
+          "$ref": "#/$defs/nodeList"
+        },
+        "contentProjection": {
+          "$ref": "#/$defs/nodeList"
+        },
+        "hostBindings": {
+          "$ref": "#/$defs/nodeList"
+        },
+        "hostListeners": {
+          "$ref": "#/$defs/nodeList"
+        },
+        "accessibility": {
+          "$ref": "#/$defs/nodeList"
+        },
+        "i18n": {
+          "$ref": "#/$defs/nodeList"
+        },
+        "rawHtmlSinks": {
+          "$ref": "#/$defs/nodeList"
+        },
         "directivesUsed": {
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["selector"],
+            "required": [
+              "selector"
+            ],
             "additionalProperties": false,
-            "patternProperties": { "^\\$comment": { "type": "string" } },
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
             "properties": {
-              "selector": { "type": "string" },
-              "origin": { "type": "string", "enum": ["angular", "third-party", "internal"] },
-              "resolvedUnitId": { "anyOf": [{ "$ref": "common.schema.json#/$defs/unitId" }, { "type": "null" }] },
-              "inputsPassed": { "type": "array", "items": { "type": "object" } },
-              "occurrences": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/templateNodeId" } }
+              "selector": {
+                "type": "string"
+              },
+              "origin": {
+                "type": "string",
+                "enum": [
+                  "angular",
+                  "third-party",
+                  "internal"
+                ]
+              },
+              "resolvedUnitId": {
+                "anyOf": [
+                  {
+                    "$ref": "common.schema.json#/$defs/unitId"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "inputsPassed": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "occurrences": {
+                "type": "array",
+                "items": {
+                  "$ref": "common.schema.json#/$defs/templateNodeId"
+                }
+              }
             }
           }
         },
-
         "pipesUsed": {
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["name"],
+            "required": [
+              "name"
+            ],
             "additionalProperties": false,
-            "patternProperties": { "^\\$comment": { "type": "string" } },
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
             "properties": {
-              "name": { "type": "string" },
-              "origin": { "type": "string", "enum": ["angular", "third-party", "internal"] },
-              "resolvedUnitId": { "anyOf": [{ "$ref": "common.schema.json#/$defs/unitId" }, { "type": "null" }] },
-              "isPure": { "type": "boolean" },
-              "occurrences": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/templateNodeId" } }
+              "name": {
+                "type": "string"
+              },
+              "origin": {
+                "type": "string",
+                "enum": [
+                  "angular",
+                  "third-party",
+                  "internal"
+                ]
+              },
+              "resolvedUnitId": {
+                "anyOf": [
+                  {
+                    "$ref": "common.schema.json#/$defs/unitId"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "isPure": {
+                "type": "boolean"
+              },
+              "occurrences": {
+                "type": "array",
+                "items": {
+                  "$ref": "common.schema.json#/$defs/templateNodeId"
+                }
+              }
             }
           }
         },
-
         "viewQueries": {
           "$comment": "Declared in TypeScript but only meaningful against the template, so kept with the UI tier rather than the hot tier.",
           "type": "array",
           "items": {
             "type": "object",
-            "required": ["id"],
+            "required": [
+              "id"
+            ],
             "additionalProperties": false,
-            "patternProperties": { "^\\$comment": { "type": "string" } },
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
             "properties": {
-              "id": { "type": "string", "pattern": "^query:[A-Za-z_$][A-Za-z0-9_$]*$" },
-              "propertyName": { "$ref": "common.schema.json#/$defs/identifier" },
-              "queryType": { "type": "string", "enum": ["ViewChild", "ViewChildren", "ContentChild", "ContentChildren"] },
-              "declarationStyle": { "type": "string", "enum": ["decorator", "signal"] },
-              "selector": { "type": "string" },
-              "read": { "$ref": "common.schema.json#/$defs/nullableString" },
-              "static": { "type": "boolean" },
-              "resolvesTo": { "anyOf": [{ "$ref": "common.schema.json#/$defs/templateNodeId" }, { "type": "null" }] },
-              "loc": { "$ref": "common.schema.json#/$defs/loc" }
+              "id": {
+                "type": "string",
+                "pattern": "^query:[A-Za-z_$][A-Za-z0-9_$]*$"
+              },
+              "propertyName": {
+                "$ref": "common.schema.json#/$defs/identifier"
+              },
+              "queryType": {
+                "type": "string",
+                "enum": [
+                  "ViewChild",
+                  "ViewChildren",
+                  "ContentChild",
+                  "ContentChildren"
+                ]
+              },
+              "declarationStyle": {
+                "type": "string",
+                "enum": [
+                  "decorator",
+                  "signal"
+                ]
+              },
+              "selector": {
+                "type": "string"
+              },
+              "read": {
+                "$ref": "common.schema.json#/$defs/nullableString"
+              },
+              "static": {
+                "type": "boolean"
+              },
+              "resolvesTo": {
+                "anyOf": [
+                  {
+                    "$ref": "common.schema.json#/$defs/templateNodeId"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "loc": {
+                "$ref": "common.schema.json#/$defs/loc"
+              }
             }
           }
         },
-
         "styles": {
           "type": "object",
           "additionalProperties": false,
-          "patternProperties": { "^\\$comment": { "type": "string" } },
+          "patternProperties": {
+            "^\\$comment": {
+              "type": "string"
+            }
+          },
           "properties": {
-            "files": { "type": "array", "items": { "type": "string" } },
-            "encapsulation": { "type": ["string", "null"], "enum": ["Emulated", "None", "ShadowDom", null] },
-            "usesEncapsulationEscapes": { "type": "boolean" },
-            "escapeSelectors": { "type": "array", "items": { "type": "string" } },
-            "usesHostSelectors": { "type": "boolean" },
-            "importsGlobalStyles": { "type": "array", "items": { "type": "string" } },
-            "classesToggledFromTs": { "type": "array", "items": { "type": "string" } }
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "encapsulation": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "Emulated",
+                "None",
+                "ShadowDom",
+                null
+              ]
+            },
+            "usesEncapsulationEscapes": {
+              "type": "boolean"
+            },
+            "escapeSelectors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "usesHostSelectors": {
+              "type": "boolean"
+            },
+            "importsGlobalStyles": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "classesToggledFromTs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         }
       }
     },
-
     "uiRequirements": {
       "$comment": "Framework-independent statements of rendering behavior. Prose stored finished so requirement.md renders mechanically. Every entry must cite tpl ids that exist in ast above -- enforced by tools/check-integrity.mjs, not by this schema.",
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["id", "statement", "evidence"],
+        "required": [
+          "id",
+          "statement",
+          "evidence"
+        ],
         "additionalProperties": false,
-        "patternProperties": { "^\\$comment": { "type": "string" } },
+        "patternProperties": {
+          "^\\$comment": {
+            "type": "string"
+          }
+        },
         "properties": {
-          "id": { "type": "string", "pattern": "^ui:[0-9]+$" },
+          "id": {
+            "type": "string",
+            "pattern": "^ui:[0-9]+$"
+          },
           "category": {
             "type": "string",
-            "enum": ["structure", "visibility", "list", "text", "form", "interaction", "loading", "error", "navigation", "accessibility", "i18n"]
+            "enum": [
+              "structure",
+              "visibility",
+              "list",
+              "text",
+              "form",
+              "interaction",
+              "loading",
+              "error",
+              "navigation",
+              "accessibility",
+              "i18n"
+            ]
           },
-          "statement": { "type": "string", "minLength": 1 },
-          "evidence": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/templateNodeId" } },
-          "confidence": { "$ref": "common.schema.json#/$defs/confidence" }
+          "statement": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "$ref": "common.schema.json#/$defs/templateNodeId"
+            }
+          },
+          "confidence": {
+            "$ref": "common.schema.json#/$defs/confidence"
+          }
         }
       }
     },
-
     "coverage": {
       "$comment": "Template nodes with no corresponding UI requirement are the primary eval signal for this tier -- the template-side analogue of an omission.",
       "type": "object",
       "additionalProperties": false,
-      "patternProperties": { "^\\$comment": { "type": "string" } },
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      },
       "properties": {
-        "nodesTotal": { "type": "integer", "minimum": 0 },
-        "nodesCoveredByRequirements": { "type": "integer", "minimum": 0 },
-        "uncoveredNodeIds": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/templateNodeId" } }
+        "nodesTotal": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "nodesCoveredByRequirements": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "uncoveredNodeIds": {
+          "type": "array",
+          "items": {
+            "$ref": "common.schema.json#/$defs/templateNodeId"
+          }
+        }
       }
     },
-
     "provenance": {
       "type": "object",
-      "required": ["generatedAt"],
+      "required": [
+        "generatedAt"
+      ],
       "additionalProperties": false,
-      "patternProperties": { "^\\$comment": { "type": "string" } },
+      "patternProperties": {
+        "^\\$comment": {
+          "type": "string"
+        }
+      },
       "properties": {
-        "source": { "$ref": "common.schema.json#/$defs/provenanceSource" },
-        "astInputHash": { "$ref": "common.schema.json#/$defs/nullableString" },
-        "docInputHash": { "$ref": "common.schema.json#/$defs/nullableString" },
-        "resolverVersion": { "$ref": "common.schema.json#/$defs/nullableString" },
-        "generatedAt": { "type": "string", "minLength": 1 },
-        "warnings": { "type": "array", "items": { "type": "string" } }
+        "source": {
+          "$ref": "common.schema.json#/$defs/provenanceSource"
+        },
+        "astInputHash": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        },
+        "docInputHash": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        },
+        "resolverVersion": {
+          "$ref": "common.schema.json#/$defs/nullableString"
+        },
+        "generatedAt": {
+          "type": "string",
+          "minLength": 1
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     }
   }

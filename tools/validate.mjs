@@ -27,7 +27,7 @@ function loadSchemas() {
     const schema = JSON.parse(readFileSync(join(SCHEMA_DIR, name), "utf8"));
     ajv.addSchema(schema, name);
     const tier = name.replace(".schema.json", "");
-    if (TIERS.includes(tier)) available.set(tier, name);
+    if (TIERS.includes(tier)) available.set(tier, { file: name, wants: requiredVersion(schema) });
   }
   return { ajv, available };
 }
@@ -39,6 +39,17 @@ function walk(dir, out = []) {
     else if (entry.endsWith(".json")) out.push(p);
   }
   return out;
+}
+
+/**
+ * The schemaVersion a schema demands, when it pins one. An instance written
+ * against an older version is reported as legacy rather than failed: it is not
+ * wrong, it predates a decision. Pinned baselines cannot be rewritten, so
+ * without this a schema change would either be blocked by history or would
+ * silently drop history from the suite.
+ */
+function requiredVersion(schema) {
+  return schema?.properties?.schemaVersion?.const ?? null;
 }
 
 function tierOf(file) {
@@ -60,6 +71,7 @@ if (targets.length === 0) {
 }
 
 let checked = 0, failed = 0, skipped = 0;
+const legacy = [];
 const missingTiers = new Set();
 
 for (const file of targets) {
@@ -73,13 +85,20 @@ for (const file of targets) {
     skipped++;
     continue;
   }
-  const validate = ajv.getSchema(available.get(tier));
+  const { file: schemaFile, wants } = available.get(tier);
+  const validate = ajv.getSchema(schemaFile);
   let data;
   try {
     data = JSON.parse(readFileSync(file, "utf8"));
   } catch (e) {
     console.error(`PARSE  ${file}\n       ${e.message}`);
     failed++;
+    continue;
+  }
+  if (wants && data.schemaVersion && data.schemaVersion !== wants) {
+    legacy.push({ file, tier, has: data.schemaVersion, wants });
+    console.log(`legacy ${file.replace(ROOT + "/", "")}  [${tier}]  ` +
+      `schemaVersion ${data.schemaVersion}, schema is ${wants} -- not validated`);
     continue;
   }
   checked++;
@@ -100,5 +119,9 @@ for (const file of targets) {
 if (missingTiers.size) {
   console.log(`\nno schema yet for: ${[...missingTiers].sort().join(", ")}`);
 }
-console.log(`\n${checked} validated, ${failed} failed, ${skipped} skipped`);
+if (legacy.length) {
+  console.log(`\n${legacy.length} legacy instance(s) predate a schema change and were not validated:`);
+  for (const l of legacy) console.log(`  ${l.tier} ${l.has} -> ${l.wants}  ${l.file.replace(ROOT + "/", "")}`);
+}
+console.log(`\n${checked} validated, ${failed} failed, ${skipped} skipped, ${legacy.length} legacy`);
 process.exit(failed > 0 ? 1 : 0);

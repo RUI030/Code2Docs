@@ -313,3 +313,48 @@ zero, which makes it a target rather than just a number.
 This does not supersede the recall diff against the hand-filled JSON baseline (Phase A's stated
 second payoff). That still runs at Phase 1 as a component of the Phase 2 comparison; it is no
 longer the whole of it.
+
+### D12 — Split `streams` across tiers by access pattern; compute `leakRisk`
+
+`templates/functions.json` defined `streams`; both Phase A instances emitted it into
+`dependencies.json` instead, so two tiers accepted the same record — the duplication **D2** and
+invariant #1 exist to prevent (`3_PhaseAFindings.md` F5b).
+
+**The record was never one kind of fact.** Five fields describe the declaration
+(`declaredType`, `sourceExpression`, `operators`, `multicast`, `loc`); four describe
+relationships (`consumedBy`, `consumption`, `unsubscribeStrategy`, `leakRisk`). Neither tier was
+wrong, because neither tier fits a record that is two things.
+
+**Resolution: split it exactly as a method is already split.** That pattern is established and
+one third of it was already applied to streams — `signature.stateOutline.streamIds` declares the
+id, just as `methodIds` does:
+
+| | declares the id | relationships | declaration detail |
+|---|---|---|---|
+| a method | `signature.stateOutline.methodIds` | `dependencies.callGraph` | `functions.symbols` |
+| a stream | `signature.stateOutline.streamIds` | `dependencies.streams` | `functions.streams` |
+
+Nobody would propose storing a method body in `dependencies.json`. The same reasoning settles
+streams, and it is a consequence of the tier rule rather than a new exception.
+
+The objection is that one record now spans two files. But the question actually asked of this
+data — *does this leak?* — needs only `consumption` and `unsubscribeStrategy`, both in the
+relationship half, so the frequent read stays a single file. That is what the split is for.
+
+**`leakRisk` is computed, not stored.** It is a function of `consumption` and
+`unsubscribeStrategy`. Storing a derivation alongside its inputs lets the two disagree, and then
+neither can be trusted — invariant #1 applied to a field rather than a file. It moves to render
+time. `subscribedFrom` is added in its place, which is a fact rather than a judgment.
+
+**Versioning.** `dependencies` and `functions` go to schemaVersion 0.3.0; `signature`,
+`template` and `analysis` stay 0.2.0. Tiers version independently, since a change to one need
+not invalidate the rest.
+
+The Phase A baseline is 0.2.0 and cannot be migrated — it is tagged `phase-a-baseline` and
+pinned as the Phase 2 comparison target, so rewriting it would falsify the artifact. The
+validator therefore reports an instance whose `schemaVersion` predates its schema as **legacy**
+and does not validate it, rather than failing it. Without that, a schema change would be either
+blocked by history or would silently drop history from the suite.
+
+Verified end to end by `examples/schema-probe/activate`, a complete four-tier unit at the new
+version: 21 ids declared, 67 references, nothing dangling.

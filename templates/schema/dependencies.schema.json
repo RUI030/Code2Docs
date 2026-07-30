@@ -89,7 +89,8 @@
   },
   "properties": {
     "schemaVersion": {
-      "$ref": "common.schema.json#/$defs/schemaVersion"
+      "const": "0.3.0",
+      "$comment": "0.3.0 splits streams across tiers (D12). A 0.2.0 instance carries the whole record here; the validator reports those as legacy rather than failing them."
     },
     "unitId": {
       "$ref": "common.schema.json#/$defs/unitId"
@@ -653,7 +654,7 @@
       }
     },
     "streams": {
-      "$comment": "PROVISIONAL PLACEMENT. The templates define streams under functions.json, but both Phase A instances emit it here because no functions.json was produced and the leak analysis in this tier depends on it. Allowed so the baseline validates; the tier boundary needs a decision before the Resolver emits either. See plans/3_PhaseAFindings.md F5b.",
+      "$comment": "RELATIONSHIP HALF ONLY (D12). Declaration detail -- declaredType, sourceExpression, operators, multicast -- lives in functions.json under the same stream:<name> id, exactly as a method's body does. leakRisk is absent by design: it is derivable from consumption and unsubscribeStrategy, and a stored derivation is free to drift from its inputs (invariant #1).",
       "type": "array",
       "items": {
         "type": "object",
@@ -671,24 +672,6 @@
             "type": "string",
             "pattern": "^stream:[A-Za-z_$][A-Za-z0-9_$]*$"
           },
-          "name": {
-            "$ref": "common.schema.json#/$defs/identifier"
-          },
-          "declaredType": {
-            "type": "string"
-          },
-          "sourceExpression": {
-            "type": "string"
-          },
-          "operators": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "multicast": {
-            "type": "boolean"
-          },
           "consumedBy": {
             "$ref": "#/$defs/idList"
           },
@@ -703,30 +686,17 @@
             ]
           },
           "unsubscribeStrategy": {
-            "type": "string"
-          },
-          "leakRisk": {
             "type": "string",
             "enum": [
-              "none",
-              "possible",
-              "likely"
+              "takeUntilDestroyed",
+              "Subscription.unsubscribe",
+              "take/first",
+              "DestroyRef",
+              "none"
             ]
           },
-          "loc": {
-            "$ref": "common.schema.json#/$defs/loc"
-          },
-          "doc": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "explanation": {
-                "type": "string"
-              },
-              "confidence": {
-                "$ref": "common.schema.json#/$defs/confidence"
-              }
-            }
+          "subscribedFrom": {
+            "$ref": "common.schema.json#/$defs/callSiteId"
           }
         }
       }

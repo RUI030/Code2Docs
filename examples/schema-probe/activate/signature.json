@@ -1,0 +1,152 @@
+{
+  "schemaVersion": "0.2.0",
+  "$comment": "PHASE A BASELINE — hand-derived by reading source, NOT extractor output. Recorded so Phase 1's Resolver can be diffed against it to quantify what verified extraction adds. Treat every field as an approximation; the derived ones (call graph, read/write sets) are the least reliable.",
+
+  "unit": {
+    "id": "component:app/account/activate:ActivateComponent",
+    "kind": "component",
+    "className": "ActivateComponent",
+    "selector": "jhi-activate",
+    "path": "src/main/webapp/app/account/activate",
+    "standalone": true,
+    "declaredInModule": null,
+    "isDefaultExport": true,
+    "files": {
+      "typescript": "activate.component.ts",
+      "template": "activate.component.html",
+      "templateInline": false,
+      "styles": [],
+      "specs": ["activate.component.spec.ts"]
+    },
+    "$comment_siblings": "The folder also contains activate.route.ts, activate.service.ts, and activate.service.spec.ts. Under D1 the service is its own unit and was NOT analyzed as one here; it is treated as a dependency. The route file is unit-level configuration.",
+    "siblings": ["activate.route.ts", "activate.service.ts", "activate.service.spec.ts"]
+  },
+
+  "manifest": {
+    "dependencies": "./dependencies.json",
+    "functions": null,
+    "template": null,
+    "analysis": null,
+    "requirement": "./requirement.md",
+    "migrationNotes": "./migration_notes.md",
+    "repoIndex": null
+  },
+
+  "publicApi": {
+    "inputs": [],
+    "outputs": [],
+    "twoWayBindings": [],
+    "publicMethods": [],
+    "templateReachableMembers": ["field:error", "field:success"],
+    "$comment": "No @Input, @Output, or model(). The two signal fields are public and read by both the template and the spec, so they form the de facto external surface."
+  },
+
+  "injectedDependencies": [
+    {
+      "id": "dep:activateService",
+      "propertyName": "activateService",
+      "token": "ActivateService",
+      "resolvedUnitId": "service:app/account/activate:ActivateService",
+      "origin": "internal",
+      "injectionStyle": "inject-fn",
+      "modifiers": { "optional": false, "self": false, "skipSelf": false, "host": false },
+      "loc": { "file": "activate.component.ts", "line": 18, "endLine": 18 }
+    },
+    {
+      "id": "dep:route",
+      "propertyName": "route",
+      "token": "ActivatedRoute",
+      "resolvedUnitId": null,
+      "origin": "angular",
+      "injectionStyle": "inject-fn",
+      "modifiers": { "optional": false, "self": false, "skipSelf": false, "host": false },
+      "loc": { "file": "activate.component.ts", "line": 19, "endLine": 19 }
+    }
+  ],
+
+  "lifecycle": {
+    "implementedHooks": ["ngOnInit"],
+    "declaredInterfaces": ["OnInit"],
+    "constructorDoesWork": false,
+    "cleanupStrategy": "none",
+    "$comment": "No ngOnDestroy and no takeUntilDestroyed despite an active subscription."
+  },
+
+  "stateOutline": {
+    "fields": [
+      {
+        "id": "field:error",
+        "name": "error",
+        "type": "WritableSignal<boolean>",
+        "visibility": "public",
+        "readonly": false,
+        "initializerExpression": "signal(false)",
+        "roleHints": {
+          "isSignal": true,
+          "signalKind": "signal",
+          "isRxjs": false,
+          "rxjsKind": null,
+          "isFormEntity": false,
+          "formKind": null,
+          "isConstant": false
+        },
+        "loc": { "file": "activate.component.ts", "line": 15, "endLine": 15 }
+      },
+      {
+        "id": "field:success",
+        "name": "success",
+        "type": "WritableSignal<boolean>",
+        "visibility": "public",
+        "readonly": false,
+        "initializerExpression": "signal(false)",
+        "roleHints": {
+          "isSignal": true,
+          "signalKind": "signal",
+          "isRxjs": false,
+          "rxjsKind": null,
+          "isFormEntity": false,
+          "formKind": null,
+          "isConstant": false
+        },
+        "loc": { "file": "activate.component.ts", "line": 16, "endLine": 16 }
+      }
+    ],
+    "methodIds": ["method:ngOnInit"],
+    "accessorIds": [],
+    "formIds": [],
+    "streamIds": ["stream:queryParamsActivation"]
+  },
+
+  "decorator": {
+    "changeDetection": null,
+    "encapsulation": null,
+    "providers": [],
+    "imports": ["SharedModule", "RouterModule"],
+    "hostDirectives": [],
+    "animations": [],
+    "$comment": "changeDetection unspecified, so Default applies. State is signal-based regardless."
+  },
+
+  "metrics": {
+    "tsLineCount": 27,
+    "templateLineCount": 18,
+    "methodCount": 1,
+    "publicApiSurface": 2,
+    "injectedDependencyCount": 2,
+    "maxCyclomaticComplexity": 1,
+    "maxTemplateNestingDepth": 4
+  },
+
+  "provenance": {
+    "source": "hand-derived",
+    "resolverVersion": null,
+    "generatedAt": "2026-07-29",
+    "sourceRevision": null,
+    "inputHash": null,
+    "parseStatus": "ok",
+    "warnings": [
+      "Hand-derived baseline, not extractor output. Determinism is not claimed.",
+      "The co-located ActivateService is a separate unit under D1 and was not analyzed as one."
+    ]
+  }
+}

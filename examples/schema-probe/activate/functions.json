@@ -1,0 +1,134 @@
+{
+  "schemaVersion": "0.3.0",
+  "$comment": "SCHEMA PROBE, not a run. Hand-filled for app/account/activate to give functions.schema.json its first contact with real data before Phase 1 builds against it. NOT part of the Phase A baseline: adding tiers to examples/baseline_skillsonly would change what Phase A produced and falsify the Phase 2 comparison target. Source: INPUT/jhipster-ng17-fixture/src/main/webapp/app/account/activate/",
+
+  "unitId": "component:app/account/activate:ActivateComponent",
+
+  "symbols": {
+    "method:ngOnInit": {
+      "ast": {
+        "id": "method:ngOnInit",
+        "name": "ngOnInit",
+        "symbolKind": "method",
+        "visibility": "public",
+        "static": false,
+        "isAsync": false,
+        "lifecycleHook": "ngOnInit",
+        "params": [],
+        "returnType": "void",
+        "isLeaf": true,
+        "cyclomaticComplexity": 1,
+        "lineCount": 6,
+        "loc": { "file": "activate.component.ts", "line": 21, "endLine": 26 },
+        "sourceExcerpt": "this.route.queryParams.pipe(mergeMap(params => this.activateService.get(params.key))).subscribe({\n  next: () => this.success.set(true),\n  error: () => this.error.set(true),\n});",
+        "$comment_leaf": "isLeaf true because it calls no other member of this class. It does call two injected services, which is a dependency edge rather than an in-file call-graph edge.",
+        "existingComments": { "jsDoc": null, "inline": [] },
+        "sideEffectHints": {
+          "touchesDom": false,
+          "domApis": [],
+          "subscribes": true,
+          "usesTimers": false,
+          "usesLocalOrSessionStorage": false,
+          "navigates": false,
+          "mutatesInjectedServiceState": false,
+          "throws": false,
+          "hasTryCatch": false
+        }
+      },
+      "doc": {
+        "explanation": "Begins watching the address bar's query values and, for each set received, asks the activation service to redeem the key they carry. Records the outcome in two independent flags: success on a reply, error on a failure.",
+        "order": 0,
+        "consumes": ["dep:route", "dep:activateService"],
+        "produces": ["field:success", "field:error"],
+        "sideEffects": [
+          "issues one read request to the activation endpoint per set of query values received",
+          "holds a subscription that is never explicitly cancelled"
+        ],
+        "edgeCases": [
+          "neither flag is reset, so a success followed by a failure leaves both set",
+          "reporting a failure ends the underlying stream, so no later change to the address is acted on",
+          "an absent key is passed through as undefined rather than handled distinctly"
+        ],
+        "isTrivial": false,
+        "confidence": "high",
+        "evidence": ["method:ngOnInit", "dep:route", "dep:activateService", "test:1", "test:2", "test:3"],
+        "explainerVersion": "hand-derived-probe"
+      }
+    }
+  },
+
+  "forms": { "approach": "none", "groups": [], "ngModelBindings": [] },
+
+  "streams": [
+    {
+      "$comment": "DETAIL half only (D12). Who consumes it and how it is torn down lives in dependencies.json under this same id.",
+      "id": "stream:queryParamsActivation",
+      "name": "queryParamsActivation",
+      "declaredType": "Observable<{}>",
+      "sourceExpression": "this.route.queryParams.pipe(mergeMap(params => this.activateService.get(params.key)))",
+      "operators": ["mergeMap"],
+      "multicast": false,
+      "loc": { "file": "activate.component.ts", "line": 22, "endLine": 22 },
+      "$comment_anonymous": "The stream is never assigned to a field -- it is built and subscribed in one expression. The id names it for reference; no identifier by that name exists in source.",
+      "doc": {
+        "explanation": "Each set of query values arriving from the router is turned into a redemption request, and the request's outcome is what the subscriber sees. mergeMap does not cancel an in-flight request when new values arrive, so overlapping attempts are possible.",
+        "confidence": "high"
+      }
+    }
+  ],
+
+  "signals": [
+    { "id": "field:error", "signalKind": "signal", "dependsOn": [], "writtenBy": ["method:ngOnInit"] },
+    { "id": "field:success", "signalKind": "signal", "dependsOn": [], "writtenBy": ["method:ngOnInit"] }
+  ],
+
+  "tests": {
+    "files": ["activate.component.spec.ts"],
+    "framework": "jest",
+    "cases": [
+      {
+        "id": "test:1",
+        "suitePath": ["ActivateComponent"],
+        "title": "calls activate.get with the key from params",
+        "targets": ["method:ngOnInit"],
+        "mocks": ["dep:activateService", "dep:route"],
+        "isSkipped": false,
+        "loc": { "file": "activate.component.spec.ts", "line": 31, "endLine": 41 }
+      },
+      {
+        "id": "test:2",
+        "suitePath": ["ActivateComponent"],
+        "title": "should set set success to true upon successful activation",
+        "targets": ["method:ngOnInit", "field:success"],
+        "mocks": ["dep:activateService"],
+        "isSkipped": false,
+        "loc": { "file": "activate.component.spec.ts", "line": 43, "endLine": 54 }
+      },
+      {
+        "id": "test:3",
+        "suitePath": ["ActivateComponent"],
+        "title": "should set set error to true upon activation failure",
+        "targets": ["method:ngOnInit", "field:error"],
+        "mocks": ["dep:activateService"],
+        "isSkipped": false,
+        "loc": { "file": "activate.component.spec.ts", "line": 56, "endLine": 67 }
+      }
+    ],
+    "$comment_template": "The suite replaces the component's markup with an empty string (spec line 22), so no test exercises the template. Every rendering behavior in template.json#/uiRequirements is uncorroborated by tests."
+  },
+
+  "coverage": { "symbolsTotal": 1, "symbolsExplained": 1, "symbolsTrivialSkipped": 0 },
+
+  "provenance": {
+    "source": "hand-derived",
+    "astInputHash": null,
+    "docInputHash": null,
+    "resolverVersion": null,
+    "explainerModel": null,
+    "generatedAt": "2026-07-30",
+    "warnings": [
+      "Schema probe, not extractor output. Determinism is not claimed.",
+      "cyclomaticComplexity and lineCount were counted by hand and are the fields most likely to disagree with the Resolver."
+    ]
+  }
+}

@@ -1,0 +1,234 @@
+{
+  "schemaVersion": "0.3.0",
+  "$comment": "SCHEMA PROBE. Copied from the Phase A baseline and migrated to 0.3.0 to exercise D12 end to end: the stream's declaration detail moved to functions.json, only the relationship half stays here, and leakRisk is gone because it is derivable from consumption and unsubscribeStrategy.",
+  "unitId": "component:app/account/activate:ActivateComponent",
+  "callGraph": {
+    "nodes": [
+      "method:ngOnInit"
+    ],
+    "edges": [],
+    "calls": {
+      "method:ngOnInit": []
+    },
+    "calledBy": {
+      "method:ngOnInit": []
+    },
+    "entryPoints": [
+      "method:ngOnInit"
+    ],
+    "executionOrder": [
+      "method:ngOnInit"
+    ],
+    "depthFromEntry": {
+      "method:ngOnInit": 0
+    },
+    "cycles": [],
+    "unreachableMethods": [],
+    "leafMethods": [
+      "method:ngOnInit"
+    ],
+    "$comment": "Trivial graph: a single lifecycle hook calling no other local method. calledBy is empty because the framework invokes it, not other code in this file."
+  },
+  "fieldAccess": {
+    "reads": {
+      "method:ngOnInit": []
+    },
+    "writes": {
+      "method:ngOnInit": [
+        "field:success",
+        "field:error"
+      ]
+    },
+    "readBy": {
+      "field:success": [
+        "tpl:if-success"
+      ],
+      "field:error": [
+        "tpl:if-error"
+      ]
+    },
+    "writtenBy": {
+      "field:success": [
+        "method:ngOnInit"
+      ],
+      "field:error": [
+        "method:ngOnInit"
+      ]
+    },
+    "derivedFrom": {},
+    "signalDependencies": {},
+    "$comment": "Both writes happen inside subscription callbacks declared within ngOnInit, so they are attributed to it. Neither field is read in TypeScript \u2014 only in the template."
+  },
+  "dependencyUsage": [
+    {
+      "dep": "dep:activateService",
+      "resolvedUnitId": "service:app/account/activate:ActivateService",
+      "calledMembers": [
+        {
+          "member": "get",
+          "argTypes": [
+            "any"
+          ],
+          "returnType": "Observable<{}>",
+          "fromMethods": [
+            "method:ngOnInit"
+          ],
+          "loc": {
+            "file": "activate.component.ts",
+            "line": 22
+          }
+        }
+      ],
+      "readProperties": [],
+      "usedByMethods": [
+        "method:ngOnInit"
+      ],
+      "$comment": "argTypes is 'any' because params.key comes from an untyped query-parameter bag; the service declares the parameter as string."
+    },
+    {
+      "dep": "dep:route",
+      "resolvedUnitId": null,
+      "calledMembers": [],
+      "readProperties": [
+        "queryParams"
+      ],
+      "usedByMethods": [
+        "method:ngOnInit"
+      ],
+      "$comment": "queryParams is read as an Observable and subscribed, not read once via snapshot."
+    }
+  ],
+  "outboundUnitEdges": [
+    {
+      "targetUnitId": "service:app/account/activate:ActivateService",
+      "relation": "injects",
+      "via": [
+        "dep:activateService"
+      ]
+    }
+  ],
+  "inboundUnitEdges": [],
+  "$comment_inbound": "Empty because no repository-wide index exists yet. This component is reached by route, not rendered by a parent, so inbound edges may legitimately remain empty \u2014 but that is unverified.",
+  "httpInteractions": [
+    {
+      "id": "http:1",
+      "method": "GET",
+      "urlExpression": "applicationConfigService.getEndpointFor('api/activate')",
+      "requestType": null,
+      "responseType": "{}",
+      "viaDependency": "dep:activateService",
+      "calledFrom": "method:ngOnInit",
+      "directHttpClientUse": false,
+      "loc": {
+        "file": "activate.service.ts",
+        "line": 13
+      },
+      "$comment": "Issued indirectly: the service builds the request, but nothing is sent until this component subscribes. The key travels as a query parameter (activate.service.ts:14)."
+    }
+  ],
+  "routing": {
+    "isRoutedComponent": true,
+    "routePaths": [
+      "activate"
+    ],
+    "routeParamsConsumed": [],
+    "queryParamsConsumed": [
+      {
+        "name": "key",
+        "access": "observable",
+        "inMethod": "method:ngOnInit",
+        "loc": {
+          "file": "activate.component.ts",
+          "line": 22
+        },
+        "$comment": "Observable access, not snapshot \u2014 the component reacts to later changes."
+      }
+    ],
+    "routeDataConsumed": [],
+    "navigations": [
+      {
+        "id": "nav:1",
+        "api": "routerLink",
+        "targetExpression": "/login",
+        "from": "tpl:link-login",
+        "loc": {
+          "file": "activate.component.html",
+          "line": 8
+        }
+      }
+    ],
+    "guards": [],
+    "resolvers": [],
+    "$comment": "Route declared at activate.route.ts:5-9 with title 'activate.title' and no access restriction."
+  },
+  "imports": {
+    "angular": [
+      {
+        "module": "@angular/core",
+        "symbols": [
+          "Component",
+          "inject",
+          "OnInit",
+          "signal"
+        ]
+      },
+      {
+        "module": "@angular/router",
+        "symbols": [
+          "ActivatedRoute",
+          "RouterModule"
+        ]
+      }
+    ],
+    "rxjs": [
+      {
+        "module": "rxjs/operators",
+        "symbols": [
+          "mergeMap"
+        ]
+      }
+    ],
+    "thirdParty": [],
+    "internal": [
+      {
+        "module": "app/shared/shared.module",
+        "symbols": [
+          "SharedModule"
+        ],
+        "resolvedUnitId": null
+      },
+      {
+        "module": "./activate.service",
+        "symbols": [
+          "ActivateService"
+        ],
+        "resolvedUnitId": "service:app/account/activate:ActivateService"
+      }
+    ],
+    "unresolved": []
+  },
+  "dataTypes": [],
+  "streams": [
+    {
+      "$comment": "Relationship half only (D12). Detail lives in functions.json under this id. Derived leakRisk for this stream: 'possible' -- an explicit subscribe with no teardown -- computed from the two fields below rather than stored.",
+      "id": "stream:queryParamsActivation",
+      "consumedBy": [
+        "method:ngOnInit"
+      ],
+      "consumption": "explicit-subscribe",
+      "unsubscribeStrategy": "none",
+      "subscribedFrom": "method:ngOnInit"
+    }
+  ],
+  "provenance": {
+    "source": "hand-derived",
+    "resolverVersion": null,
+    "generatedAt": "2026-07-29",
+    "inputHash": null,
+    "warnings": [
+      "Hand-derived baseline. Derived facts (call graph, field access) are unverified approximations.",
+      "inboundUnitEdges empty because no repository-wide index exists at this stage.",
+      "httpInteractions describes a call defined in ActivateService, a separate unit, included here because this component triggers it."
+    ]
+  }
+}
