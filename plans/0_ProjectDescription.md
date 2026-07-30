@@ -8,6 +8,7 @@ This is an agentic AI project that aims to read the Angular code base and extrac
 
 * **Unit of analysis.** The pipeline runs per *unit*, where a unit is a component, service, directive, pipe, guard, interceptor, route resolver, module, or shared model. Components are the richest case and drive the design, but a migration is blocked by the other kinds too, so they share one pipeline and one output schema (with inapplicable sections omitted).
 * **Artifacts.** Per unit: `signature.json`, `dependencies.json`, `functions.json`, `template.json`, `analysis.json` (machine-readable), plus `requirement.md` and `migration_notes.md` (rendered for humans). Per repository: `index.json`, holding the unit inventory, the cross-unit dependency graph, and a leaf-first processing order.
+* **Build strategy.** A skills-only proof of concept comes first: one agent, reading Angular source directly with no AST tooling, producing `requirement.md` for a single component. It validates the deliverable and reveals which metadata fields actually matter before any extractor is written. The four-stage pipeline below describes the *production* design that follows. See **Phase A** and decision **D7** in `1_ImplementationPlan.md`.
 * **Out of scope.** Generating React or any other target-framework code. Code2Docs is Stage 1 and ends at the human-approval gate described at the end of this document. Outputs describe existing behavior and must never prescribe target-framework architecture.
 
 #### **How the outputs relate**
