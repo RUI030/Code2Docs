@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "0.2.0",
+  "$comment": "GRAPH TIER — answers 'what connects to what?'. Covers both the in-file function call graph and cross-file edges. Reverse indexes (calledBy, readBy, consumedBy) are emitted alongside forward ones: they are nearly free here and expensive for an agent to derive by scanning, and they are what makes find-references feel instant. Strict JSON; annotations use $comment keys.",
+
+  "unitId": "component:<path>:<ClassName>",
+
+  "callGraph": {
+    "$comment": "In-file dependency graph over methods and accessors — the same-file function call dependency. executionOrder is leaf-first and is the sequence the Explainer must follow.",
+    "nodes": ["method:<name>", "accessor:<name>"],
+    "edges": [
+      { "from": "method:<caller>", "to": "method:<callee>", "callCount": 1, "conditional": false, "loc": { "file": "<foo.component.ts>", "line": 0 } }
+    ],
+    "calls": { "method:<name>": ["method:<callee>"] },
+    "calledBy": { "method:<name>": ["method:<caller>", "tpl:<bindingId>", "hostlisten:<id>"] },
+    "entryPoints": ["method:<ngOnInit>", "tpl-handler:<bindingId>"],
+    "executionOrder": ["method:<leafFirst>"],
+    "depthFromEntry": { "method:<name>": 0 },
+    "cycles": [["method:<a>", "method:<b>"]],
+    "unreachableMethods": ["method:<name>"],
+    "leafMethods": ["method:<name>"]
+  },
+
+  "fieldAccess": {
+    "$comment": "Data-flow side of the in-file graph. Both directions, for the same reason.",
+    "reads": { "method:<name>": ["field:<name>"] },
+    "writes": { "method:<name>": ["field:<name>"] },
+    "readBy": { "field:<name>": ["method:<name>", "tpl:<bindingId>"] },
+    "writtenBy": { "field:<name>": ["method:<name>"] },
+    "derivedFrom": { "accessor:<name>": ["field:<name>"] },
+    "signalDependencies": { "field:<computedName>": ["field:<name>"] }
+  },
+
+  "dependencyUsage": [
+    {
+      "$comment": "How each injected dependency is actually exercised. Identity is in signature.json; this is the call detail.",
+      "dep": "dep:<propertyName>",
+      "resolvedUnitId": "<service:...:ClassName, or null>",
+      "calledMembers": [
+        { "member": "<methodName>", "argTypes": ["<TS type>"], "returnType": "<TS type>", "fromMethods": ["method:<name>"], "loc": { "file": "<foo.component.ts>", "line": 0 } }
+      ],
+      "readProperties": ["<propertyName>"],
+      "usedByMethods": ["method:<name>"]
+    }
+  ],
+
+  "outboundUnitEdges": [
+    {
+      "$comment": "Cross-unit edges, the basis for repo-level jump-to-definition. Mirrored as inboundUnitEdges by the repo indexer.",
+      "targetUnitId": "<component:...:ChildComponent>",
+      "relation": "<injects | renders | extends | implements | imports-type | routes-to | guarded-by | resolved-by | provides>",
+      "via": ["dep:<propertyName>", "tpl:<id>", "type:<Name>"]
+    }
+  ],
+  "inboundUnitEdges": [
+    { "sourceUnitId": "<component:...:ParentComponent>", "relation": "<renders>", "via": ["tpl:<id>"] }
+  ],
+
+  "httpInteractions": [
+    {
+      "id": "http:<n>",
+      "method": "<GET | POST | PUT | PATCH | DELETE>",
+      "urlExpression": "<source text, e.g. `${this.resourceUrl}/${id}`>",
+      "requestType": "<TS type, or null>",
+      "responseType": "<TS type, or null>",
+      "viaDependency": "dep:<propertyName>",
+      "calledFrom": "method:<name>",
+      "directHttpClientUse": false,
+      "loc": { "file": "<foo.component.ts>", "line": 0 }
+    }
+  ],
+
+  "routing": {
+    "isRoutedComponent": true,
+    "routePaths": ["<entity/foo/:id/edit>"],
+    "routeParamsConsumed": [
+      { "name": "<id>", "access": "<snapshot | observable | withComponentInputBinding>", "inMethod": "method:<name>" }
+    ],
+    "queryParamsConsumed": [{ "name": "<page>", "access": "<snapshot | observable>" }],
+    "routeDataConsumed": ["<resolvedFoo>"],
+    "navigations": [
+      { "id": "nav:<n>", "api": "<router.navigate | navigateByUrl | routerLink>", "targetExpression": "<source text>", "from": "<method:<name> | tpl:<id>>", "loc": { "file": "<foo.component.ts>", "line": 0 } }
+    ],
+    "guards": ["<guard:...:AuthGuard>"],
+    "resolvers": ["<route-resolver:...:FooResolver>"]
+  },
+
+  "imports": {
+    "angular": [{ "module": "<@angular/core>", "symbols": ["<Component>", "<inject>"] }],
+    "rxjs": [{ "module": "<rxjs/operators>", "symbols": ["<switchMap>"] }],
+    "thirdParty": [{ "module": "<@ng-bootstrap/ng-bootstrap>", "symbols": ["<NgbModal>"], "package": "<@ng-bootstrap/ng-bootstrap>" }],
+    "internal": [{ "module": "<app/shared/foo.model>", "symbols": ["<IFoo>"], "resolvedUnitId": "<model:...:IFoo, or null>" }],
+    "unresolved": ["<module specifier the resolver could not classify>"]
+  },
+
+  "dataTypes": [
+    {
+      "id": "type:<Name>",
+      "name": "<Name>",
+      "declarationKind": "<interface | type-alias | class | enum>",
+      "definedHere": false,
+      "sourceUnitId": "<model:...:IFoo, or null>",
+      "shape": [
+        { "name": "<field>", "type": "<TS type>", "optional": false, "nullable": false, "enumValues": ["<A>"] }
+      ],
+      "usedBy": ["input:<name>", "method:<name>", "form:<name>"]
+    }
+  ],
+
+  "provenance": {
+    "source": "ast",
+    "resolverVersion": "<semver>",
+    "generatedAt": "<ISO-8601 UTC>",
+    "inputHash": "<cache key>",
+    "warnings": ["<unresolved selector: ...>"]
+  }
+}

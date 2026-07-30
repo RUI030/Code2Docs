@@ -1,0 +1,37 @@
+# Analysis corpus (held-out evaluation fixture) and generated artifacts.
+# INPUT/ is a vendored Angular repo including node_modules; OUTPUT/ is fully regenerable.
+INPUT/
+OUTPUT/
+
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+target/
+*.tsbuildinfo
+
+# Caches
+.cache/
+.code2docs-cache/
+coverage/
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/*
+!.vscode/settings.json
+
+# Logs
+*.log
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Env
+.env
+.env.local
+.env.*.local

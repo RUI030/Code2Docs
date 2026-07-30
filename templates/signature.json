@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "0.2.0",
+  "$comment": "HOT TIER — the first and often only file an agent reads. Answers 'what is this?'. Keep it small enough to read whole without regret; push anything voluminous into the other tiers and reference it by id. Every array shows ONE representative entry to document element shape. Strict JSON only: annotations use $comment keys, never // comments.",
+
+  "unit": {
+    "id": "component:<path/from/src/app>:<ClassName>",
+    "kind": "component",
+    "kindEnum": ["component", "service", "directive", "pipe", "guard", "interceptor", "route-resolver", "module", "model", "store", "util", "unknown"],
+    "className": "<ClassName>",
+    "selector": "<app-foo, or null>",
+    "path": "<dir relative to the Angular source root>",
+    "standalone": true,
+    "declaredInModule": "<ModuleName, or null>",
+    "files": {
+      "typescript": "<foo.component.ts>",
+      "template": "<foo.component.html, or null when inline>",
+      "templateInline": false,
+      "styles": ["<foo.component.scss>"],
+      "specs": ["<foo.component.spec.ts>"]
+    }
+  },
+
+  "manifest": {
+    "$comment": "Pointers so one cheap read tells an agent what exists and where to look next. Null means the tier was not produced for this unit.",
+    "dependencies": "./dependencies.json",
+    "functions": "./functions.json",
+    "template": "./template.json",
+    "analysis": "./analysis.json",
+    "requirement": "./requirement.md",
+    "migrationNotes": "./migration_notes.md",
+    "repoIndex": "<relative path to OUTPUT/index.json>"
+  },
+
+  "publicApi": {
+    "$comment": "Full detail lives here — it is small, hot, and the most-asked question about any component.",
+    "inputs": [
+      {
+        "id": "input:<propertyName>",
+        "name": "<propertyName>",
+        "alias": "<template-facing name, or null>",
+        "type": "<declared TS type as written>",
+        "required": false,
+        "defaultExpression": "<source text, or null>",
+        "declarationStyle": "<decorator | signal | setter>",
+        "transform": "<transform fn name, or null>",
+        "loc": { "file": "<foo.component.ts>", "line": 0, "endLine": 0 }
+      }
+    ],
+    "outputs": [
+      {
+        "id": "output:<propertyName>",
+        "name": "<propertyName>",
+        "alias": "<template-facing name, or null>",
+        "payloadType": "<T in EventEmitter<T>>",
+        "declarationStyle": "<eventemitter | output-fn | subject>",
+        "emittedFrom": ["method:<methodName>"],
+        "loc": { "file": "<foo.component.ts>", "line": 0, "endLine": 0 }
+      }
+    ],
+    "twoWayBindings": [
+      { "id": "model:<propertyName>", "name": "<propertyName>", "type": "<T in model<T>()>", "loc": { "file": "<foo.component.ts>", "line": 0, "endLine": 0 } }
+    ],
+    "publicMethods": ["method:<methodName>"],
+    "templateReachableMembers": ["field:<name>", "method:<name>"]
+  },
+
+  "injectedDependencies": [
+    {
+      "$comment": "Identity only. Call sites and usage live in dependencies.json.",
+      "id": "dep:<propertyName>",
+      "propertyName": "<propertyName>",
+      "token": "<ServiceClass | InjectionTokenName | string literal>",
+      "resolvedUnitId": "<service:...:ClassName, or null when external>",
+      "origin": "<angular | rxjs | third-party | internal>",
+      "injectionStyle": "<constructor-param | inject-fn>",
+      "modifiers": { "optional": false, "self": false, "skipSelf": false, "host": false }
+    }
+  ],
+
+  "lifecycle": {
+    "implementedHooks": ["<ngOnInit>"],
+    "declaredInterfaces": ["<OnInit>"],
+    "constructorDoesWork": false,
+    "cleanupStrategy": "<ngOnDestroy-unsubscribe | takeUntilDestroyed | DestroyRef | async-pipe-only | none>"
+  },
+
+  "stateOutline": {
+    "$comment": "Names and syntactic role hints only — the symbol outline, not the semantics. Detail is in functions.json; interpretation is in analysis.json.stateModel.",
+    "fields": [
+      {
+        "id": "field:<name>",
+        "name": "<name>",
+        "type": "<declared or inferred TS type>",
+        "visibility": "<public | protected | private>",
+        "readonly": false,
+        "roleHints": {
+          "isSignal": false,
+          "signalKind": "<signal | computed | linkedSignal | toSignal | null>",
+          "isRxjs": false,
+          "rxjsKind": "<Observable | Subject | BehaviorSubject | ReplaySubject | Subscription | null>",
+          "isFormEntity": false,
+          "formKind": "<FormGroup | FormControl | FormArray | FormRecord | null>",
+          "isConstant": false
+        },
+        "loc": { "file": "<foo.component.ts>", "line": 0, "endLine": 0 }
+      }
+    ],
+    "methodIds": ["method:<name>"],
+    "accessorIds": ["accessor:<name>"],
+    "formIds": ["form:<name>"],
+    "streamIds": ["stream:<name>"]
+  },
+
+  "decorator": {
+    "changeDetection": "<Default | OnPush | null>",
+    "encapsulation": "<Emulated | None | ShadowDom | null>",
+    "providers": ["<TokenName>"],
+    "imports": ["<StandaloneImportName>"],
+    "hostDirectives": ["<DirectiveName>"],
+    "animations": ["<triggerName>"]
+  },
+
+  "metrics": {
+    "tsLineCount": 0,
+    "templateLineCount": 0,
+    "methodCount": 0,
+    "publicApiSurface": 0,
+    "injectedDependencyCount": 0,
+    "maxCyclomaticComplexity": 0,
+    "maxTemplateNestingDepth": 0
+  },
+
+  "provenance": {
+    "$comment": "This tier is 100% deterministic — no LLM output. It must be byte-reproducible from unchanged source, which is what makes it cacheable and golden-testable.",
+    "source": "ast",
+    "resolverVersion": "<semver of tools/ng-ast>",
+    "generatedAt": "<ISO-8601 UTC>",
+    "sourceRevision": "<git sha, or null>",
+    "inputHash": "<hash of unit input files + resolverVersion; the cache key>",
+    "parseStatus": "<ok | partial | failed>",
+    "warnings": ["<file could not be fully parsed: ...>"]
+  }
+}
