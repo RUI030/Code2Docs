@@ -87,6 +87,30 @@
     ]
   },
 
+  "serviceLayer": {
+    "$comment": "requirement.md §6 — the shared-state contract, NOT a duplicate of externalIntegrations (§5). §5 inventories which services are used; this describes state that outlives the component and the coupling it creates. Only partially derivable from one component: otherConsumers needs the repo-level index (D5), so component-scoped runs set consumersKnown false and raise an open question rather than guessing.",
+    "sharedState": [
+      {
+        "id": "svc:<n>",
+        "service": "dep:<propertyName>",
+        "state": "<what the service holds>",
+        "lifetime": "<per-call | cached-across-components | app-singleton | unknown>",
+        "readByThisUnit": true,
+        "mutatedByThisUnit": false,
+        "mutatingMethods": ["method:<name>"],
+        "otherConsumers": ["<unit id>"],
+        "consumersKnown": false,
+        "evidence": ["dep:<propertyName>", "method:<name>"]
+      }
+    ],
+    "statelessOperations": [
+      { "id": "svcop:<n>", "service": "dep:<propertyName>", "operation": "<plain request/response call retaining no state>", "evidence": ["method:<name>"] }
+    ],
+    "couplingNotes": [
+      { "id": "svccoupling:<n>", "statement": "<ordering or lifetime assumption between this unit and the service layer>", "evidence": ["method:<name>"] }
+    ]
+  },
+
   "behavioralInvariants": [
     {
       "$comment": "The migration's real acceptance bar: things that must remain true regardless of implementation.",
@@ -99,7 +123,7 @@
 
   "acceptanceCriteria": [
     {
-      "$comment": "requirement.md §6 — stored structured, not only as prose, so a testing agent can consume it directly. Derived from workflows, invariants, and existing spec cases.",
+      "$comment": "requirement.md §7 — stored structured, not only as prose, so a testing agent can consume it directly. Derived from workflows, invariants, and existing spec cases.",
       "id": "ac:<n>",
       "scenario": "<scenario name>",
       "given": ["<initial context or state>"],
@@ -112,7 +136,7 @@
   ],
 
   "domainRules": {
-    "$comment": "requirement.md §7 — for SME review. This section is the most likely to be human-edited, so the renderer must treat it as human-owned once touched.",
+    "$comment": "requirement.md §8 — for SME review. This section is the most likely to be human-edited, so the renderer must treat it as human-owned once touched.",
     "businessConstraints": [
       { "id": "rule:<n>", "statement": "<hard rule the business dictates>", "evidence": ["method:<name>", "form:<name>"], "confidence": "<high | medium | low>" }
     ],
@@ -159,7 +183,7 @@
     "unresolvedReferences": ["<symbol or selector that could not be linked to a unit>"],
     "humanOwnedSections": {
       "$comment": "Populated by the renderer when it detects a human edit (section hash mismatch). Listed sections are never overwritten on regeneration.",
-      "sections": ["<7-domain-business-rules>"]
+      "sections": ["<8-domain-business-rules>"]
     },
     "reviewedBy": "<name, or null>",
     "reviewedAt": "<ISO-8601 UTC, or null>"

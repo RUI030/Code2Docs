@@ -226,6 +226,8 @@ rather than speculatively now.
 
 ### D9 — Drop the Service Layer / UUIP section
 
+**Status: superseded by D10.**
+
 The `requirement.md` draft carried a "§7 Service Layer — Universal UI Project, aka UUIP"
 heading with no content. UUIP is a company-specific term that nobody on the project can
 currently define, so there is no way to write rules for filling the section or to judge
@@ -239,3 +241,33 @@ Re-add if UUIP gets defined. The scope question decides where it goes: something
 component says specifically belongs in `requirement.md` backed by `analysis.json`, while one
 architectural fact about the whole project belongs in the repo-level `index.json` — repeating
 it per component would be the duplication **D2** exists to prevent.
+
+### D10 — Keep the section as "Service Layer"; supersedes D9
+
+D9 removed the section because "UUIP" was undefinable. Dropping the *name* was right;
+dropping the *section* was an overcorrection. A service layer is a real Angular concept
+independent of any company's term for it, so the section stays, renamed and given a
+definition it can actually be filled against.
+
+**What it holds, and why it is not a duplicate of §5.** §5 (Dependencies & External
+Integrations) is an *inventory* — which services this component uses and for what. §6 is the
+**shared-state contract**: which service state outlives this component, which of it this
+component mutates, and who else is coupled through it.
+
+That distinction earns a separate section rather than a bullet under §5, because
+`mutable-service-state` is one of the highest-severity items in the migration risk taxonomy
+and the one a component-level reading most easily misses. Angular components routinely share
+data by mutating a long-lived service; that coupling is invisible from inside any single
+component, and burying it under "Dependencies" hides the thing most likely to break silently
+in a rewrite.
+
+**It is only partially derivable from one component — say so rather than guess.** "Who else
+writes to this service's state" needs the repo-wide index (**D5** Pass A, inbound edges),
+which does not exist until Phase 2. So a component-scoped run can state what it sees ("this
+component mutates `CustomerService.selected`") but not the other half ("and four components
+read it"). `consumersKnown: false` marks the difference, and unknowns become entries in
+`review.openQuestions`. The `requirements-writing` skill must make that explicit — an
+under-determined section is exactly where a model fabricates confident coupling claims.
+
+The section therefore starts thin in Phase A and fills out at Phase 2, which is honest
+degradation rather than a gap.

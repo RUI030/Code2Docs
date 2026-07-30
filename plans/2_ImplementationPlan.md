@@ -223,6 +223,9 @@ number that justifies the extractor's existence.
   reverse-dependency lists (so `inferred.publicContract.consumedBy` can be populated from
   fact rather than inference).
 - Report unresolvable selectors/imports rather than dropping them.
+- Backfill `analysis.json#/serviceLayer/otherConsumers` and flip `consumersKnown` to true
+  (**D10**) — the cross-unit graph is what makes the shared-state contract fully answerable,
+  and Phase A can only fill half of it.
 - This sweep is the primary intended use of `ng-scan` (**D3a**): coarse classification across
   a whole repo, where precision would be wasted effort.
 
