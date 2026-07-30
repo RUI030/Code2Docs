@@ -142,9 +142,10 @@ Nothing was deleted. No field defined in the templates went unused across both c
 `dependencies.json` instead — because no `functions.json` was produced, and the subscription-leak
 analysis in the graph tier needs stream detail to say anything.
 
-The schema currently allows it in `dependencies` so the baseline validates, marked provisional.
-It needs deciding before the Resolver emits either, since two tiers both accepting `streams` is
-precisely the "same fact in two files" that invariant #1 forbids.
+**Resolved by D12.** The record was never one kind of fact — five fields describe the
+declaration, four describe relationships — so it is split the way a method already is, and
+`leakRisk` becomes computed rather than stored. Verified end to end by
+`examples/schema-probe/activate`.
 
 ### F6 — the baseline has six dangling evidence references
 
@@ -185,6 +186,12 @@ because the honest reading is "not yet extracted", not "invented".
 
 They become dangling the moment those two tiers exist and omit the ids, which makes this a
 useful pre-registered check for Phase 1 rather than a problem today.
+
+**Three of the 24 are now resolved.** `examples/schema-probe/activate` defines `tpl:if-success`,
+`tpl:if-error` and `tpl:link-login`, and that unit reports clean: 21 ids declared, 67
+references, nothing dangling or unresolvable. The prediction held — the ids were real and
+waiting for their tier, not invented. The remaining 21 belong to the complex component and to
+`functions.json`, neither of which was probed.
 
 ---
 
