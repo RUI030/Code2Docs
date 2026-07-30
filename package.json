@@ -8,9 +8,11 @@
     "validate": "node tools/validate.mjs",
     "check": "node tools/check-integrity.mjs",
     "golden": "node tools/golden.mjs",
-    "test": "npm run validate && npm run check && npm run golden"
+    "test": "npm run validate && npm run check && npm run golden",
+    "resolve": "node tools/resolve.mjs"
   },
   "devDependencies": {
-    "ajv": "^8.17.1"
+    "ajv": "^8.17.1",
+    "typescript": "^5.9.3"
   }
 }

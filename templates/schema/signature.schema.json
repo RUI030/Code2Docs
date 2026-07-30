@@ -377,6 +377,15 @@
           "effectivelyUnused": {
             "$comment": "True when the dependency is injected but reachable only from unreachable code (F4). Distinct from simply unused: the injection is real, the usage is dead.",
             "type": "boolean"
+          },
+          "visibility": {
+            "$comment": "private/protected/public on the injected member. Found missing by the di fixture pair: a protected dependency is reachable from the template and a private one is not, so dropping it loses a real constraint on a rewrite.",
+            "type": "string",
+            "enum": [
+              "public",
+              "protected",
+              "private"
+            ]
           }
         },
         "patternProperties": {
