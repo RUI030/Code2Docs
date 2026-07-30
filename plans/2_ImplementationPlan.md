@@ -28,9 +28,11 @@ Code2Docs/
     schema/*.schema.json   # JSON Schema per tier                 [Phase 0]
     index.json             # repo-level inventory template        [Phase 2]
     _superseded/           # earlier single-file drafts, archived
-  skills/
+  .claude/skills/          # auto-discovered by location; no registration needed
     angular-semantics/     # Angular→framework-independent rules, shared by LLM stages
     requirements-writing/  # the "Requirements Skill File" of the description
+    migration-risk-flagging/ # hazard taxonomy → migration_notes.md
+    code2docs-analyze/     # workflow entry point, invocable as /code2docs-analyze
   agents/                  # resolver / explainer / synthesizer subagent definitions
   fixtures/                # small synthetic Angular files for unit-testing extractors
   INPUT/                   # held-out evaluation corpus — not consulted during design
@@ -85,16 +87,16 @@ Write three skills — every one of which a one-shot run exercises. Keep them **
 authoring the exhaustive Angular catalogue up front is speculation, and POC failures are a
 better guide to what belongs in it than intuition is.
 
-- `skills/angular-semantics/` — shared reference: how to read Angular constructs
+- `.claude/skills/angular-semantics/` — shared reference: how to read Angular constructs
   (decorators, DI, lifecycle hooks, template syntax, RxJS, forms, routing) and what each
   implies about behavior. Structure as `SKILL.md` (index plus core rules) with long
   catalogues in `references/*.md`, consulted on demand rather than always resident.
-- `skills/requirements-writing/` — procedure: how to phrase a framework-independent
+- `.claude/skills/requirements-writing/` — procedure: how to phrase a framework-independent
   requirement, how to fill `requirement.md` section by section, the standing prohibition on
   naming the target framework, and when to raise an open question instead of guessing.
   Reference `templates/requirement.md` rather than restating its outline — two copies of the
   section list would drift.
-- `skills/migration-risk-flagging/` — procedure plus hazard taxonomy, feeding
+- `.claude/skills/migration-risk-flagging/` — procedure plus hazard taxonomy, feeding
   `migration_notes.md`. **The skill must state that its own output is a lower bound.** Risk
   flagging pattern-matches against conditions like "subscription with no unsubscribe," which
   presumes every subscription was found; without the extractor that recall is unverified, so
@@ -249,7 +251,7 @@ number that justifies the extractor's existence.
 - Orchestrator: read `index.json` → for each unit, invoke the three stages → assemble
   the five JSON tiers → validate schemas and referential integrity → render
   `requirement.md` and `migration_notes.md`.
-- Author `skills/angular-semantics/` first, since both LLM stages depend on it: the rules
+- Author `.claude/skills/angular-semantics/` first, since both LLM stages depend on it: the rules
   for translating Angular constructs into framework-independent statements, and the
   standing prohibition on naming a target framework.
 
@@ -262,7 +264,7 @@ number that justifies the extractor's existence.
 
 **Run the comparison before building it (D8).** With the Resolver now supplying a verified
 call graph, score staged output against Phase A's one-shot baseline on the *same* components:
-write `skills/explaining-functions/`, run explain-bottom-up-then-synthesize, and compare
+write `.claude/skills/explaining-functions/`, run explain-bottom-up-then-synthesize, and compare
 factual errors and omissions separately. If one-shot wins across the sampled size range, drop
 this stage and go straight to Phase 5 — that deletes the Explainer, its skill, and its
 orchestration. Record the size range any such conclusion holds for; a large component may
@@ -293,7 +295,7 @@ The tasks below apply only if the comparison favours staging.
   external dependencies, state and data flow, UI requirements, behavioral workflows,
   lifecycle, invariants, migration-sensitive behavior, open questions, and suggested
   functional breakdown.
-- Author `skills/requirements-writing/`: the description's "Requirements Skill File" —
+- Author `.claude/skills/requirements-writing/`: the description's "Requirements Skill File" —
   how to phrase a behavioral requirement, how to convert each Angular template construct
   into a framework-independent statement, and the prohibition on target-framework design.
 - Single comprehensive call over the aggregate (the `ast` tiers + explanations + dependency
