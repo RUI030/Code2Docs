@@ -116,13 +116,21 @@ comparison (**D8**).
 - Have someone who knows the code review each output against source, counting **factual
   errors and omissions separately**.
 
-  *Open staffing question.* This reviewer must read Angular, and omissions in particular are
-  invisible without a source comparison — so the gate cannot be scored by inspection of the
-  document alone. Three viable routes: borrow someone Angular-literate for a couple of hours;
-  lean on `.spec.ts` files as partial ground truth, since tests state intended behavior in
-  readable form; or run a structured line-by-line cross-check with an agent, which is weaker
-  (a similar system grading its own work) but beats eyeballing. Settle this before running
-  Phase A — an unscored gate defeats the purpose of running the POC first.
+  *Scoring method: the spec-description checklist.* Omissions are invisible from the document
+  alone — a doc covering 9 of 12 behaviors reads exactly as complete as one covering 12 — so
+  scoring requires a source-side enumeration to check against. `.spec.ts` test titles supply
+  one for free: `it('should disable save when the form is invalid')` is already a behavior
+  statement in plain English. Extract every test title for the component, then verify each
+  appears somewhere in `requirement.md`. Any that does not is a confirmed omission, and the
+  check needs no Angular knowledge — it compares two lists of English sentences.
+
+  Its limit, stated plainly: tests cover only part of a component's behavior, so this
+  establishes a floor on omissions, not a full measurement. Supplement with an agent-run
+  structured cross-check (enumerate behaviors from source, verify each against the doc),
+  understanding that it is weaker than independent review — the same system that may have
+  misread the code while writing may misread it identically while checking.
+
+  Definitive review is owned by a separate team and is not a blocker for running Phase A.
 
 *Why hand-fill the JSON.* Two payoffs. It tests whether the schema is fillable at all. And
 it stores a baseline: when the real extractor runs on the same components in Phase 1,
