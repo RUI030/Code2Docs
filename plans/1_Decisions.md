@@ -271,3 +271,45 @@ under-determined section is exactly where a model fabricates confident coupling 
 
 The section therefore starts thin in Phase A and fills out at Phase 2, which is honest
 degradation rather than a gap.
+
+### D11 — Compare against Phase 2, not Phase 1; measure by unresolved blocking questions
+
+Two changes to how the skills-versus-tooling comparison gets run, both prompted by
+`3_PhaseAFindings.md`.
+
+**Defer the comparison to Phase 2.** The original intent was to diff Phase 1's extractor
+against Phase A's hand-filled baseline to quantify recall. That comparison is worth running,
+but on its own it measures the wrong thing. F3 found that both *blocking* open questions on
+`post/update` — how a failed save reaches the person, and whether the unreachable file-handling
+code is genuinely dead — need repository-wide information. Phase 1 is per-file extraction and
+answers neither. So a Phase 1 comparison would show improvement on naming and reachability
+(F2, F4) while the review gate remained just as blocked, which is not the question the
+comparison exists to answer. Comparing at Phase 2 spans all three findings and can show whether
+the gate actually moves.
+
+*Cost of deferring, and the guard against it.* Two phases with no intermediate signal is a long
+time to build without feedback. The guard is not a full document comparison but two targeted
+checks when Phase 1 lands: does extraction close F2 (names anchored to real identifiers) and F4
+(reachability verified rather than manually searched)? Those are unit-level and cheap. The
+baseline must also be pinned — `examples/baseline_skillsonly/` is committed, but the skills
+that produced it are not frozen, so the producing commit needs a tag or "Phase A" stops being
+reproducible.
+
+**Keep the spec-title check, but as a regression guard rather than a ranking metric.** Phase A
+covered every test title in both components — 4 of 4 and 8 of 8. That is a real result and is
+recorded as one: on the measure the plan defined, Phase A performed perfectly.
+
+The consequence is only that the measure is now at its ceiling. It cannot rank a later phase
+above Phase A, because there is nothing above 100%. That makes it a guard, not a discriminator:
+coverage must stay at 100%, and a later phase dropping below it is a regression signal worth
+acting on. It keeps that job; it just cannot carry the comparison.
+
+**The discriminating metric is the count of unresolved blocking questions.** It is non-zero
+today (`post/update` 2, `activate` 0), so it can move. It is tied to what the project is for —
+the review gate forbids Stage 2 while a blocking question stands, so this measures whether the
+pipeline produces documents anyone can act on. And F3 already identifies what drives it to
+zero, which makes it a target rather than just a number.
+
+This does not supersede the recall diff against the hand-filled JSON baseline (Phase A's stated
+second payoff). That still runs at Phase 1 as a component of the Phase 2 comparison; it is no
+longer the whole of it.

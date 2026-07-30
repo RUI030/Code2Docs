@@ -97,6 +97,7 @@ plans/
 templates/               output shapes (5 JSON tiers + 2 rendered Markdown views)
 tools/                   Resolver CLI — Phase 1, not yet built
 examples/                promoted runs — reference output and Phase 1 baseline, hand-curated
+benchmarks/              cost/duration per run, per phase — the skills-vs-tooling comparison
 INPUT/                   Angular source under analysis (gitignored)
 OUTPUT/                  generated documentation, scratch (gitignored)
 ```

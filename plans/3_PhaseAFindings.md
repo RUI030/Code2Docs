@@ -1,0 +1,126 @@
+# Phase A Findings
+
+Step 5 of `2_ImplementationPlan.md` §4. Two components, skills-only, no extractor:
+`app/account/activate` (simple) and `app/entities/post/update` (complex).
+
+Findings are sorted by **which phase fixes them**, not scored. A count of errors would not
+answer the question the gate exists to answer — whether the next investment should be the
+Resolver, the templates, or the repo inventory.
+
+---
+
+## F1. Full spec-title coverage — Phase A passes this measure outright
+
+Every spec title is covered in both documents:
+
+| component | test titles | covered | uncovered |
+|---|---|---|---|
+| `activate` | 4 | 4 | 0 |
+| `post/update` | 8 (component) | 8 | 0 |
+
+`post-form.service.spec.ts`'s 7 further titles were correctly excluded as a separate unit
+under **D1**, and the document says so explicitly rather than silently.
+
+**Phase A did this part perfectly** — including on the complex component, and including the
+judgment call of excluding another unit's tests rather than claiming them as coverage. On the
+measure the plan defined, there is nothing to improve.
+
+That is also the one consequence to carry forward: the measure is at its ceiling. It cannot
+rank a later phase above Phase A, because there is nothing above 100%. So it keeps a job, just
+not the comparison — coverage must *stay* at 100%, and a later phase falling below it is a
+regression signal. See **D11** for the discriminating metric that replaces it in that role
+(count of unresolved blocking questions, which is non-zero today and therefore can move).
+
+---
+
+## F2. Domain terms drift from both the code and the UI
+
+`post/update`'s form field is `content` in source (`post-form.service.ts:61`,
+`post-update.component.html:32`) and renders to the person as **"Content"**
+(`post-update.component.html:31`). The document calls it **"body"** six times — including in
+§8 *Domain Terminology*, the section written for SME review.
+
+So the one term an SME reads matches neither the identifier a rebuilder greps for nor the label
+on the screen they are reviewing. Nothing in the pipeline catches this: it is not an omission,
+the behavior is described correctly, and the prose reads fluently.
+
+This is the clearest case of a defect the omission check structurally cannot see.
+
+**Fixed by: Phase 1.** Extraction pins field names to real identifiers, and the template's
+labels to real template text, so the doc-writing step is anchored instead of paraphrasing from
+memory. This is a concrete, checkable thing the Resolver buys.
+
+---
+
+## F3. Both *blocking* questions are scope failures, not extraction failures
+
+`post/update` raised two blocking open questions. Neither is answerable by better parsing of
+the files in the folder:
+
+| blocking question | what it needs |
+|---|---|
+| How is a failed save reported? (`c.ts:102-104` is deliberately empty; display is delegated to an event bus consumed elsewhere) | who listens to the event bus — repo-wide |
+| Should the three unreachable file operations be ported? | whether anything outside the folder reaches them — repo-wide |
+
+`activate` raised the same shape: *"Who else calls the activation service?"*
+
+**Fixed by: Phase 2** (repo inventory and cross-unit dependency graph), not Phase 1.
+
+This bears on build order. The plan runs Phase 1 before Phase 2. On this evidence, completing
+Phase 1 would leave every blocking question on both components still open — the review gate
+could not pass, and Stage 2 could not begin. Worth deciding deliberately whether that ordering
+still holds, or whether a minimal repo-wide symbol index should land alongside the Resolver.
+
+---
+
+## F4. What Phase 1 does buy, concretely
+
+The most consequential claim in the `post/update` document — that `byteSize`, `openFile`, and
+`setFileData` are unreachable, and that two injected dependencies exist solely to serve them —
+rests on a manual search, which the document itself flags as its reason for lowered confidence.
+
+Spot-checked and it holds: those three names appear only at their own definitions
+(`post-update.component.ts:60-68`), with no call site in the template, the spec, or the class.
+Two other load-bearing claims also verified exactly — `getRawValue()` carrying the disabled
+identifier into the save path (`post-form.service.ts:73`), and the identifier being
+simultaneously `Validators.required` and `disabled: true`, making the rule inert
+(`post-form.service.ts:51-57`).
+
+That accuracy is real but does not generalize: a manual reachability search is sound across one
+folder and will not be across a repository. Verified reachability is a genuine Phase 1
+deliverable.
+
+---
+
+## F5. Template fit
+
+All 9 `requirement.md` sections were filled in both documents; no section went unused, none was
+padded to look filled. No missing slot was identified — the two documents' hardest content
+(unreachable code, inert validation, delegated error display) landed in existing sections
+without strain.
+
+**Fixed by:** nothing. No evidence for a Phase 0 template revision from this sample.
+
+---
+
+## Limits of this review
+
+- **Two components from one repository**, both JHipster-generated. Generated code is more
+  regular than hand-written code; F5 in particular may not survive a messier sample.
+- **Nothing here tests cross-component behavior**, which `2_ImplementationPlan.md:147` names as
+  where Angular migrations usually break. F3 is the first evidence of that limit biting.
+- **Same-model review.** This pass was performed by the same model family that wrote the
+  documents, against the plan's own warning (§131). F2 was found by comparing against source
+  text rather than by re-reading the code, which is why it survived; findings that depend on
+  re-comprehending Angular should be trusted less.
+- **Run 2 was not a cold start** — it inherited run 1's context in the same session. See
+  `benchmarks/phase-a.json`.
+
+## Suggested reading of the gate
+
+Phase A produces documents that are accurate and unusually candid about their own limits. The
+failures are not in comprehension or in the templates; they are (a) unanchored naming, which
+the Resolver fixes, and (b) everything that lives outside one folder, which it does not.
+
+Acted on in **D11**: the skills-versus-tooling comparison moves to Phase 2, and the metric
+carrying it becomes the count of unresolved blocking questions.

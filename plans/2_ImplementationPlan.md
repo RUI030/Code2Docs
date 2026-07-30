@@ -362,18 +362,34 @@ achievable on a representative sample.
 
 ## 4. Immediate next steps
 
-Phase A only. Everything below Phase A stays untouched until the gate passes.
+**Phase A is complete.** All five steps ran: the three skills were written, the POC agent
+configured, two components analyzed (`app/account/activate`, `app/entities/post/update`),
+their artifacts committed under `examples/baseline_skillsonly/`, and the review written up in
+`3_PhaseAFindings.md`. The producing state is tagged `phase-a-baseline`; cost and duration are
+in `benchmarks/phase-a.json`.
 
-1. Write the three skills, thin: `angular-semantics`, `requirements-writing`,
-   `migration-risk-flagging`.
-2. Configure the single POC agent (Read/Grep/Glob + those skills, no tools).
-3. Pick 2–3 components of varying complexity from `INPUT/`, including one large one.
-4. Produce `requirement.md` and `migration_notes.md`, plus hand-filled `signature.json` and
-   `dependencies.json#/callGraph` per component; commit under `examples/`.
-5. Review against source, counting factual errors and omissions separately; write up which
-   template fields went unused or missing.
+Two results change what happens next:
 
-Deferred: **D3** (compiler API before grep) needs an explicit confirm or reject, since it
-contradicts the description's stated first cut — but it does not block Phase A, which uses no
-extractor at all. `explaining-functions` and the staged-versus-one-shot comparison wait for
-Phase 4 (**D8**).
+- **F5 — the templates need no revision.** All nine `requirement.md` sections were filled in
+  both documents, none padded, no missing slot identified. Phase 0's first bullet was
+  "revise the five templates against Phase A's findings"; the finding is that there is nothing
+  to revise, so Phase 0 begins at the JSON Schemas.
+- **F3 — the blocking gaps are cross-folder, not extraction.** Both blocking open questions
+  need repository-wide information that Phase 1 does not produce. **D11** acts on this: the
+  skills-versus-tooling comparison moves to Phase 2, and the metric carrying it becomes the
+  count of unresolved blocking questions rather than spec-title coverage, which Phase A already
+  saturated at 100%.
+
+**Next: Phase 0**, starting at the schema work.
+
+1. One JSON Schema per tier under `templates/schema/`, wired to `ajv`.
+2. The cross-tier referential-integrity checker — the enforcement point for invariant #2.
+3. Id conventions pinned as schema patterns.
+4. `fixtures/`: small hand-written Angular files, one construct each.
+
+Not blocking: `explaining-functions` and the staged-versus-one-shot comparison wait for
+Phase 4 (**D8**). **D3** (compiler API before grep) is **accepted** — see `1_Decisions.md`.
+
+The Phase A baseline is re-run in fresh sessions immediately before the Phase 2 comparison, so
+both sides are measured by the same harness on the same day. The numbers currently in
+`benchmarks/phase-a.json` are marked provisional because both runs shared one session.
