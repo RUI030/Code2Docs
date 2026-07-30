@@ -1,0 +1,286 @@
+{
+  "schemaVersion": "0.2.0",
+  "$comment": "PHASE A — D2a EXPERIMENT. Written AFTER requirement.md, by decomposing that prose into these fields, to test whether the production direction (analysis.json -> rendered md) is viable. Friction points are recorded in $comment_d2a keys throughout. Verdict is in coverageAssessment.d2aFindings at the bottom.",
+
+  "unitId": "component:app/entities/post/update:PostUpdateComponent",
+  "rendersTo": { "requirement": "./requirement.md", "migrationNotes": "./migration_notes.md" },
+
+  "purpose": {
+    "statement": "The editing screen for a blog post, serving both creation and modification through one form. It presents a post's title, body, publication date, owning blog, and tags; validates that the first four are provided; and saves the result — creating a new post or updating an existing one depending on whether it already has an identifier.",
+    "responsibilities": [
+      { "id": "resp:1", "statement": "Present an editable form for a post, populated from the supplied post when one exists.", "evidence": ["method:ngOnInit", "method:updateForm"] },
+      { "id": "resp:2", "statement": "Offer the available blogs and tags as selectable options.", "evidence": ["method:loadRelationshipsOptions"] },
+      { "id": "resp:3", "statement": "Enforce that title, body, and date are provided before saving is permitted.", "evidence": ["form:editForm", "tpl:btn-save"] },
+      { "id": "resp:4", "statement": "Create or update the post on submission, choosing by whether an identifier is present.", "evidence": ["method:save"] },
+      { "id": "resp:5", "statement": "Return the person to where they came from once saving succeeds.", "evidence": ["method:onSaveSuccess"] }
+    ],
+    "evidence": ["method:save", "form:editForm"],
+    "$comment_d2a": "Clean mapping. The second paragraph of requirement.md §1 ('the post is handed to the screen already loaded... it does fetch the choices itself') had NO home — it is a scoping remark, neither purpose nor responsibility. Rendered output would lose it. Suggests a `context` or `notes` string on purpose."
+  },
+
+  "stateModel": {
+    "external": [
+      { "id": "state:1", "name": "post being edited", "owner": "dep:activatedRoute", "description": "Supplied through routing data, meaning something upstream loaded it before this screen appeared. This screen never fetches it.", "evidence": ["dep:activatedRoute", "method:ngOnInit"] }
+    ],
+    "propsAndEvents": [],
+    "$comment_d2a_props": "Legitimately empty — no @Input/@Output. But requirement.md said something meaningful here: 'None. Its input arrives through routing instead.' An empty array renders as nothing, losing the explanation of WHY it is empty. Absence needs a voice; a renderer cannot distinguish 'nothing to say' from 'nothing here, and that is the notable part'.",
+    "local": [
+      { "id": "state:2", "member": "field:isSaving", "description": "True while a save is in flight; disables the save control.", "mutatedBy": ["method:save", "method:onSaveFinalize"], "evidence": ["field:isSaving", "tpl:btn-save"] },
+      { "id": "state:3", "member": "field:post", "description": "The post currently being edited, or nothing for a new one.", "mutatedBy": ["method:ngOnInit", "method:updateForm"], "evidence": ["field:post"] },
+      { "id": "state:4", "member": "field:blogsSharedCollection", "description": "The blogs offered in the selector. Despite the name, local to this screen and shared with nothing.", "mutatedBy": ["method:updateForm", "method:loadRelationshipsOptions"], "evidence": ["field:blogsSharedCollection"] },
+      { "id": "state:5", "member": "field:tagsSharedCollection", "description": "The tags offered in the selector. Also local despite the name.", "mutatedBy": ["method:updateForm", "method:loadRelationshipsOptions"], "evidence": ["field:tagsSharedCollection"] }
+    ],
+    "derived": [
+      { "id": "state:6", "name": "option matching helpers", "derivedFrom": ["dep:blogService", "dep:tagService"], "rule": "Two comparison helpers decide whether a selected option matches the stored value, each delegating to the corresponding entity service. Without them the selectors could not pre-select an existing choice, since options are objects rather than simple values.", "evidence": ["field:compareBlog", "field:compareTag"] }
+    ],
+    "form": [
+      {
+        "id": "state:7",
+        "form": "form:editForm",
+        "description": "Six fields built by a dedicated form service: identifier, title, body, date, blog, tags.",
+        "validationRules": [
+          "Title is required.",
+          "Body is required.",
+          "Date is required, and defaults to the current moment for a new post.",
+          "Blog is optional and may be left empty.",
+          "Tags are optional and default to none.",
+          "The identifier is marked required and permanently disabled; because disabled fields take no part in validation, its required rule never affects whether the form can be submitted.",
+          "Validation messages appear only once a field has been edited or visited — not on arrival."
+        ],
+        "evidence": ["form:editForm"],
+        "$comment_d2a": "MAJOR FRICTION. requirement.md rendered this as a 6-row table (field / required / notes) plus two paragraphs of prose about disabled-field semantics. `validationRules` is a flat string array — it cannot express a table, and the two paragraphs became bullet 6 and 7, losing the emphasis they had as standalone prose. A faithful render of this array would be a bullet list, NOT the table a reviewer found readable. The schema needs a structured `controls` array here (mirroring functions.json#/forms/groups/controls) rather than free strings."
+      }
+    ],
+    "async": [
+      { "id": "state:8", "stream": "stream:routeData", "trigger": "Screen initialization; re-runs on every routing-data emission.", "loadingIndicator": null, "errorHandling": "None.", "evidence": ["stream:routeData"] },
+      { "id": "state:9", "stream": "stream:blogQuery", "trigger": "Each routing-data emission, via option loading.", "loadingIndicator": null, "errorHandling": "None — failure leaves the selector silently empty, indistinguishable from no blogs existing.", "evidence": ["stream:blogQuery"] },
+      { "id": "state:10", "stream": "stream:tagQuery", "trigger": "Each routing-data emission, via option loading.", "loadingIndicator": null, "errorHandling": "None — same silent-empty failure.", "evidence": ["stream:tagQuery"] },
+      { "id": "state:11", "stream": "stream:saveResponse", "trigger": "Form submission.", "loadingIndicator": "field:isSaving", "errorHandling": "This screen shows nothing itself; reporting is delegated to an application-wide error display fed by the event bus.", "evidence": ["stream:saveResponse", "method:onSaveError"] }
+    ]
+  },
+
+  "publicContract": {
+    "consumedBy": [],
+    "$comment_d2a_consumed": "Empty, but requirement.md explained: 'Nothing renders this screen directly. Reached by route.' Same absence-needs-a-voice problem as propsAndEvents.",
+    "methods": [
+      { "id": "api:1", "symbol": "method:save", "signature": "save(): void", "contract": "Marks a save in flight, then creates or updates depending on whether an identifier is present. Does not itself check validity — the save control is disabled instead.", "preconditions": ["The form is valid (enforced by the disabled control, not by this method)."], "postconditions": ["A create or update request has been issued.", "The in-flight flag is set until the request settles."], "evidence": ["method:save"] },
+      { "id": "api:2", "symbol": "method:previousState", "signature": "previousState(): void", "contract": "Returns to the previous entry in browser history.", "preconditions": [], "postconditions": ["The browser has navigated back one entry."], "evidence": ["method:previousState"] },
+      { "id": "api:3", "symbol": "field:compareBlog", "signature": "(a: IBlog | null, b: IBlog | null) => boolean", "contract": "Whether two blogs are the same, for option matching.", "preconditions": [], "postconditions": [], "evidence": ["field:compareBlog"] },
+      { "id": "api:4", "symbol": "field:compareTag", "signature": "(a: ITag | null, b: ITag | null) => boolean", "contract": "Whether two tags are the same, for option matching.", "preconditions": [], "postconditions": [], "evidence": ["field:compareTag"] },
+      { "id": "api:5", "symbol": "method:byteSize", "signature": "byteSize(base64: string): string", "contract": "UNREACHABLE — never called from template, method, or test.", "preconditions": [], "postconditions": [], "unreachable": true, "evidence": ["method:byteSize"] },
+      { "id": "api:6", "symbol": "method:openFile", "signature": "openFile(base64: string, contentType?: string | null): void", "contract": "UNREACHABLE.", "preconditions": [], "postconditions": [], "unreachable": true, "evidence": ["method:openFile"] },
+      { "id": "api:7", "symbol": "method:setFileData", "signature": "setFileData(event: Event, field: string, isImage: boolean): void", "contract": "UNREACHABLE.", "preconditions": [], "postconditions": [], "unreachable": true, "evidence": ["method:setFileData"] }
+    ],
+    "inputContracts": [],
+    "outputContracts": [],
+    "extensionPoints": [
+      { "id": "ext:1", "symbols": ["method:subscribeToSaveResponse", "method:onSaveSuccess", "method:onSaveError", "method:onSaveFinalize"], "statement": "Four operations exist for subclasses to override. The failure callback is empty by design and carries a comment marking it an extension point.", "evidence": ["method:onSaveError"] }
+    ],
+    "$comment_d2a": "`unreachable` and `extensionPoints` are both NOT in the schema — invented here. requirement.md's §4 paragraph explaining WHY the trio is unreachable (generated boilerplate for binary fields Post lacks, two dependencies serving only them) has no field at all; it is a finding about the unit, not about any one member."
+  },
+
+  "workflows": [
+    { "id": "flow:1", "name": "Open the screen for editing", "trigger": "Screen initialization", "preconditions": ["Routing data supplies a post, or does not."], "steps": [ { "order": 0, "action": "Store the supplied post.", "evidence": ["method:ngOnInit"] }, { "order": 1, "action": "If a post was supplied, populate the form from it and merge its blog and tags into the option lists so the current choices remain displayable.", "evidence": ["method:updateForm"] }, { "order": 2, "action": "Fetch available blogs and tags, replacing the option lists when each arrives.", "evidence": ["method:loadRelationshipsOptions"] } ], "successOutcome": "A form populated with the post's values and selectors offering current choices.", "failureOutcomes": [ { "condition": "Either option request fails", "result": "That selector stays empty, with no message." } ], "evidence": ["method:ngOnInit"] },
+    { "id": "flow:2", "name": "Save the post", "trigger": "Form submission", "preconditions": ["The form is valid — otherwise the control is disabled."], "steps": [ { "order": 0, "action": "Mark a save in flight, disabling the save control.", "evidence": ["method:save", "tpl:btn-save"] }, { "order": 1, "action": "Read the form's values, including the non-editable identifier.", "evidence": ["method:save"] }, { "order": 2, "action": "If an identifier is present, request an update; otherwise request a creation.", "evidence": ["method:save"] }, { "order": 3, "action": "On success, return to the previous browser entry.", "evidence": ["method:onSaveSuccess"] }, { "order": 4, "action": "Either way, clear the in-flight flag.", "evidence": ["method:onSaveFinalize"] } ], "successOutcome": "The post is persisted and the person is returned to the previous screen.", "failureOutcomes": [ { "condition": "The request fails", "result": "The in-flight flag clears so the form is submittable again; this screen displays nothing itself." } ], "evidence": ["method:save"] },
+    { "id": "flow:3", "name": "Cancel editing", "trigger": "The cancel control", "preconditions": [], "steps": [ { "order": 0, "action": "Return to the previous browser entry, discarding any changes.", "evidence": ["tpl:btn-cancel", "method:previousState"] } ], "successOutcome": "The person leaves without saving.", "failureOutcomes": [], "evidence": ["tpl:btn-cancel"] }
+  ],
+
+  "lifecycleBehavior": {
+    "onInitialization": "The form is constructed while the screen's fields are being set up, by calling into the form service — creating an ordering requirement that the form service already be available, which the source acknowledges by suppressing a member-order lint rule. Then routing data is watched; each post received is stored, the form populated if present, and selector options loaded.",
+    "onInputChange": null,
+    "onDestroy": "Nothing is cleaned up; there is no teardown handler.",
+    "orderingConstraints": [
+      { "statement": "The form service must be assigned before the form field initializer runs.", "evidence": ["field:editForm", "dep:postFormService"] },
+      { "statement": "Option loading happens inside the routing-data handler, so it re-runs on every emission rather than once.", "evidence": ["method:loadRelationshipsOptions"] },
+      { "statement": "On success the navigation step runs before the in-flight flag is cleared.", "evidence": ["stream:saveResponse"] }
+    ]
+  },
+
+  "externalIntegrations": {
+    "services": [
+      { "dep": "dep:postService", "purpose": "Persist the post.", "operations": ["Create a new post", "Update an existing post"], "evidence": ["dep:postService"] },
+      { "dep": "dep:postFormService", "purpose": "Build the form, populate it from a post, and read it back out.", "operations": ["Build", "Populate", "Read"], "evidence": ["dep:postFormService"] },
+      { "dep": "dep:blogService", "purpose": "Supply and match blog options.", "operations": ["List blogs", "Merge in a missing blog", "Compare two blogs"], "evidence": ["dep:blogService"] },
+      { "dep": "dep:tagService", "purpose": "Supply and match tag options.", "operations": ["List tags", "Merge in missing tags", "Compare two tags"], "evidence": ["dep:tagService"] },
+      { "dep": "dep:activatedRoute", "purpose": "Supply the post to edit.", "operations": ["Provide routing data"], "evidence": ["dep:activatedRoute"] },
+      { "dep": "dep:dataUtils", "purpose": "File handling — used only by unreachable operations.", "operations": [], "evidence": ["dep:dataUtils"] },
+      { "dep": "dep:eventManager", "purpose": "Broadcast application events — used only by an unreachable operation.", "operations": [], "evidence": ["dep:eventManager"] }
+    ],
+    "apis": [
+      { "http": "http:1", "purpose": "Update an existing post.", "evidence": ["http:1"] },
+      { "http": "http:2", "purpose": "Create a new post.", "evidence": ["http:2"] },
+      { "http": "http:3", "purpose": "List blogs for the selector.", "evidence": ["http:3"] },
+      { "http": "http:4", "purpose": "List tags for the selector.", "evidence": ["http:4"] }
+    ],
+    "packages": [
+      { "package": "dayjs", "usedFor": "Date parsing, formatting, and defaulting a new post's date to now.", "evidence": ["dep:postFormService"] },
+      { "package": "@fortawesome", "usedFor": "Cancel and save button icons.", "evidence": ["tpl:btn-cancel", "tpl:btn-save"] }
+    ],
+    "$comment_d2a": "requirement.md §5 carried an explanatory paragraph about the merge-if-absent behavior ('if the post references a blog the fetched list omits, it is added so the selector can still display the current choice'). That is cross-service behavior with no field — it is not a property of any single service entry."
+  },
+
+  "serviceLayer": {
+    "applicable": true,
+    "sharedState": [
+      { "id": "svc:1", "service": "dep:eventManager", "state": "A broadcast channel other parts of the application listen on.", "lifetime": "app-singleton", "readByThisUnit": false, "mutatedByThisUnit": true, "mutatingMethods": ["method:setFileData"], "otherConsumers": [], "consumersKnown": false, "evidence": ["dep:eventManager"], "$comment": "The sole mutation path is unreachable, so in practice this unit mutates no shared state." }
+    ],
+    "statelessOperations": [
+      { "id": "svcop:1", "service": "dep:postService", "operation": "Create or update a post — request and reply, nothing retained.", "evidence": ["method:save"] },
+      { "id": "svcop:2", "service": "dep:postFormService", "operation": "Build, populate, and read the form — a pure transformer with no fields.", "evidence": ["dep:postFormService"] },
+      { "id": "svcop:3", "service": "dep:blogService", "operation": "List, merge, compare blogs.", "evidence": ["dep:blogService"] },
+      { "id": "svcop:4", "service": "dep:tagService", "operation": "List, merge, compare tags.", "evidence": ["dep:tagService"] }
+    ],
+    "couplingNotes": [
+      { "id": "svccoupling:1", "statement": "The form is constructed during field setup by calling the form service, so that service must be available first.", "evidence": ["field:editForm"] },
+      { "id": "svccoupling:2", "statement": "Save requests do nothing until subscribed to, so the request is issued by this screen rather than by the service call.", "evidence": ["stream:saveResponse"] },
+      { "id": "svccoupling:3", "statement": "Reporting a save failure is delegated entirely to the event-bus-driven error display, so this screen's correct behavior depends on machinery outside it.", "evidence": ["method:onSaveError", "tpl:alert-error"] }
+    ],
+    "$comment_d2a": "The observation that the two locally-held collections are NAMED as though shared but are not had no home here — it belongs to naming, not to the shared-state contract. It landed in §6 prose in requirement.md."
+  },
+
+  "behavioralInvariants": [
+    { "id": "inv:1", "statement": "A save must produce an update, not a duplicate, whenever the post already exists.", "whyItMatters": "The identifier survives to the save call only because the form's raw value is read; reading the ordinary value would drop the disabled identifier and silently convert every edit into a new record.", "evidence": ["method:save", "form:editForm"] },
+    { "id": "inv:2", "statement": "The save control must remain unavailable while the form is invalid or a save is in flight.", "whyItMatters": "Validity is not checked inside the save operation, so the disabled control is the only guard against submitting an invalid post or double-submitting.", "evidence": ["tpl:btn-save", "method:save"] },
+    { "id": "inv:3", "statement": "A post's currently selected blog and tags must remain visible in the selectors even if the fetched option lists omit them.", "whyItMatters": "Otherwise editing an unrelated field would silently clear an existing relationship.", "evidence": ["method:updateForm", "method:loadRelationshipsOptions"] },
+    { "id": "inv:4", "statement": "A failed save must leave the form editable and resubmittable.", "whyItMatters": "The in-flight flag is cleared on both paths; if it were cleared only on success, one failure would lock the form permanently.", "evidence": ["method:onSaveFinalize"] },
+    { "id": "inv:5", "statement": "Validation messages must not appear for fields the person has not yet edited or visited.", "whyItMatters": "A new post opens with required fields blank; showing errors immediately would present the form as broken on arrival.", "evidence": ["tpl:if-title-invalid", "tpl:if-content-invalid", "tpl:if-date-invalid"] }
+  ],
+
+  "acceptanceCriteria": [
+    { "id": "ac:1", "scenario": "Blog options are loaded and the current choice preserved", "given": ["The screen opens for a post"], "when": ["It initializes"], "then": ["Available blogs are fetched", "The post's own blog is included even if the fetched list omits it"], "derivedFrom": ["flow:1", "inv:3"], "coveredByExistingTest": "Should call Blog query and add missing value", "evidence": ["method:loadRelationshipsOptions"] },
+    { "id": "ac:2", "scenario": "Tag options are loaded and current choices preserved", "given": ["The screen opens for a post"], "when": ["It initializes"], "then": ["Available tags are fetched", "The post's own tags are included even if omitted"], "derivedFrom": ["flow:1", "inv:3"], "coveredByExistingTest": "Should call Tag query and add missing value", "evidence": ["method:loadRelationshipsOptions"] },
+    { "id": "ac:3", "scenario": "The form reflects the supplied post", "given": ["A post is supplied through routing"], "when": ["The screen initializes"], "then": ["The form is populated from it"], "derivedFrom": ["flow:1"], "coveredByExistingTest": "Should update editForm", "evidence": ["method:updateForm"] },
+    { "id": "ac:4", "scenario": "Saving an existing post updates it", "given": ["The form holds a post that already has an identifier"], "when": ["Save is submitted"], "then": ["An update is requested, not a creation"], "derivedFrom": ["flow:2", "inv:1"], "coveredByExistingTest": "Should call update service on save for existing entity", "evidence": ["method:save"] },
+    { "id": "ac:5", "scenario": "Saving a new post creates it", "given": ["The form holds a post with no identifier"], "when": ["Save is submitted"], "then": ["A creation is requested, not an update"], "derivedFrom": ["flow:2"], "coveredByExistingTest": "Should call create service on save for new entity", "evidence": ["method:save"] },
+    { "id": "ac:6", "scenario": "A failed save re-enables the form", "given": ["A save is in flight"], "when": ["It fails"], "then": ["The in-flight flag is cleared so the form can be submitted again"], "derivedFrom": ["flow:2", "inv:4"], "coveredByExistingTest": "Should set isSaving to false on error", "evidence": ["method:onSaveFinalize"] },
+    { "id": "ac:7", "scenario": "Blog option matching is delegated", "given": ["Two blogs are compared for option selection"], "when": ["The comparison runs"], "then": ["It defers to the blog service's own comparison"], "derivedFrom": ["state:6"], "coveredByExistingTest": "Should forward to blogService", "evidence": ["field:compareBlog"] },
+    { "id": "ac:8", "scenario": "Tag option matching is delegated", "given": ["Two tags are compared"], "when": ["The comparison runs"], "then": ["It defers to the tag service's own comparison"], "derivedFrom": ["state:6"], "coveredByExistingTest": "Should forward to tagService", "evidence": ["field:compareTag"] },
+    { "id": "ac:9", "scenario": "Saving is blocked while invalid or in flight", "given": ["The form is invalid, or a save is already in flight"], "when": ["The person looks at the save control"], "then": ["It is disabled"], "derivedFrom": ["inv:2"], "coveredByExistingTest": null, "evidence": ["tpl:btn-save"] },
+    { "id": "ac:10", "scenario": "The identifier reaches an update", "given": ["An existing post is being edited and its identifier field is non-editable"], "when": ["Save is submitted"], "then": ["The identifier is still included, so an update is performed rather than a creation"], "derivedFrom": ["inv:1"], "coveredByExistingTest": null, "evidence": ["method:save"] },
+    { "id": "ac:11", "scenario": "A new post's date is pre-filled", "given": ["The screen opens with no existing post"], "when": ["The form is built"], "then": ["The date is pre-filled with the current moment"], "derivedFrom": ["state:7"], "coveredByExistingTest": null, "evidence": ["form:editForm"] },
+    { "id": "ac:12", "scenario": "Validation messages wait for interaction", "given": ["The screen has just opened with empty required fields"], "when": ["The person has not yet edited or visited a field"], "then": ["No validation message is shown for it"], "derivedFrom": ["inv:5"], "coveredByExistingTest": null, "evidence": ["tpl:if-title-invalid"] }
+  ],
+
+  "domainRules": {
+    "businessConstraints": [
+      { "id": "rule:1", "statement": "A post must have a title, a body, and a date.", "evidence": ["form:editForm"], "confidence": "high" },
+      { "id": "rule:2", "statement": "A post need not belong to a blog, and need not carry any tags.", "evidence": ["form:editForm", "tpl:option-blog-empty"], "confidence": "high" },
+      { "id": "rule:3", "statement": "A post may carry several tags.", "evidence": ["tpl:select-tags"], "confidence": "high" },
+      { "id": "rule:4", "statement": "A post's identifier is assigned by the system and never editable.", "evidence": ["form:editForm", "tpl:input-id"], "confidence": "high" },
+      { "id": "rule:5", "statement": "A new post's date defaults to the moment the form is opened, rather than being left blank.", "evidence": ["form:editForm"], "confidence": "medium", "$comment": "High confidence on the behavior; medium on whether 'the moment the form was opened' is the intended publication semantic." }
+    ],
+    "edgeCases": [
+      { "id": "edge:1", "situation": "The blog or tag list cannot be fetched.", "currentBehavior": "The selectors are silently empty and the person cannot distinguish that from 'none exist'.", "evidence": ["stream:blogQuery", "stream:tagQuery"] },
+      { "id": "edge:2", "situation": "A save fails.", "currentBehavior": "This screen shows nothing itself and relies on application-wide error display.", "evidence": ["method:onSaveError", "tpl:alert-error"] },
+      { "id": "edge:3", "situation": "A post references a blog or tag missing from the fetched list.", "currentBehavior": "The current choice is still displayed rather than appearing absent.", "evidence": ["method:updateForm"] },
+      { "id": "edge:4", "situation": "The person wants to express 'no tags'.", "currentBehavior": "No empty choice is offered, unlike the blog selector; deselecting all entries is possible but not obvious.", "evidence": ["tpl:select-tags", "tpl:option-blog-empty"] },
+      { "id": "edge:5", "situation": "Cancelling, or saving successfully.", "currentBehavior": "Both return to the previous browser entry rather than a known screen, so the destination depends on how the person arrived.", "evidence": ["method:previousState"] }
+    ],
+    "terminology": [
+      { "term": "Post", "definition": "A blog entry with a title, body, date, an optional owning blog, and optional tags.", "evidence": ["type:IPost"] },
+      { "term": "Blog", "definition": "The publication a post belongs to; at most one.", "evidence": ["type:IBlog"] },
+      { "term": "Tag", "definition": "A label applied to a post; any number.", "evidence": ["type:ITag"] },
+      { "term": "New versus existing", "definition": "Determined solely by whether an identifier is present; there is no separate mode or flag.", "evidence": ["method:save"] }
+    ],
+    "formulas": []
+  },
+
+  "migration": {
+    "$comment": "Renders to migration_notes.md. Full prose detail for each entry lives in that file; these are the structured records.",
+    "isLowerBound": true,
+    "deadCode": {
+      "methods": ["method:byteSize", "method:openFile", "method:setFileData"],
+      "dependencies": ["dep:dataUtils", "dep:eventManager"],
+      "statement": "Three methods are called from nowhere — not the template, not another method, not the tests. Post has no binary field, so these are generator boilerplate for entity types that do; two dependencies are injected solely to serve them.",
+      "verified": false,
+      "$comment_d2a": "`deadCode` is NOT in the schema. It is the run's highest-value finding and had nowhere to live — not a risk (nothing breaks), not a decomposition suggestion. Strong Phase 0 candidate."
+    },
+    "risks": [
+      { "id": "risk:1", "category": "forms-semantics", "severity": "high", "description": "The disabled identifier reaches the save call only because the form's raw value is read rather than its ordinary value.", "behaviorAtRisk": "A form library that omits disabled fields would make every update a creation, silently duplicating records.", "evidence": ["form:editForm", "method:save"] },
+      { "id": "risk:2", "category": "mutable-service-state", "severity": "high", "description": "Save-failure reporting is delegated to an application-wide error display fed by the event bus.", "behaviorAtRisk": "A faithful port yields an empty error handler and no display, so saves fail in complete silence.", "evidence": ["method:onSaveError", "tpl:alert-error"] },
+      { "id": "risk:3", "category": "direct-dom-access", "severity": "high", "description": "Browser history is manipulated directly for both cancel and post-save navigation, bypassing the router.", "behaviorAtRisk": "Substituting a route navigation is not equivalent — history-back depends on arrival path and can leave the application.", "evidence": ["method:previousState", "method:onSaveSuccess"] },
+      { "id": "risk:4", "category": "rxjs-pipeline", "severity": "medium", "description": "Neither option-loading request handles failure.", "behaviorAtRisk": "Current failure mode is a silently empty selector; a rewrite may either surface errors (an improvement) or reproduce the defect.", "evidence": ["stream:blogQuery", "stream:tagQuery"] },
+      { "id": "risk:5", "category": "forms-semantics", "severity": "medium", "description": "Error display is gated on the field having been edited or visited, not on validity alone.", "behaviorAtRisk": "Getting the timing wrong either nags on arrival or hides problems until submission.", "evidence": ["tpl:if-title-invalid"] },
+      { "id": "risk:6", "category": "forms-semantics", "severity": "medium", "description": "The identifier control is both disabled and marked required, making the rule inert.", "behaviorAtRisk": "A rewrite making the field read-only rather than disabled would suddenly enforce the rule, blocking creation of new posts.", "evidence": ["form:editForm"] },
+      { "id": "risk:7", "category": "lifecycle-ordering", "severity": "medium", "description": "The form is built in a field initializer that calls an injected service.", "behaviorAtRisk": "Building it later or earlier changes whether the form exists at first render; the template dereferences it unguarded.", "evidence": ["field:editForm", "tpl:form-group"] },
+      { "id": "risk:8", "category": "template-directive", "severity": "medium", "description": "Both option loops identify items by position rather than identity.", "behaviorAtRisk": "Collections are replaced when loading completes; positional identity reuses the wrong node on reorder.", "evidence": ["tpl:for-blog", "tpl:for-tags"] },
+      { "id": "risk:9", "category": "subscription-leak", "severity": "low", "description": "Three subscriptions with no cancellation and no teardown handler.", "behaviorAtRisk": "Probably nothing — request streams complete and routing streams are believed to be completed on teardown, but this was asserted rather than verified.", "evidence": ["stream:routeData", "stream:blogQuery", "stream:tagQuery"] },
+      { "id": "risk:10", "category": "di-assumption", "severity": "low", "description": "All six services are application-wide singletons.", "behaviorAtRisk": "Unobservable for the five stateless ones; load-bearing for the event bus, where a per-component instance would break error display.", "evidence": ["dep:eventManager"] }
+    ],
+    "suggestedDecomposition": [
+      { "id": "split:1", "proposedUnit": "Form construction and conversion (already extracted)", "rationale": "Form building, population, read-back, date conversion, and defaulting already live in a separate service. That seam exists and should be preserved rather than re-inlined.", "coveredMembers": ["dep:postFormService", "form:editForm"] },
+      { "id": "split:2", "proposedUnit": "Save-response callbacks", "rationale": "Four methods exist as overridable extension points rather than because this component needs them separate; one is an empty body with a comment saying so. Absent an inheritance requirement they collapse into the save call's own handlers.", "coveredMembers": ["method:subscribeToSaveResponse", "method:onSaveSuccess", "method:onSaveError", "method:onSaveFinalize"] }
+    ],
+    "thirdPartyEquivalence": [
+      { "package": "dayjs", "usedFor": "Date parsing, formatting, and defaulting new posts to now", "hasDirectEquivalent": "unknown", "$comment": "Behaviorally weighty: decides the wire format and supplies the default timestamp." },
+      { "package": "@fortawesome icons", "usedFor": "Button icons", "hasDirectEquivalent": "unknown" },
+      { "package": "Bootstrap-style CSS classes", "usedFor": "All layout and form styling", "hasDirectEquivalent": "unknown" },
+      { "package": "jhiTranslate directive (internal)", "usedFor": "All 13 visible strings", "hasDirectEquivalent": "unknown" },
+      { "package": "jhi-alert-error (internal)", "usedFor": "The only save-failure display", "hasDirectEquivalent": "unknown" }
+    ]
+  },
+
+  "review": {
+    "status": "pending",
+    "openQuestions": [
+      { "id": "q:1", "question": "Should the three file-handling operations and their two dependencies be carried over at all? They are unreachable and appear to be generated boilerplate; porting them reproduces dead code, dropping them assumes nothing outside this screen reaches them.", "blocking": true, "evidence": ["method:setFileData", "dep:dataUtils"] },
+      { "id": "q:2", "question": "How is a failed save reported to the person? This screen does nothing and relies on machinery outside this folder, so the actual failure behavior could not be established.", "blocking": true, "evidence": ["method:onSaveError", "tpl:alert-error"] },
+      { "id": "q:3", "question": "Can the malformed date-and-time message ever appear? The template shows one but the form service declares no such rule.", "blocking": false, "evidence": ["tpl:msg-date-format", "form:editForm"] },
+      { "id": "q:4", "question": "Is returning to the previous browser entry the intended destination after saving? It is not equivalent to navigating to a known screen and could take the person out of the application.", "blocking": false, "evidence": ["method:onSaveSuccess"] },
+      { "id": "q:5", "question": "Should option loading re-run when routing data changes? It is invoked inside the routing-data handler, so it repeats on every emission.", "blocking": false, "evidence": ["method:loadRelationshipsOptions"] },
+      { "id": "q:6", "question": "Who listens to the application event bus? Requires a repository-wide index, and bears on the save-failure question.", "blocking": false, "evidence": ["dep:eventManager"] },
+      { "id": "q:7", "question": "Do the three uncancelled subscriptions matter? Believed harmless because the streams self-terminate, but asserted rather than verified.", "blocking": false, "evidence": ["stream:routeData"] }
+    ],
+    "suspectedDefects": [
+      { "id": "bug:1", "description": "Option-loading failures are invisible: neither request handles failure, so a person may save a post with no blog simply because the list never arrived.", "confidence": "high", "evidence": ["stream:blogQuery", "stream:tagQuery"] },
+      { "id": "bug:2", "description": "The identifier's required rule is inert — required and disabled simultaneously, so it can never fire. Harmless today, dangerous if a rewrite enables the field assuming the rule protects it.", "confidence": "high", "evidence": ["form:editForm"] },
+      { "id": "bug:3", "description": "The tag selector cannot express 'no tags'; the blog selector has an explicit empty choice and the tag selector does not.", "confidence": "medium", "evidence": ["tpl:select-tags"] }
+    ],
+    "unresolvedReferences": [
+      "The route definition for this component (outside the folder) — so route path, guards, and the resolver supplying the post could not be identified.",
+      "PostService, BlogService, TagService internals — HTTP verbs and URLs are inferred from method names.",
+      "The event-bus listener that renders save failures."
+    ],
+    "humanOwnedSections": { "sections": [] },
+    "reviewedBy": null,
+    "reviewedAt": null
+  },
+
+  "coverageAssessment": {
+    "symbolsExplained": 12,
+    "symbolsTotal": 12,
+    "templateNodesCovered": 28,
+    "templateNodesTotal": 28,
+    "evidenceIdsResolved": 0,
+    "evidenceIdsTotal": 0,
+    "$comment_evidence": "Zero because no ast tier exists to resolve ids against — functions.json and template.json were not produced, so tpl:* and form:* ids in this file are ASSERTED, not verified. In production the referential-integrity checker would fail this file outright. That is the correct behavior and worth noting: Phase A cannot satisfy the evidence invariant even in principle.",
+    "overallConfidence": "medium",
+
+    "d2aFindings": {
+      "verdict": "Viable, but the schema is not ready to render requirement.md faithfully.",
+      "$comment": "The experiment: write requirement.md first, then decompose it into this file, and see what does not fit.",
+      "worked": [
+        "Workflows, invariants, acceptance criteria, domain rules, and risks decomposed cleanly with no loss.",
+        "Prose stored finished reads the same in either direction — storing sentences rather than notes was the right call.",
+        "Structured acceptance criteria are strictly better than prose; a testing agent can consume them directly."
+      ],
+      "friction": [
+        "SEVEN fields had to be invented: publicContract.methods[].unreachable, publicContract.extensionPoints, migration.deadCode, migration.isLowerBound, serviceLayer.applicable already existed but sharedState needed a reachability note, plus signature.json's effectivelyUnused / fieldInitializerDoesWork / isArrowFunctionProperty.",
+        "stateModel.form.validationRules is a flat string array but requirement.md rendered a 6-row TABLE. A faithful render of the array would produce a bullet list, which reviewers found less readable. Needs a structured controls array.",
+        "Empty arrays cannot explain themselves. propsAndEvents and consumedBy are legitimately empty, and requirement.md said something useful about WHY ('input arrives through routing instead'). A renderer sees an empty array and emits nothing, losing the explanation. Absence needs a voice.",
+        "Unit-level findings have no home. The paragraph explaining why the dead trio exists is about the unit, not any member — same for the merge-if-absent behavior spanning two services, and the misleading collection naming.",
+        "Scoping remarks have no home: 'the post is handed to the screen already loaded; it fetches the option lists itself' is orientation for a reader, not a fact about a field."
+      ],
+      "conclusion": "D2a's direction is sound — nothing about the prose resisted decomposition in principle. But rendering THIS requirement.md from THIS schema would lose the field table, five explanatory passages, and every 'notably absent' remark. Phase 0 should add the seven missing fields, convert validationRules to a structured controls array, and add a general-purpose `notes`/`context` string to each section so orientation prose and absence-explanations survive."
+    }
+  },
+
+  "provenance": {
+    "source": "llm",
+    "synthesizerModel": "claude-opus-5",
+    "synthesizerVersion": "phase-a-hand-written",
+    "inputHash": null,
+    "generatedAt": "2026-07-30",
+    "$comment": "Written by decomposing requirement.md, the REVERSE of production order. Records what the schema must support; does not demonstrate that a renderer works."
+  }
+}
