@@ -7,7 +7,7 @@
     - Editing text inside a c2d:begin/end block flips that section to human-owned. The
       renderer detects this via the section hash and will never overwrite it again; it
       writes the fresh machine version alongside as a diff for you to accept or reject.
-    - Section 8 (Domain Business Rules) is expected to be human-owned. It is where an SME
+    - Section 7 (Domain Business Rules) is expected to be human-owned. It is where an SME
       records intent no extractor can recover.
     - `hash` is of the analysis.json content the section was rendered from. Mismatch on
       re-render means either the source data changed or a human edited the prose.
@@ -66,13 +66,8 @@
 *Full dependency detail, including the same-file function call graph, is in `dependencies.json`.*
 <!-- c2d:end section="5-dependencies" -->
 
-<!-- c2d:begin section="6-service-layer" source="analysis.json#/serviceLayer" hash="<sha256>" -->
-## 6. Service Layer
-[Universal UI Project (UUIP) related notes. Omitted when `analysis.json#/serviceLayer/applicable` is false.]
-<!-- c2d:end section="6-service-layer" -->
-
-<!-- c2d:begin section="7-acceptance-criteria" source="analysis.json#/acceptanceCriteria" hash="<sha256>" -->
-## 7. Acceptance Criteria (AC)
+<!-- c2d:begin section="6-acceptance-criteria" source="analysis.json#/acceptanceCriteria" hash="<sha256>" -->
+## 6. Acceptance Criteria (AC)
 Testable conditions that must be met for this component to be considered complete. Formatted in BDD (Given/When/Then) to assist the Testing Agent. The structured form lives in `analysis.json#/acceptanceCriteria` for direct machine consumption.
 
 - **Scenario 1: [Scenario Name]**
@@ -80,16 +75,16 @@ Testable conditions that must be met for this component to be considered complet
   - **When** [Action performed by user or system]
   - **Then** [Expected observable outcome]
   - *Covered by existing test:* [spec case, or "none"]
-<!-- c2d:end section="7-acceptance-criteria" -->
+<!-- c2d:end section="6-acceptance-criteria" -->
 
-<!-- c2d:begin section="8-domain-business-rules" source="analysis.json#/domainRules" hash="<sha256>" human-owned="false" -->
-## 8. Domain Business Rules (For SME Review)
+<!-- c2d:begin section="7-domain-business-rules" source="analysis.json#/domainRules" hash="<sha256>" human-owned="false" -->
+## 7. Domain Business Rules (For SME Review)
 Human-readable business constraints, domain logic, edge cases, and terminology. This section focuses entirely on the "WHAT" and "WHY" from a business perspective, devoid of implementation details.
 
 - **Business Constraints:** [Hard rules the business dictates]
 - **Edge Cases & Error Handling:** [What happens when things go wrong operationally]
 - **Domain Terminology/Formulas:** [Definitions of specific business terms or calculations]
-<!-- c2d:end section="8-domain-business-rules" -->
+<!-- c2d:end section="7-domain-business-rules" -->
 
 ---
 

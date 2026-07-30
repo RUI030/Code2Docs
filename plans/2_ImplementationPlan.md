@@ -15,6 +15,8 @@ learned. See **D7** and **D8**.
 ```
 Code2Docs/
   tools/ng-ast/            # Resolver CLI (Node + TypeScript Compiler API)
+  tools/ng-scan/           # text-search capability: discovery, non-TS reach,
+                           #   degraded fallback, and recall audit (D3a)
   templates/
     signature.json         # hot tier: "what is this"            [written]
     dependencies.json      # graph tier: call graph + edges       [written]
@@ -114,6 +116,14 @@ comparison (**D8**).
 - Have someone who knows the code review each output against source, counting **factual
   errors and omissions separately**.
 
+  *Open staffing question.* This reviewer must read Angular, and omissions in particular are
+  invisible without a source comparison — so the gate cannot be scored by inspection of the
+  document alone. Three viable routes: borrow someone Angular-literate for a couple of hours;
+  lean on `.spec.ts` files as partial ground truth, since tests state intended behavior in
+  readable form; or run a structured line-by-line cross-check with an agent, which is weaker
+  (a similar system grading its own work) but beats eyeballing. Settle this before running
+  Phase A — an unscored gate defeats the purpose of running the POC first.
+
 *Why hand-fill the JSON.* Two payoffs. It tests whether the schema is fillable at all. And
 it stores a baseline: when the real extractor runs on the same components in Phase 1,
 diffing extractor output against the POC's hand-filled version **quantifies LLM recall**.
@@ -188,6 +198,15 @@ Build extractors in dependency order, each with fixture tests:
 *Cross-cutting:* never throw on unparseable input — degrade, set `parseStatus`, record a
 warning. A pipeline that dies on one malformed file cannot process a real repo.
 
+*Text-search capability (D3a):* ship `ng-scan` alongside, and wire the **recall audit** in
+this phase rather than later — compare compiler counts against text-search counts for the
+constructs where a raw count is meaningful (`@Input`, `@Output`, `inject(`, `.subscribe(`,
+lifecycle hooks) and emit any gap as a `warnings` entry. It is a few lines of work and it
+catches the failure mode this phase is most exposed to: an extractor that returns seven of
+nine and reports success. Enforce the boundary in code — `ng-scan` results must not be
+writable into `ast` fields, or the determinism invariant and the omission metric both die
+quietly.
+
 *Exit:* every fixture produces schema-valid, golden-matched `ast` output;
 `executionOrder` is correct on a fixture with nested and cyclic calls. Diff the extractor's
 output against Phase A's hand-filled baselines and **record the omission rate** — this is the
@@ -204,6 +223,8 @@ number that justifies the extractor's existence.
   reverse-dependency lists (so `inferred.publicContract.consumedBy` can be populated from
   fact rather than inference).
 - Report unresolvable selectors/imports rather than dropping them.
+- This sweep is the primary intended use of `ng-scan` (**D3a**): coarse classification across
+  a whole repo, where precision would be wasted effort.
 
 *Exit:* running on a multi-unit synthetic fixture yields a correct graph and order.
 

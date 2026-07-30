@@ -16,9 +16,8 @@ list passes roughly a dozen entries, split it into `decisions/D<n>-<slug>.md`, o
 
 ## Open items
 
-**D3** (TypeScript Compiler API before grep) still needs an explicit confirm or reject — it
-contradicts the description's stated first cut. It does not block Phase A, which uses no
-extractor at all.
+None blocking. Phase A's review gate still needs a reviewer who reads Angular — see
+`2_ImplementationPlan.md` Phase A.
 
 ---
 
@@ -99,6 +98,8 @@ default so target assumptions cannot leak backward into the behavioral spec.
 
 ### D3 — Use the TypeScript Compiler API from Phase 1, not grep
 
+**Status: accepted.**
+
 The description proposes a grep-based first pass with "compiler and AST tools later."
 **Recommend inverting this.** Reasons:
 
@@ -111,13 +112,35 @@ The description proposes a grep-based first pass with "compiler and AST tools la
 - The call graph, field read/write sets, and leaf-first ordering — the Explainer's entire
   input contract — are not reconstructible by grep at acceptable accuracy.
 
-Grep stays useful as a *fallback* for files that fail to parse, and for the repo-wide
-inventory sweep in Phase 2 where only coarse classification is needed.
+Text search still ships alongside — see **D3a** for the roles it keeps.
 
 Templates are the one place to phase: start with `@angular/compiler`'s
 `parseTemplate` if it resolves cleanly against the target repo's Angular version;
 otherwise begin with a conservative HTML parser plus binding-syntax extraction and
 upgrade later. Record `template.parseStatus` honestly either way.
+
+### D3a — Text search ships alongside the compiler, in a strictly separate role
+
+Both capabilities are exposed. The agent reaches for the compiler first and falls back to
+text search when it wants breadth. Text search keeps four legitimate jobs:
+
+1. **Discovery** — the coarse repo-wide inventory sweep (**D5** Pass A), where only rough
+   classification is needed and precision would be wasted.
+2. **Reach beyond TypeScript** — string literals, comments, TODOs, config files, and
+   anything in a file the compiler does not model.
+3. **Degraded fallback** — a file that fails to parse still yields something rather than
+   nothing, with `parseStatus` set honestly.
+4. **Audit** — the valuable one. Run both and compare counts: if text search finds nine
+   mentions of `@Input` and the compiler reported seven, that gap is a bug signal. This makes
+   grep a cheap continuous check on extractor recall, which is otherwise the hardest property
+   to verify. Mismatches become `warnings` entries, not silent discrepancies.
+
+**The rule that makes this safe: text-search results never write into `ast` fields.** The
+`ast` tiers are authoritative and deterministic (**D2**); quietly merging fuzzy matches into
+them would destroy that invariant and, worse, corrupt the omission metric the extractor
+exists to provide — a field half-filled by grep would look complete. Text-search findings
+either land in `warnings`, or are surfaced to the agent as exploration context that never
+reaches the artifacts unmodified.
 
 ### D4 — Resolver ships as a Node CLI invoked via Bash, not an MCP server
 
@@ -200,3 +223,19 @@ range it holds for.
 `requirements-writing`, `migration-risk-flagging` — all of which a one-shot run exercises.
 `explaining-functions` is written in Phase 4 alongside the comparison that justifies it,
 rather than speculatively now.
+
+### D9 — Drop the Service Layer / UUIP section
+
+The `requirement.md` draft carried a "§7 Service Layer — Universal UI Project, aka UUIP"
+heading with no content. UUIP is a company-specific term that nobody on the project can
+currently define, so there is no way to write rules for filling the section or to judge
+whether what appears there is correct.
+
+Removed from `requirement.md` and `analysis.json`. A vaguely-titled section with no rules is
+where an LLM reliably invents plausible filler, and unreviewable filler in a document whose
+entire purpose is human sign-off is worse than an absent section.
+
+Re-add if UUIP gets defined. The scope question decides where it goes: something each
+component says specifically belongs in `requirement.md` backed by `analysis.json`, while one
+architectural fact about the whole project belongs in the repo-level `index.json` — repeating
+it per component would be the duplication **D2** exists to prevent.

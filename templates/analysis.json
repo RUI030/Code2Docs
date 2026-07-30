@@ -87,13 +87,6 @@
     ]
   },
 
-  "serviceLayer": {
-    "$comment": "requirement.md §7 — project-specific (UUIP / Universal UI Project). Confirm the intended shape of this section before the renderer relies on it.",
-    "applicable": false,
-    "notes": "<...>",
-    "evidence": []
-  },
-
   "behavioralInvariants": [
     {
       "$comment": "The migration's real acceptance bar: things that must remain true regardless of implementation.",
@@ -106,7 +99,7 @@
 
   "acceptanceCriteria": [
     {
-      "$comment": "requirement.md §8 — stored structured, not only as prose, so a testing agent can consume it directly. Derived from workflows, invariants, and existing spec cases.",
+      "$comment": "requirement.md §6 — stored structured, not only as prose, so a testing agent can consume it directly. Derived from workflows, invariants, and existing spec cases.",
       "id": "ac:<n>",
       "scenario": "<scenario name>",
       "given": ["<initial context or state>"],
@@ -119,7 +112,7 @@
   ],
 
   "domainRules": {
-    "$comment": "requirement.md §9 — for SME review. This section is the most likely to be human-edited, so the renderer must treat it as human-owned once touched.",
+    "$comment": "requirement.md §7 — for SME review. This section is the most likely to be human-edited, so the renderer must treat it as human-owned once touched.",
     "businessConstraints": [
       { "id": "rule:<n>", "statement": "<hard rule the business dictates>", "evidence": ["method:<name>", "form:<name>"], "confidence": "<high | medium | low>" }
     ],
@@ -166,7 +159,7 @@
     "unresolvedReferences": ["<symbol or selector that could not be linked to a unit>"],
     "humanOwnedSections": {
       "$comment": "Populated by the renderer when it detects a human edit (section hash mismatch). Listed sections are never overwritten on regeneration.",
-      "sections": ["<9-domain-business-rules>"]
+      "sections": ["<7-domain-business-rules>"]
     },
     "reviewedBy": "<name, or null>",
     "reviewedAt": "<ISO-8601 UTC, or null>"
