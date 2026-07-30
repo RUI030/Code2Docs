@@ -1,3 +1,7 @@
+# Angular reference material -- regenerable via tools/fetch-angular-docs.sh,
+# and someone else's licensed content. Never committed.
+angular-docs/
+
 # Analysis corpus (held-out evaluation fixture) and generated artifacts.
 # INPUT/ is a vendored Angular repo including node_modules; OUTPUT/ is a scratch
 # directory. Runs worth keeping get promoted to the tracked examples/ tree.
