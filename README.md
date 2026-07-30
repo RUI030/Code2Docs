@@ -46,8 +46,9 @@ This reads the component's `.ts`, `.html`, styles, and `.spec.ts` files and writ
 
 `OUTPUT/` is gitignored scratch space. A run worth keeping — in particular the hand-derived
 `signature.json` and `callGraph`, which are the baseline Phase 1's extractor gets measured
-against — gets promoted by copying the whole component folder to `examples/`, preserving the
-same mirrored path.
+against — is promoted by **manually** copying the component folder to `examples/`, preserving
+the same mirrored path. Promotion is deliberately a human step, and `examples/` is denied to
+Edit/Write in `.claude/settings.json` so no agent can overwrite a promoted baseline.
 
 You can also just ask in plain language — "document the component at `INPUT/.../foo`" — and the
 relevant skills load automatically.
@@ -95,7 +96,7 @@ plans/
   2_ImplementationPlan.md  phases, risks, next steps
 templates/               output shapes (5 JSON tiers + 2 rendered Markdown views)
 tools/                   Resolver CLI — Phase 1, not yet built
-examples/                promoted runs, kept as reference output and Phase 1 baseline
+examples/                promoted runs — reference output and Phase 1 baseline, hand-curated
 INPUT/                   Angular source under analysis (gitignored)
 OUTPUT/                  generated documentation, scratch (gitignored)
 ```

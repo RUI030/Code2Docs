@@ -66,10 +66,11 @@ guess which component to analyze.
 `OUTPUT/<mirrored source path>/<component>/`, mirroring the input tree so the output location
 is derivable from the source location. `OUTPUT/` is gitignored scratch space.
 
-**Promoting a run.** A run worth keeping does not survive there. The hand-derived
-`signature.json` and `callGraph` in particular are not disposable: they are the baseline that
-Phase 1's extractor gets diffed against to measure how much recall the tooling actually bought.
-Copy the component folder to `examples/<same mirrored path>/`, which **is** tracked.
+**Never write to `examples/`.** That tree is the tracked record of runs worth keeping — in
+particular the hand-derived `signature.json` and `callGraph`, the baseline Phase 1's extractor
+gets diffed against to measure how much recall the tooling actually bought. Promotion is a
+manual step the user performs; an agent overwriting a promoted baseline destroys the
+measurement. Write to `OUTPUT/` and stop there.
 
 ## Constraints
 
