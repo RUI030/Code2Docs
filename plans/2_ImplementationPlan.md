@@ -1,184 +1,16 @@
 # Code2Docs — Implementation Plan
 
-Companion to `0_ProjectDescription.md`. That document defines intent; this one defines
-the build order, the contracts between stages, and the decisions the description left open.
+Build order and phase-by-phase tasks. Scope, artifact model, and success criteria live in
+`0_ProjectDescription.md`; the decisions this plan rests on are recorded in `1_Decisions.md`
+and referenced here by id (**D1**–**D8**).
+
+Two stages: a skills-only proof of concept (**Phase A**) validates the deliverable at
+component level with no tooling, then the production pipeline is built around what it
+learned. See **D7** and **D8**.
 
 ---
 
-## 1. Scope
-
-**In scope.** Given an Angular source tree, produce for each analyzed unit a
-human-reviewable `requirement.md` and a machine-readable dataset (five JSON tiers, see
-**D2**), plus one repo-level index describing units, their dependencies, and the
-recommended processing order.
-
-**Out of scope.** Generating React (or any target-framework) code. The description
-mentions a "Stage 2" gated on human approval of `requirement.md` — Code2Docs *is* Stage 1
-and ends at that gate. Nothing in the output may prescribe target-framework architecture;
-outputs describe existing behavior only.
-
-**Success criterion.** A developer who has never seen the Angular component can read its
-`requirement.md`, agree it is accurate, and hand it to an implementer. Every factual
-claim in the output is traceable to a file and line.
-
-**Build strategy.** Two stages. A skills-only proof of concept (**Phase A**) validates the
-deliverable at component level with no tooling; the production pipeline is then built around
-what it learned. See **D7**.
-
----
-
-## 2. Decisions
-
-The description leaves several things underspecified. These are the resolutions this plan
-builds on; each is cheap to revisit before Phase 1 lands, expensive after.
-
-### D1 — The unit of work is a "unit", not only a component
-
-The description's Resolver takes a "Component Folder", but an Angular migration is blocked
-by services, guards, pipes, directives, interceptors, route resolvers, and shared models
-just as much as by components. The pipeline is therefore defined over a `unit`
-(`kind ∈ component | service | directive | pipe | guard | interceptor | route-resolver |
-module | model | store | util`). Components are the richest kind; the others use the same
-schema with inapplicable sections omitted.
-
-### D2 — One logical dataset, five physical files, split by access pattern
-
-The description names `metadata.json` as an output but never says who writes it: the
-Resolver emits `ast_signatures.json`, the Synthesizer emits `requirement.md`, and both
-overlap it. The resolution has two halves.
-
-**Merge logically.** There is one dataset, one id space, and **no fact stored twice**. Two
-files that both assert a component's inputs will eventually disagree, and then neither is
-trustworthy.
-
-**Split physically by access pattern**, because the goal is an IDE-like interface for
-agents and humans, and what makes an IDE fast is random access. For an agent, "loading" is
-paid in context tokens, so every irrelevant field in an opened file is waste. Splitting
-also buys **independent cache invalidation**: editing an HTML template must not invalidate
-every function explanation.
-
-| File | Answers | Read when |
-|---|---|---|
-| `signature.json` | "What is this?" | Always, first — kept small deliberately |
-| `dependencies.json` | "What connects to what?" | Tracing, impact analysis |
-| `functions.json` | "What does this symbol do?" | Drilling into one function (largest tier) |
-| `template.json` | "What does the UI do?" | UI work only |
-| `analysis.json` | "What must be preserved?" | Review, test generation |
-| `requirement.md` | Abstract behavioral spec | Human review |
-| `migration_notes.md` | Target-framework hazards | Stage 2 planning |
-
-Three mechanisms make this behave like an IDE rather than a pile of JSON:
-
-1. **Stable global ids are the only join key** (`method:save`, `tpl:12`, `dep:fooService`).
-   Files cross-reference by id, never by copying content — the foreign-key discipline that
-   prevents drift.
-2. **Reverse indexes are emitted alongside forward ones** (`calledBy` with `calls`,
-   `readBy` with `reads`). Nearly free at extraction time, expensive for an agent to derive
-   by scanning, and the reason find-references feels instant.
-3. **`signature.json` carries a manifest**, so one cheap read tells an agent what exists
-   and where to look next.
-
-The determinism invariant survives the split, moved inside each file as `ast` versus `doc`
-sub-objects with separate cache keys: **`ast` content is byte-reproducible from unchanged
-source and contains zero LLM output.** That is what makes it cacheable, diffable, and
-unit-testable without a model in the loop — and it is why every `doc` claim can cite an
-`ast` id as evidence, making the output auditable rather than merely plausible.
-
-### D2a — `requirement.md` is rendered deterministically, not written by an LLM
-
-The Synthesizer stores **finished prose** in `analysis.json`; a renderer assembles the
-Markdown mechanically. Handing the JSON to a second LLM to format would pay twice and
-reintroduce exactly the drift the split was meant to eliminate. Rendering mechanically
-makes "the md cannot contradict the JSON" a structural guarantee, gives a free consistency
-test (re-render and diff — any delta is a CI failure), and makes additional views cheap.
-
-Because the approval gate means humans *will* edit `requirement.md`, rendering must be a
-**merge, not an overwrite**: machine-owned regions are fenced with markers carrying a
-content hash; a hash mismatch marks the region human-owned and it is never overwritten
-again; the fresh machine version is written alongside as a diff to accept or reject.
-Writing accepted human prose back into `analysis.json` is deferred past v1.
-
-### D2b — Target-framework advice lives outside `requirement.md`
-
-`requirement.md` §6 originally held "React Refactor Suggestions," which contradicts the
-description's rule that outputs describe existing behavior rather than prescribe target
-architecture. Resolution: `requirement.md` stays framework-neutral — reviewable by domain
-experts who do not know the target, and still valid if the target changes — and all
-target-framework material moves to `migration_notes.md`, whose §4 is human-owned by
-default so target assumptions cannot leak backward into the behavioral spec.
-
-### D3 — Use the TypeScript Compiler API from Phase 1, not grep
-
-The description proposes a grep-based first pass with "compiler and AST tools later."
-**Recommend inverting this.** Reasons:
-
-- `typescript` is already a dependency of any Angular repo under analysis, so
-  `ts.createSourceFile` costs no new infrastructure and is ~20 lines to stand up.
-- The AST work is the load-bearing part of the whole system. Decorator arguments, DI
-  parameter lists, and `inject()` calls break regex matching as soon as formatting spans
-  lines or a type argument contains a comma — and they fail *silently*, producing
-  confidently wrong metadata that the LLM stages then elaborate on.
-- The call graph, field read/write sets, and leaf-first ordering — the Explainer's entire
-  input contract — are not reconstructible by grep at acceptable accuracy.
-
-Grep stays useful as a *fallback* for files that fail to parse, and for the repo-wide
-inventory sweep in Phase 2 where only coarse classification is needed.
-
-Templates are the one place to phase: start with `@angular/compiler`'s
-`parseTemplate` if it resolves cleanly against the target repo's Angular version;
-otherwise begin with a conservative HTML parser plus binding-syntax extraction and
-upgrade later. Record `template.parseStatus` honestly either way.
-
-### D4 — Resolver ships as a Node CLI invoked via Bash, not an MCP server
-
-The description says "a JavaScript tool registered with Claude Code." The simplest form
-that satisfies it: `tools/ng-ast/` as a Node CLI that takes a path and prints JSON to
-stdout. It is runnable and testable outside any agent, trivially allowlisted for the
-`resolver` subagent, and has no protocol handshake to debug. Promote it to an MCP server
-only if per-call process startup becomes a measured bottleneck.
-
-### D5 — Two passes over the repo: cheap inventory, then deep per-unit analysis
-
-A single walk cannot produce the cross-unit dependency graph that the Synthesizer's input
-list requires (the description asks for a "component dependency graph" but assigns nobody
-to build it). So:
-
-- **Pass A (no LLM):** classify every file into units, resolve imports and template
-  selectors to unit ids, emit `index.json` with the cross-unit graph and a leaf-first
-  topological order.
-- **Pass B (per unit, in that order):** Resolver → Explainer → Synthesizer.
-
-Leaf-first ordering means a unit's dependencies are already documented when it is
-processed, so the Synthesizer can cite a dependency's stated purpose instead of guessing
-at it.
-
-### D6 — Incremental by content hash
-
-Cache each tier's `ast` content keyed by a hash of the unit's input files + resolver
-version, and its `doc` content keyed by that hash + prompt/model version. Re-running on an unchanged repo
-should cost nothing. This matters more than it sounds: tuning Explainer granularity (which
-the description flags as needing iteration) means many repeated runs.
-
----
-
-### D7 — Prove the output before building the extractor
-
-Phases 0–2 as originally ordered front-load schema and extractor work before anything
-checks that the *deliverable* is useful. If the requirement template turns out to be the
-wrong shape, that investment is wasted. So a skills-only POC (**Phase A**) runs first: one
-agent, reading Angular source directly, producing `requirement.md` for a single component.
-
-Beyond de-risking, this inverts the schema design: the five templates are currently
-speculation about what a consumer needs, and the POC reveals which fields actually get used.
-Consequently JSON Schema enforcement stays deferred until Phase 0 — strict validation would
-only fight a POC whose purpose is to discover the right shape.
-
-The cost of this ordering is that Phase A cannot prove reproducibility or completeness. That
-is accepted, and Phase A's hand-filled baselines are how completeness gets measured later.
-
----
-
-## 3. Artifact layout
+## 1. Artifact layout
 
 ```
 Code2Docs/
@@ -218,7 +50,7 @@ both directions.
 
 ---
 
-## 4. Phases
+## 2. Phases
 
 The build has two stages. **Phase A** is a proof of concept that validates the *deliverable*
 using skill files alone — no tooling, no schema enforcement, one agent. Everything after it
@@ -228,14 +60,15 @@ before any model reasons over it.
 
 Each phase ends in something runnable.
 
-### Phase A — Skills-only proof of concept (no tools)
+### Phase A — Skills-only proof of concept, one-shot (no tools)
 
 *Goal:* establish that an agent reading Angular source directly can produce an accurate,
 reviewable `requirement.md` for a single component — and learn which metadata fields
 actually earn their place.
 
-*Scope:* **component level only.** Page-level and repo-level work waits for the POC to
-succeed.
+*Scope:* **component level only**, and **one-shot only** — a single synthesis pass, not
+explain-then-reduce. Page-level work waits for the POC to succeed; the staged comparison
+waits for the Resolver (**D8**).
 
 **Single-pass, not a miniature pipeline.** The Explainer→Synthesizer map/reduce depends on
 leaf-first execution order, which depends on the call graph, which depends on the Resolver.
@@ -246,17 +79,36 @@ prove more than it does.
 
 *Tasks:*
 
-- Write `skills/angular-semantics/`: how to read Angular constructs — decorators, DI,
-  lifecycle hooks, template syntax, RxJS, forms, routing — and what each implies about
-  behavior.
-- Write `skills/requirements-writing/`: how to phrase a framework-independent requirement,
-  how to fill `requirement.md` section by section, the standing prohibition on naming the
-  target framework, and when to raise an open question instead of guessing.
+Write three skills — every one of which a one-shot run exercises. Keep them **thin**:
+authoring the exhaustive Angular catalogue up front is speculation, and POC failures are a
+better guide to what belongs in it than intuition is.
+
+- `skills/angular-semantics/` — shared reference: how to read Angular constructs
+  (decorators, DI, lifecycle hooks, template syntax, RxJS, forms, routing) and what each
+  implies about behavior. Structure as `SKILL.md` (index plus core rules) with long
+  catalogues in `references/*.md`, consulted on demand rather than always resident.
+- `skills/requirements-writing/` — procedure: how to phrase a framework-independent
+  requirement, how to fill `requirement.md` section by section, the standing prohibition on
+  naming the target framework, and when to raise an open question instead of guessing.
+  Reference `templates/requirement.md` rather than restating its outline — two copies of the
+  section list would drift.
+- `skills/migration-risk-flagging/` — procedure plus hazard taxonomy, feeding
+  `migration_notes.md`. **The skill must state that its own output is a lower bound.** Risk
+  flagging pattern-matches against conditions like "subscription with no unsubscribe," which
+  presumes every subscription was found; without the extractor that recall is unverified, so
+  the skill silently under-reports. Under-reported risk is worse than absent risk because it
+  manufactures false confidence.
+
+`explaining-functions` is deliberately *not* written yet — it belongs with Phase 4's
+comparison (**D8**).
+
 - Configure one agent with Read/Grep/Glob plus those skills. No `ng-ast`, no MCP, no
   schema validation.
-- Select 2–3 components of deliberately varying complexity from `INPUT/`. This is the first
-  legitimate use of the fixture: we are *executing*, not designing, so it no longer leaks
-  the answer.
+- Select 2–3 components of deliberately varying complexity from `INPUT/`, **including at
+  least one deliberately large one** — the Explainer's eventual justification may be context
+  budgeting rather than accuracy, and only a large component probes that. This is the first
+  legitimate use of the fixture: we are *executing*, not designing, so it no longer leaks the
+  answer.
 - Produce per component: `requirement.md`, plus a **hand-filled `signature.json` and
   `dependencies.json#/callGraph`**.
 - Have someone who knows the code review each output against source, counting **factual
@@ -374,7 +226,17 @@ number that justifies the extractor's existence.
 
 ### Phase 4 — Explainer (map stage)
 
-*Goal:* accurate per-symbol explanations at usable granularity.
+*Goal:* first establish that this stage is worth having, then make it accurate.
+
+**Run the comparison before building it (D8).** With the Resolver now supplying a verified
+call graph, score staged output against Phase A's one-shot baseline on the *same* components:
+write `skills/explaining-functions/`, run explain-bottom-up-then-synthesize, and compare
+factual errors and omissions separately. If one-shot wins across the sampled size range, drop
+this stage and go straight to Phase 5 — that deletes the Explainer, its skill, and its
+orchestration. Record the size range any such conclusion holds for; a large component may
+still need decomposition purely to fit the context budget.
+
+The tasks below apply only if the comparison favours staging.
 
 - Input per call: one symbol's source, its callees' *already-written* explanations
   (available because of `executionOrder`), the field/dep signatures it touches, and any
@@ -448,7 +310,7 @@ achievable on a representative sample.
 
 ---
 
-## 5. Principal risks
+## 3. Principal risks
 
 | Risk | Mitigation |
 |---|---|
@@ -464,18 +326,20 @@ achievable on a representative sample.
 
 ---
 
-## 6. Immediate next steps
+## 4. Immediate next steps
 
 Phase A only. Everything below Phase A stays untouched until the gate passes.
 
-1. Write `skills/angular-semantics/` and `skills/requirements-writing/`.
-2. Configure the single POC agent (Read/Grep/Glob + those two skills, no tools).
-3. Pick 2–3 components of varying complexity from `INPUT/` and run them.
-4. Produce `requirement.md` plus hand-filled `signature.json` and `callGraph` per component;
-   commit as `fixtures/poc-baseline/`.
+1. Write the three skills, thin: `angular-semantics`, `requirements-writing`,
+   `migration-risk-flagging`.
+2. Configure the single POC agent (Read/Grep/Glob + those skills, no tools).
+3. Pick 2–3 components of varying complexity from `INPUT/`, including one large one.
+4. Produce `requirement.md` and `migration_notes.md`, plus hand-filled `signature.json` and
+   `dependencies.json#/callGraph` per component; commit as `fixtures/poc-baseline/`.
 5. Review against source, counting factual errors and omissions separately; write up which
    template fields went unused or missing.
 
-Deferred until the Phase A gate passes: **D3** (compiler API before grep) still needs an
-explicit confirm or reject, since it contradicts the description's stated first cut — but it
-does not block Phase A, which uses no extractor at all.
+Deferred: **D3** (compiler API before grep) needs an explicit confirm or reject, since it
+contradicts the description's stated first cut — but it does not block Phase A, which uses no
+extractor at all. `explaining-functions` and the staged-versus-one-shot comparison wait for
+Phase 4 (**D8**).

@@ -1,0 +1,202 @@
+# Code2Docs — Decisions
+
+Decision records for Code2Docs. `0_ProjectDescription.md` defines intent;
+`2_ImplementationPlan.md` defines build order. This file records the choices both rest on.
+
+Each entry states the problem, the resolution, and the reasoning — the reasoning especially,
+since that is what tells a future reader whether a decision still applies once conditions
+change. Entries are referenced by id from the other documents.
+
+**Conventions.** Decisions are append-only. A choice that turns out wrong is not edited away;
+a later decision supersedes it and says so explicitly, so the reasoning that led there stays
+legible. Sub-lettered ids (D2a, D2b) refine their parent rather than replacing it. Once this
+list passes roughly a dozen entries, split it into `decisions/D<n>-<slug>.md`, one per file.
+
+---
+
+## Open items
+
+**D3** (TypeScript Compiler API before grep) still needs an explicit confirm or reject — it
+contradicts the description's stated first cut. It does not block Phase A, which uses no
+extractor at all.
+
+---
+
+### D1 — The unit of work is a "unit", not only a component
+
+The description's Resolver takes a "Component Folder", but an Angular migration is blocked
+by services, guards, pipes, directives, interceptors, route resolvers, and shared models
+just as much as by components. The pipeline is therefore defined over a `unit`
+(`kind ∈ component | service | directive | pipe | guard | interceptor | route-resolver |
+module | model | store | util`). Components are the richest kind; the others use the same
+schema with inapplicable sections omitted.
+
+### D2 — One logical dataset, five physical files, split by access pattern
+
+The description names `metadata.json` as an output but never says who writes it: the
+Resolver emits `ast_signatures.json`, the Synthesizer emits `requirement.md`, and both
+overlap it. The resolution has two halves.
+
+**Merge logically.** There is one dataset, one id space, and **no fact stored twice**. Two
+files that both assert a component's inputs will eventually disagree, and then neither is
+trustworthy.
+
+**Split physically by access pattern**, because the goal is an IDE-like interface for
+agents and humans, and what makes an IDE fast is random access. For an agent, "loading" is
+paid in context tokens, so every irrelevant field in an opened file is waste. Splitting
+also buys **independent cache invalidation**: editing an HTML template must not invalidate
+every function explanation.
+
+| File | Answers | Read when |
+|---|---|---|
+| `signature.json` | "What is this?" | Always, first — kept small deliberately |
+| `dependencies.json` | "What connects to what?" | Tracing, impact analysis |
+| `functions.json` | "What does this symbol do?" | Drilling into one function (largest tier) |
+| `template.json` | "What does the UI do?" | UI work only |
+| `analysis.json` | "What must be preserved?" | Review, test generation |
+| `requirement.md` | Abstract behavioral spec | Human review |
+| `migration_notes.md` | Target-framework hazards | Stage 2 planning |
+
+Three mechanisms make this behave like an IDE rather than a pile of JSON:
+
+1. **Stable global ids are the only join key** (`method:save`, `tpl:12`, `dep:fooService`).
+   Files cross-reference by id, never by copying content — the foreign-key discipline that
+   prevents drift.
+2. **Reverse indexes are emitted alongside forward ones** (`calledBy` with `calls`,
+   `readBy` with `reads`). Nearly free at extraction time, expensive for an agent to derive
+   by scanning, and the reason find-references feels instant.
+3. **`signature.json` carries a manifest**, so one cheap read tells an agent what exists
+   and where to look next.
+
+The determinism invariant survives the split, moved inside each file as `ast` versus `doc`
+sub-objects with separate cache keys: **`ast` content is byte-reproducible from unchanged
+source and contains zero LLM output.** That is what makes it cacheable, diffable, and
+unit-testable without a model in the loop — and it is why every `doc` claim can cite an
+`ast` id as evidence, making the output auditable rather than merely plausible.
+
+### D2a — `requirement.md` is rendered deterministically, not written by an LLM
+
+The Synthesizer stores **finished prose** in `analysis.json`; a renderer assembles the
+Markdown mechanically. Handing the JSON to a second LLM to format would pay twice and
+reintroduce exactly the drift the split was meant to eliminate. Rendering mechanically
+makes "the md cannot contradict the JSON" a structural guarantee, gives a free consistency
+test (re-render and diff — any delta is a CI failure), and makes additional views cheap.
+
+Because the approval gate means humans *will* edit `requirement.md`, rendering must be a
+**merge, not an overwrite**: machine-owned regions are fenced with markers carrying a
+content hash; a hash mismatch marks the region human-owned and it is never overwritten
+again; the fresh machine version is written alongside as a diff to accept or reject.
+Writing accepted human prose back into `analysis.json` is deferred past v1.
+
+### D2b — Target-framework advice lives outside `requirement.md`
+
+`requirement.md` §6 originally held "React Refactor Suggestions," which contradicts the
+description's rule that outputs describe existing behavior rather than prescribe target
+architecture. Resolution: `requirement.md` stays framework-neutral — reviewable by domain
+experts who do not know the target, and still valid if the target changes — and all
+target-framework material moves to `migration_notes.md`, whose §4 is human-owned by
+default so target assumptions cannot leak backward into the behavioral spec.
+
+### D3 — Use the TypeScript Compiler API from Phase 1, not grep
+
+The description proposes a grep-based first pass with "compiler and AST tools later."
+**Recommend inverting this.** Reasons:
+
+- `typescript` is already a dependency of any Angular repo under analysis, so
+  `ts.createSourceFile` costs no new infrastructure and is ~20 lines to stand up.
+- The AST work is the load-bearing part of the whole system. Decorator arguments, DI
+  parameter lists, and `inject()` calls break regex matching as soon as formatting spans
+  lines or a type argument contains a comma — and they fail *silently*, producing
+  confidently wrong metadata that the LLM stages then elaborate on.
+- The call graph, field read/write sets, and leaf-first ordering — the Explainer's entire
+  input contract — are not reconstructible by grep at acceptable accuracy.
+
+Grep stays useful as a *fallback* for files that fail to parse, and for the repo-wide
+inventory sweep in Phase 2 where only coarse classification is needed.
+
+Templates are the one place to phase: start with `@angular/compiler`'s
+`parseTemplate` if it resolves cleanly against the target repo's Angular version;
+otherwise begin with a conservative HTML parser plus binding-syntax extraction and
+upgrade later. Record `template.parseStatus` honestly either way.
+
+### D4 — Resolver ships as a Node CLI invoked via Bash, not an MCP server
+
+The description says "a JavaScript tool registered with Claude Code." The simplest form
+that satisfies it: `tools/ng-ast/` as a Node CLI that takes a path and prints JSON to
+stdout. It is runnable and testable outside any agent, trivially allowlisted for the
+`resolver` subagent, and has no protocol handshake to debug. Promote it to an MCP server
+only if per-call process startup becomes a measured bottleneck.
+
+### D5 — Two passes over the repo: cheap inventory, then deep per-unit analysis
+
+A single walk cannot produce the cross-unit dependency graph that the Synthesizer's input
+list requires (the description asks for a "component dependency graph" but assigns nobody
+to build it). So:
+
+- **Pass A (no LLM):** classify every file into units, resolve imports and template
+  selectors to unit ids, emit `index.json` with the cross-unit graph and a leaf-first
+  topological order.
+- **Pass B (per unit, in that order):** Resolver → Explainer → Synthesizer.
+
+Leaf-first ordering means a unit's dependencies are already documented when it is
+processed, so the Synthesizer can cite a dependency's stated purpose instead of guessing
+at it.
+
+### D6 — Incremental by content hash
+
+Cache each tier's `ast` content keyed by a hash of the unit's input files + resolver
+version, and its `doc` content keyed by that hash + prompt/model version. Re-running on an unchanged repo
+should cost nothing. This matters more than it sounds: tuning Explainer granularity (which
+the description flags as needing iteration) means many repeated runs.
+
+---
+
+### D7 — Prove the output before building the extractor
+
+Phases 0–2 as originally ordered front-load schema and extractor work before anything
+checks that the *deliverable* is useful. If the requirement template turns out to be the
+wrong shape, that investment is wasted. So a skills-only POC (**Phase A**) runs first: one
+agent, reading Angular source directly, producing `requirement.md` for a single component.
+
+Beyond de-risking, this inverts the schema design: the five templates are currently
+speculation about what a consumer needs, and the POC reveals which fields actually get used.
+Consequently JSON Schema enforcement stays deferred until Phase 0 — strict validation would
+only fight a POC whose purpose is to discover the right shape.
+
+The cost of this ordering is that Phase A cannot prove reproducibility or completeness. That
+is accepted, and Phase A's hand-filled baselines are how completeness gets measured later.
+
+---
+
+### D8 — Run one-shot first; test the map/reduce decomposition only after the Resolver exists
+
+Two independent axes were being conflated, and separating them settles the sequencing:
+
+- **Whether the Resolver/AST tooling is needed.** It is, unconditionally — for determinism,
+  recall, cross-file selector resolution, caching, and scale on large repositories. No POC
+  result changes this. A successful one-shot POC says nothing against the tools.
+- **Whether the Explainer stage earns its place** — explaining each function bottom-up and
+  reducing, versus synthesizing in a single pass. This is genuinely open, and if one-shot
+  wins, an entire stage disappears from the design.
+
+Phase A therefore runs **one-shot only**. The staged comparison is deferred to Phase 4, once
+a verified call graph exists.
+
+Deferring is not merely simpler — it **removes a confound**. A staged run without tooling
+requires the agent to derive the call graph and leaf-first ordering itself, which is exactly
+the unreliable class of fact (see D3). If staged output scored worse, nothing would
+distinguish "the decomposition is bad" from "the derived ordering was wrong." Once the
+Resolver supplies the ordering, the comparison isolates the single variable it is meant to
+test.
+
+**Scope of any conclusion.** A favourable one-shot result on medium components does not
+settle the question for large ones. The Explainer's strongest justification may be context
+budgeting rather than accuracy: a component too large to reason about in one pass needs
+decomposition regardless of what it does for quality. Phase A therefore samples at least one
+deliberately large component, and any decision to drop the Explainer must state the size
+range it holds for.
+
+**Skill consequence.** Phase A authors three skills — `angular-semantics`,
+`requirements-writing`, `migration-risk-flagging` — all of which a one-shot run exercises.
+`explaining-functions` is written in Phase 4 alongside the comparison that justifies it,
+rather than speculatively now.

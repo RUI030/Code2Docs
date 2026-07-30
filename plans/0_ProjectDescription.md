@@ -1,15 +1,16 @@
 ### **Code2Doc**
 
-This is an agentic AI project that aims to read the Angular code base and extract a requirement document and a json file that contains the structure, dependency, Abstract Data Type, UI logic etc. The format of the requirement document (template) is at 'Code2Docs/templates/requirement.md'. The machine-readable side is split across five JSON tiers in 'Code2Docs/templates/' — see **How the outputs relate** below and decision **D2** in `1_ImplementationPlan.md`.
+This is an agentic AI project that aims to read the Angular code base and extract a requirement document and a json file that contains the structure, dependency, Abstract Data Type, UI logic etc. The format of the requirement document (template) is at 'Code2Docs/templates/requirement.md'. The machine-readable side is split across five JSON tiers in 'Code2Docs/templates/' — see **How the outputs relate** below and decision **D2** in `1_Decisions.md`.
 
-*A quick implementation of this is to let claude code use `grep` command to figure out the dependency. Add compiler and AST tools later.* — See decision **D3** in `1_ImplementationPlan.md`, which recommends inverting this and using the TypeScript Compiler API from the start; grep is retained as a fallback and for the coarse repo-wide inventory sweep.
+*A quick implementation of this is to let claude code use `grep` command to figure out the dependency. Add compiler and AST tools later.* — See decision **D3** in `1_Decisions.md`, which recommends inverting this and using the TypeScript Compiler API from the start; grep is retained as a fallback and for the coarse repo-wide inventory sweep.
 
 #### **Scope**
 
 * **Unit of analysis.** The pipeline runs per *unit*, where a unit is a component, service, directive, pipe, guard, interceptor, route resolver, module, or shared model. Components are the richest case and drive the design, but a migration is blocked by the other kinds too, so they share one pipeline and one output schema (with inapplicable sections omitted).
 * **Artifacts.** Per unit: `signature.json`, `dependencies.json`, `functions.json`, `template.json`, `analysis.json` (machine-readable), plus `requirement.md` and `migration_notes.md` (rendered for humans). Per repository: `index.json`, holding the unit inventory, the cross-unit dependency graph, and a leaf-first processing order.
-* **Build strategy.** A skills-only proof of concept comes first: one agent, reading Angular source directly with no AST tooling, producing `requirement.md` for a single component. It validates the deliverable and reveals which metadata fields actually matter before any extractor is written. The four-stage pipeline below describes the *production* design that follows. See **Phase A** and decision **D7** in `1_ImplementationPlan.md`.
+* **Build strategy.** A skills-only proof of concept comes first: one agent, reading Angular source directly with no AST tooling, producing `requirement.md` for a single component. It validates the deliverable and reveals which metadata fields actually matter before any extractor is written. The four-stage pipeline below describes the *production* design that follows. See **D7** and **D8** in `1_Decisions.md`, and Phase A in `2_ImplementationPlan.md`.
 * **Out of scope.** Generating React or any other target-framework code. Code2Docs is Stage 1 and ends at the human-approval gate described at the end of this document. Outputs describe existing behavior and must never prescribe target-framework architecture.
+* **Success criterion.** A developer who has never seen the Angular component can read its `requirement.md`, agree it is accurate, and hand it to an implementer. Every factual claim in the output is traceable to a file and line.
 
 #### **How the outputs relate**
 
