@@ -1,0 +1,225 @@
+{
+  "schemaVersion": "0.2.0",
+  "$comment": "PHASE A BASELINE — hand-derived, NOT extractor output. The callGraph section is the primary comparison target for Phase 1. Unlike the activate baseline (one method, empty graph), this one has real content: 12 methods, 4 dependency edges, depth 3, and a reachability claim. This is the artifact that makes the extractor-recall measurement meaningful.",
+
+  "unitId": "component:app/entities/post/update:PostUpdateComponent",
+
+  "callGraph": {
+    "nodes": [
+      "method:ngOnInit", "method:byteSize", "method:openFile", "method:setFileData",
+      "method:previousState", "method:save", "method:subscribeToSaveResponse",
+      "method:onSaveSuccess", "method:onSaveError", "method:onSaveFinalize",
+      "method:updateForm", "method:loadRelationshipsOptions",
+      "field:compareBlog", "field:compareTag"
+    ],
+    "$comment_nodes": "compareBlog/compareTag are arrow-function PROPERTIES included as graph nodes because the template invokes them. Whether an extractor models them as nodes is a design question Phase 1 must answer deliberately.",
+    "edges": [
+      { "from": "method:ngOnInit", "to": "method:updateForm", "callCount": 1, "conditional": true, "loc": { "file": "post-update.component.ts", "line": 53 } },
+      { "from": "method:ngOnInit", "to": "method:loadRelationshipsOptions", "callCount": 1, "conditional": false, "loc": { "file": "post-update.component.ts", "line": 56 } },
+      { "from": "method:save", "to": "method:subscribeToSaveResponse", "callCount": 2, "conditional": true, "loc": { "file": "post-update.component.ts", "line": 85 } },
+      { "from": "method:subscribeToSaveResponse", "to": "method:onSaveFinalize", "callCount": 1, "conditional": false, "loc": { "file": "post-update.component.ts", "line": 92 } },
+      { "from": "method:subscribeToSaveResponse", "to": "method:onSaveSuccess", "callCount": 1, "conditional": false, "loc": { "file": "post-update.component.ts", "line": 93 } },
+      { "from": "method:subscribeToSaveResponse", "to": "method:onSaveError", "callCount": 1, "conditional": false, "loc": { "file": "post-update.component.ts", "line": 94 } },
+      { "from": "method:onSaveSuccess", "to": "method:previousState", "callCount": 1, "conditional": false, "loc": { "file": "post-update.component.ts", "line": 99 } }
+    ],
+    "$comment_edges": "save->subscribeToSaveResponse has callCount 2: once per branch of the id check (lines 85 and 87), and is marked conditional because neither call is unconditional. The three subscribeToSaveResponse edges are callback references passed to subscribe/finalize, not direct invocations — a distinction an AST extractor must decide how to model.",
+    "calls": {
+      "method:ngOnInit": ["method:updateForm", "method:loadRelationshipsOptions"],
+      "method:byteSize": [],
+      "method:openFile": [],
+      "method:setFileData": [],
+      "method:previousState": [],
+      "method:save": ["method:subscribeToSaveResponse"],
+      "method:subscribeToSaveResponse": ["method:onSaveFinalize", "method:onSaveSuccess", "method:onSaveError"],
+      "method:onSaveSuccess": ["method:previousState"],
+      "method:onSaveError": [],
+      "method:onSaveFinalize": [],
+      "method:updateForm": [],
+      "method:loadRelationshipsOptions": []
+    },
+    "calledBy": {
+      "method:ngOnInit": [],
+      "method:byteSize": [],
+      "method:openFile": [],
+      "method:setFileData": [],
+      "method:previousState": ["method:onSaveSuccess", "tpl:btn-cancel"],
+      "method:save": ["tpl:form-submit"],
+      "method:subscribeToSaveResponse": ["method:save"],
+      "method:onSaveSuccess": ["method:subscribeToSaveResponse"],
+      "method:onSaveError": ["method:subscribeToSaveResponse"],
+      "method:onSaveFinalize": ["method:subscribeToSaveResponse"],
+      "method:updateForm": ["method:ngOnInit"],
+      "method:loadRelationshipsOptions": ["method:ngOnInit"],
+      "field:compareBlog": ["tpl:select-blog"],
+      "field:compareTag": ["tpl:select-tags"]
+    },
+    "entryPoints": ["method:ngOnInit", "tpl:form-submit", "tpl:btn-cancel", "tpl:select-blog", "tpl:select-tags"],
+    "executionOrder": [
+      "method:byteSize", "method:openFile", "method:setFileData", "method:previousState",
+      "method:onSaveError", "method:onSaveFinalize", "method:updateForm",
+      "method:loadRelationshipsOptions", "method:onSaveSuccess",
+      "method:subscribeToSaveResponse", "method:save", "method:ngOnInit"
+    ],
+    "depthFromEntry": {
+      "method:ngOnInit": 0, "method:updateForm": 1, "method:loadRelationshipsOptions": 1,
+      "method:save": 0, "method:subscribeToSaveResponse": 1, "method:onSaveFinalize": 2,
+      "method:onSaveSuccess": 2, "method:onSaveError": 2, "method:previousState": 0,
+      "method:byteSize": 0, "method:openFile": 0, "method:setFileData": 0
+    },
+    "cycles": [],
+    "unreachableMethods": ["method:byteSize", "method:openFile", "method:setFileData"],
+    "$comment_unreachable": "Not called from the template, from another method, or from the spec. JHipster generator boilerplate for entities with binary fields; Post has none. Only DataUtils and EventManager serve them, making both dependencies effectively unused. This is the highest-value finding of the run AND the least verified — a manual search of this folder only. Phase 1 must confirm with a repo-wide reference check before anyone deletes code.",
+    "leafMethods": [
+      "method:byteSize", "method:openFile", "method:setFileData", "method:previousState",
+      "method:onSaveError", "method:onSaveFinalize", "method:updateForm", "method:loadRelationshipsOptions"
+    ]
+  },
+
+  "fieldAccess": {
+    "reads": {
+      "method:save": ["field:editForm"],
+      "method:updateForm": ["field:blogsSharedCollection", "field:tagsSharedCollection", "field:editForm"],
+      "method:loadRelationshipsOptions": ["field:post"],
+      "method:setFileData": ["field:editForm"]
+    },
+    "writes": {
+      "method:ngOnInit": ["field:post"],
+      "method:save": ["field:isSaving"],
+      "method:onSaveFinalize": ["field:isSaving"],
+      "method:updateForm": ["field:post", "field:blogsSharedCollection", "field:tagsSharedCollection"],
+      "method:loadRelationshipsOptions": ["field:blogsSharedCollection", "field:tagsSharedCollection"]
+    },
+    "readBy": {
+      "field:isSaving": ["tpl:btn-save"],
+      "field:post": ["method:loadRelationshipsOptions"],
+      "field:blogsSharedCollection": ["method:updateForm", "tpl:for-blog"],
+      "field:tagsSharedCollection": ["method:updateForm", "tpl:for-tags"],
+      "field:editForm": ["method:save", "method:setFileData", "method:updateForm", "tpl:form-group", "tpl:if-id", "tpl:if-title-invalid", "tpl:if-content-invalid", "tpl:if-date-invalid", "tpl:btn-save"]
+    },
+    "writtenBy": {
+      "field:isSaving": ["method:save", "method:onSaveFinalize"],
+      "field:post": ["method:ngOnInit", "method:updateForm"],
+      "field:blogsSharedCollection": ["method:updateForm", "method:loadRelationshipsOptions"],
+      "field:tagsSharedCollection": ["method:updateForm", "method:loadRelationshipsOptions"]
+    },
+    "derivedFrom": {},
+    "signalDependencies": {},
+    "$comment": "`post` is written twice on the init path — once directly in ngOnInit (line 51) and again inside updateForm (line 111) with the same value. Redundant, not harmful. Both collections are written by updateForm (merge-if-missing) and then REPLACED by loadRelationshipsOptions when its requests resolve (lines 123, 129), so the merge result is discarded if the query succeeds — order-dependent and worth a Phase 1 look."
+  },
+
+  "dependencyUsage": [
+    { "dep": "dep:dataUtils", "resolvedUnitId": null, "calledMembers": [
+        { "member": "byteSize", "argTypes": ["string"], "returnType": "string", "fromMethods": ["method:byteSize"], "loc": { "file": "post-update.component.ts", "line": 61 } },
+        { "member": "openFile", "argTypes": ["string", "string | null | undefined"], "returnType": "void", "fromMethods": ["method:openFile"], "loc": { "file": "post-update.component.ts", "line": 65 } },
+        { "member": "loadFileToForm", "argTypes": ["Event", "PostFormGroup", "string", "boolean"], "returnType": "Observable<void>", "fromMethods": ["method:setFileData"], "loc": { "file": "post-update.component.ts", "line": 69 } }
+      ], "readProperties": [], "usedByMethods": ["method:byteSize", "method:openFile", "method:setFileData"], "$comment": "All three callers are unreachable, so this dependency is never exercised." },
+    { "dep": "dep:eventManager", "resolvedUnitId": null, "calledMembers": [
+        { "member": "broadcast", "argTypes": ["EventWithContent<AlertError>"], "returnType": "void", "fromMethods": ["method:setFileData"], "loc": { "file": "post-update.component.ts", "line": 71 } }
+      ], "readProperties": [], "usedByMethods": ["method:setFileData"], "$comment": "Sole caller is unreachable. Note the paradox: this is the shared-state dependency AND the unused one — the error display at c.html:9 is fed by an interceptor elsewhere, not by this component." },
+    { "dep": "dep:postService", "resolvedUnitId": "service:app/entities/post/service:PostService", "calledMembers": [
+        { "member": "update", "argTypes": ["IPost"], "returnType": "Observable<HttpResponse<IPost>>", "fromMethods": ["method:save"], "loc": { "file": "post-update.component.ts", "line": 85 } },
+        { "member": "create", "argTypes": ["NewPost"], "returnType": "Observable<HttpResponse<IPost>>", "fromMethods": ["method:save"], "loc": { "file": "post-update.component.ts", "line": 87 } }
+      ], "readProperties": [], "usedByMethods": ["method:save"] },
+    { "dep": "dep:postFormService", "resolvedUnitId": "service:app/entities/post/update:PostFormService", "calledMembers": [
+        { "member": "createPostFormGroup", "argTypes": [], "returnType": "PostFormGroup", "fromMethods": ["field-initializer:editForm"], "loc": { "file": "post-update.component.ts", "line": 43 } },
+        { "member": "getPost", "argTypes": ["PostFormGroup"], "returnType": "IPost | NewPost", "fromMethods": ["method:save"], "loc": { "file": "post-update.component.ts", "line": 83 } },
+        { "member": "resetForm", "argTypes": ["PostFormGroup", "IPost"], "returnType": "void", "fromMethods": ["method:updateForm"], "loc": { "file": "post-update.component.ts", "line": 112 } }
+      ], "readProperties": [], "usedByMethods": ["method:save", "method:updateForm"], "$comment": "createPostFormGroup is called from a FIELD INITIALIZER, not a method — note the non-standard fromMethods value 'field-initializer:editForm'. The schema has no id form for this caller type; Phase 0 candidate." },
+    { "dep": "dep:blogService", "resolvedUnitId": "service:app/entities/blog/service:BlogService", "calledMembers": [
+        { "member": "compareBlog", "argTypes": ["IBlog | null", "IBlog | null"], "returnType": "boolean", "fromMethods": ["field:compareBlog"], "loc": { "file": "post-update.component.ts", "line": 45 } },
+        { "member": "addBlogToCollectionIfMissing", "argTypes": ["IBlog[]", "IBlog | null | undefined"], "returnType": "IBlog[]", "fromMethods": ["method:updateForm", "method:loadRelationshipsOptions"], "loc": { "file": "post-update.component.ts", "line": 114 } },
+        { "member": "query", "argTypes": [], "returnType": "Observable<HttpResponse<IBlog[]>>", "fromMethods": ["method:loadRelationshipsOptions"], "loc": { "file": "post-update.component.ts", "line": 120 } }
+      ], "readProperties": [], "usedByMethods": ["method:updateForm", "method:loadRelationshipsOptions", "field:compareBlog"] },
+    { "dep": "dep:tagService", "resolvedUnitId": "service:app/entities/tag/service:TagService", "calledMembers": [
+        { "member": "compareTag", "argTypes": ["ITag | null", "ITag | null"], "returnType": "boolean", "fromMethods": ["field:compareTag"], "loc": { "file": "post-update.component.ts", "line": 47 } },
+        { "member": "addTagToCollectionIfMissing", "argTypes": ["ITag[]", "...ITag[]"], "returnType": "ITag[]", "fromMethods": ["method:updateForm", "method:loadRelationshipsOptions"], "loc": { "file": "post-update.component.ts", "line": 115 } },
+        { "member": "query", "argTypes": [], "returnType": "Observable<HttpResponse<ITag[]>>", "fromMethods": ["method:loadRelationshipsOptions"], "loc": { "file": "post-update.component.ts", "line": 126 } }
+      ], "readProperties": [], "usedByMethods": ["method:updateForm", "method:loadRelationshipsOptions", "field:compareTag"] },
+    { "dep": "dep:activatedRoute", "resolvedUnitId": null, "calledMembers": [], "readProperties": ["data"], "usedByMethods": ["method:ngOnInit"], "$comment": "route.data is subscribed, supplying the post from an upstream resolver not visible in this folder." }
+  ],
+
+  "outboundUnitEdges": [
+    { "targetUnitId": "service:app/entities/post/service:PostService", "relation": "injects", "via": ["dep:postService"] },
+    { "targetUnitId": "service:app/entities/post/update:PostFormService", "relation": "injects", "via": ["dep:postFormService"] },
+    { "targetUnitId": "service:app/entities/blog/service:BlogService", "relation": "injects", "via": ["dep:blogService"] },
+    { "targetUnitId": "service:app/entities/tag/service:TagService", "relation": "injects", "via": ["dep:tagService"] },
+    { "targetUnitId": "component:app/shared/alert:AlertErrorComponent", "relation": "renders", "via": ["tpl:alert-error"] },
+    { "targetUnitId": "model:app/entities/post:IPost", "relation": "imports-type", "via": ["type:IPost"] },
+    { "targetUnitId": "model:app/entities/blog:IBlog", "relation": "imports-type", "via": ["type:IBlog"] },
+    { "targetUnitId": "model:app/entities/tag:ITag", "relation": "imports-type", "via": ["type:ITag"] }
+  ],
+  "inboundUnitEdges": [],
+  "$comment_inbound": "Empty because no repo-wide index exists. This component is route-reached, and a route resolver supplies its post — but the route definition is NOT in this folder, so neither the resolver nor the route path could be identified. A genuine Phase A blind spot: activate had its route co-located, this one does not.",
+
+  "httpInteractions": [
+    { "id": "http:1", "method": "PUT", "urlExpression": "(inside PostService.update)", "requestType": "IPost", "responseType": "IPost", "viaDependency": "dep:postService", "calledFrom": "method:save", "directHttpClientUse": false, "loc": { "file": "post-update.component.ts", "line": 85 }, "$comment": "Method assumed PUT from the name 'update'; PostService was not read, so this is inference, not observation." },
+    { "id": "http:2", "method": "POST", "urlExpression": "(inside PostService.create)", "requestType": "NewPost", "responseType": "IPost", "viaDependency": "dep:postService", "calledFrom": "method:save", "directHttpClientUse": false, "loc": { "file": "post-update.component.ts", "line": 87 }, "$comment": "Method assumed POST from the name 'create'. Same caveat." },
+    { "id": "http:3", "method": "GET", "urlExpression": "(inside BlogService.query)", "requestType": null, "responseType": "IBlog[]", "viaDependency": "dep:blogService", "calledFrom": "method:loadRelationshipsOptions", "directHttpClientUse": false, "loc": { "file": "post-update.component.ts", "line": 120 } },
+    { "id": "http:4", "method": "GET", "urlExpression": "(inside TagService.query)", "requestType": null, "responseType": "ITag[]", "viaDependency": "dep:tagService", "calledFrom": "method:loadRelationshipsOptions", "directHttpClientUse": false, "loc": { "file": "post-update.component.ts", "line": 126 } }
+  ],
+  "$comment_http": "All four verbs and URLs are INFERRED from method names. The services live outside this folder and were not read. This is precisely the cross-file resolution gap the Resolver plus repo index closes in Phases 1-2.",
+
+  "routing": {
+    "isRoutedComponent": true,
+    "routePaths": [],
+    "routeParamsConsumed": [],
+    "queryParamsConsumed": [],
+    "routeDataConsumed": ["post"],
+    "navigations": [
+      { "id": "nav:1", "api": "window.history.back", "targetExpression": "(previous history entry)", "from": "method:previousState", "loc": { "file": "post-update.component.ts", "line": 78 }, "$comment": "NOT a router navigation. Bypasses Angular routing entirely. The schema's `api` enum did not anticipate this value — Phase 0 candidate." }
+    ],
+    "guards": [],
+    "resolvers": [],
+    "$comment": "routePaths empty and resolvers empty NOT because there are none, but because the route definition is outside this folder. routeDataConsumed proves a resolver exists (post arrives pre-loaded at line 50) yet it could not be named. Do not read these empty arrays as absence."
+  },
+
+  "imports": {
+    "angular": [
+      { "module": "@angular/core", "symbols": ["Component", "inject", "OnInit"] },
+      { "module": "@angular/common/http", "symbols": ["HttpResponse"] },
+      { "module": "@angular/router", "symbols": ["ActivatedRoute"] },
+      { "module": "@angular/forms", "symbols": ["FormsModule", "ReactiveFormsModule"] }
+    ],
+    "rxjs": [
+      { "module": "rxjs", "symbols": ["Observable"] },
+      { "module": "rxjs/operators", "symbols": ["finalize", "map"] }
+    ],
+    "thirdParty": [],
+    "internal": [
+      { "module": "app/shared/shared.module", "symbols": ["SharedModule"], "resolvedUnitId": null },
+      { "module": "app/shared/alert/alert-error.model", "symbols": ["AlertError"], "resolvedUnitId": null },
+      { "module": "app/core/util/event-manager.service", "symbols": ["EventManager", "EventWithContent"], "resolvedUnitId": null },
+      { "module": "app/core/util/data-util.service", "symbols": ["DataUtils", "FileLoadError"], "resolvedUnitId": null },
+      { "module": "app/entities/blog/blog.model", "symbols": ["IBlog"], "resolvedUnitId": "model:app/entities/blog:IBlog" },
+      { "module": "app/entities/blog/service/blog.service", "symbols": ["BlogService"], "resolvedUnitId": "service:app/entities/blog/service:BlogService" },
+      { "module": "app/entities/tag/tag.model", "symbols": ["ITag"], "resolvedUnitId": "model:app/entities/tag:ITag" },
+      { "module": "app/entities/tag/service/tag.service", "symbols": ["TagService"], "resolvedUnitId": "service:app/entities/tag/service:TagService" },
+      { "module": "../service/post.service", "symbols": ["PostService"], "resolvedUnitId": "service:app/entities/post/service:PostService" },
+      { "module": "../post.model", "symbols": ["IPost"], "resolvedUnitId": "model:app/entities/post:IPost" },
+      { "module": "./post-form.service", "symbols": ["PostFormService", "PostFormGroup"], "resolvedUnitId": "service:app/entities/post/update:PostFormService" }
+    ],
+    "unresolved": []
+  },
+
+  "streams": [
+    { "id": "stream:routeData", "declaredType": "Observable<Data>", "sourceExpression": "this.activatedRoute.data", "operators": [], "multicast": true, "consumedBy": ["method:ngOnInit"], "consumption": "explicit-subscribe", "unsubscribeStrategy": "none", "leakRisk": "possible", "loc": { "file": "post-update.component.ts", "line": 50, "endLine": 57 }, "$comment": "Everything in the handler re-runs per emission, including loadRelationshipsOptions — so repeated emissions repeat both requests." },
+    { "id": "stream:blogQuery", "declaredType": "Observable<IBlog[]>", "sourceExpression": "blogService.query().pipe(map(res => res.body ?? [])).pipe(map(blogs => addBlogToCollectionIfMissing(blogs, this.post?.blog)))", "operators": ["map", "map"], "multicast": false, "consumedBy": ["method:loadRelationshipsOptions"], "consumption": "explicit-subscribe", "unsubscribeStrategy": "none", "leakRisk": "none", "loc": { "file": "post-update.component.ts", "line": 119, "endLine": 123 }, "$comment": "NO error handling — no catchError, no error callback. Failure leaves the dropdown silently empty. Two chained .pipe() calls rather than one." },
+    { "id": "stream:tagQuery", "declaredType": "Observable<ITag[]>", "sourceExpression": "tagService.query().pipe(map(res => res.body ?? [])).pipe(map(tags => addTagToCollectionIfMissing(tags, ...(this.post?.tags ?? []))))", "operators": ["map", "map"], "multicast": false, "consumedBy": ["method:loadRelationshipsOptions"], "consumption": "explicit-subscribe", "unsubscribeStrategy": "none", "leakRisk": "none", "loc": { "file": "post-update.component.ts", "line": 125, "endLine": 129 }, "$comment": "Same missing error handling." },
+    { "id": "stream:saveResponse", "declaredType": "Observable<HttpResponse<IPost>>", "sourceExpression": "result.pipe(finalize(() => this.onSaveFinalize()))", "operators": ["finalize"], "multicast": false, "consumedBy": ["method:subscribeToSaveResponse"], "consumption": "explicit-subscribe", "unsubscribeStrategy": "none", "leakRisk": "none", "loc": { "file": "post-update.component.ts", "line": 92, "endLine": 95 }, "$comment": "finalize runs on success AND error, which is what guarantees isSaving is cleared either way. On success the order is next (onSaveSuccess -> previousState, navigating away) THEN finalize — so isSaving is reset after navigation has begun." },
+    { "id": "stream:fileLoad", "declaredType": "Observable<void>", "sourceExpression": "dataUtils.loadFileToForm(event, this.editForm, field, isImage)", "operators": [], "multicast": false, "consumedBy": ["method:setFileData"], "consumption": "explicit-subscribe", "unsubscribeStrategy": "none", "leakRisk": "none", "loc": { "file": "post-update.component.ts", "line": 69, "endLine": 74 }, "$comment": "UNREACHABLE — setFileData is never called. Handles only the error case, broadcasting onto the event bus." }
+  ],
+
+  "provenance": {
+    "source": "hand-derived",
+    "resolverVersion": null,
+    "generatedAt": "2026-07-30",
+    "inputHash": null,
+    "warnings": [
+      "Hand-derived. Derived facts (call graph, reachability, field access) are unverified approximations.",
+      "HTTP verbs and URLs for all four interactions are INFERRED from service method names; the services were not read.",
+      "routePaths/guards/resolvers empty because the route definition lives outside this folder — absence of data, not absence of routing.",
+      "inboundUnitEdges empty because no repo-wide index exists.",
+      "Non-schema id form used: 'field-initializer:editForm' as a caller. Phase 0 must decide how to model field-initializer call sites."
+    ]
+  }
+}

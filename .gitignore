@@ -1,7 +1,7 @@
 # Analysis corpus (held-out evaluation fixture) and generated artifacts.
 # INPUT/ is a vendored Angular repo including node_modules; OUTPUT/ is fully regenerable.
 INPUT/
-OUTPUT/
+# OUTPUT/
 
 # Dependencies
 node_modules/
@@ -35,3 +35,5 @@ pnpm-debug.log*
 .env
 .env.local
 .env.*.local
+
+*.zip

@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "0.2.0",
+  "$comment": "PHASE A BASELINE — hand-derived by reading source, NOT extractor output. Recorded so Phase 1's Resolver can be diffed against it to quantify what verified extraction adds. Derived facts (reachability especially) are the least reliable entries here and the ones most in need of tool confirmation.",
+
+  "unit": {
+    "id": "component:app/entities/post/update:PostUpdateComponent",
+    "kind": "component",
+    "className": "PostUpdateComponent",
+    "selector": "jhi-post-update",
+    "path": "src/main/webapp/app/entities/post/update",
+    "standalone": true,
+    "declaredInModule": null,
+    "isDefaultExport": false,
+    "files": {
+      "typescript": "post-update.component.ts",
+      "template": "post-update.component.html",
+      "templateInline": false,
+      "styles": [],
+      "specs": ["post-update.component.spec.ts"]
+    },
+    "siblings": ["post-form.service.ts", "post-form.service.spec.ts"],
+    "$comment_siblings": "SECOND OCCURRENCE of a multi-unit folder (activate was the first). PostFormService is a separate unit under D1 — 112 lines with real logic (date conversion, defaults, disabled-id handling) and its own 7-test spec. It was NOT analyzed as a unit here, only described as a dependency. The 'one component folder' input granularity is wrong; see the Phase A report."
+  },
+
+  "manifest": {
+    "dependencies": "./dependencies.json",
+    "functions": null,
+    "template": null,
+    "analysis": "./analysis.json",
+    "requirement": "./requirement.md",
+    "migrationNotes": "./migration_notes.md",
+    "repoIndex": null
+  },
+
+  "publicApi": {
+    "inputs": [],
+    "outputs": [],
+    "twoWayBindings": [],
+    "publicMethods": ["method:save", "method:previousState", "method:byteSize", "method:openFile", "method:setFileData"],
+    "templateReachableMembers": [
+      "field:editForm", "field:isSaving", "field:blogsSharedCollection", "field:tagsSharedCollection",
+      "field:compareBlog", "field:compareTag", "method:save", "method:previousState"
+    ],
+    "$comment": "No @Input/@Output/model — this component is reached by route, not composed by a parent. Three of the five public methods (byteSize, openFile, setFileData) are unreachable; see dependencies.json#/callGraph/unreachableMethods."
+  },
+
+  "injectedDependencies": [
+    { "id": "dep:dataUtils", "propertyName": "dataUtils", "token": "DataUtils", "resolvedUnitId": null, "origin": "internal", "injectionStyle": "inject-fn", "modifiers": { "optional": false, "self": false, "skipSelf": false, "host": false }, "effectivelyUnused": true, "loc": { "file": "post-update.component.ts", "line": 34 } },
+    { "id": "dep:eventManager", "propertyName": "eventManager", "token": "EventManager", "resolvedUnitId": null, "origin": "internal", "injectionStyle": "inject-fn", "modifiers": { "optional": false, "self": false, "skipSelf": false, "host": false }, "effectivelyUnused": true, "loc": { "file": "post-update.component.ts", "line": 35 } },
+    { "id": "dep:postService", "propertyName": "postService", "token": "PostService", "resolvedUnitId": "service:app/entities/post/service:PostService", "origin": "internal", "injectionStyle": "inject-fn", "modifiers": { "optional": false, "self": false, "skipSelf": false, "host": false }, "effectivelyUnused": false, "loc": { "file": "post-update.component.ts", "line": 36 } },
+    { "id": "dep:postFormService", "propertyName": "postFormService", "token": "PostFormService", "resolvedUnitId": "service:app/entities/post/update:PostFormService", "origin": "internal", "injectionStyle": "inject-fn", "modifiers": { "optional": false, "self": false, "skipSelf": false, "host": false }, "effectivelyUnused": false, "loc": { "file": "post-update.component.ts", "line": 37 } },
+    { "id": "dep:blogService", "propertyName": "blogService", "token": "BlogService", "resolvedUnitId": "service:app/entities/blog/service:BlogService", "origin": "internal", "injectionStyle": "inject-fn", "modifiers": { "optional": false, "self": false, "skipSelf": false, "host": false }, "effectivelyUnused": false, "loc": { "file": "post-update.component.ts", "line": 38 } },
+    { "id": "dep:tagService", "propertyName": "tagService", "token": "TagService", "resolvedUnitId": "service:app/entities/tag/service:TagService", "origin": "internal", "injectionStyle": "inject-fn", "modifiers": { "optional": false, "self": false, "skipSelf": false, "host": false }, "effectivelyUnused": false, "loc": { "file": "post-update.component.ts", "line": 39 } },
+    { "id": "dep:activatedRoute", "propertyName": "activatedRoute", "token": "ActivatedRoute", "resolvedUnitId": null, "origin": "angular", "injectionStyle": "inject-fn", "modifiers": { "optional": false, "self": false, "skipSelf": false, "host": false }, "effectivelyUnused": false, "loc": { "file": "post-update.component.ts", "line": 40 } }
+  ],
+  "$comment_unused": "`effectivelyUnused` is NOT in the template schema — added during this run because two dependencies exist solely to serve unreachable methods, and the schema had no way to say so. Candidate addition for Phase 0.",
+
+  "lifecycle": {
+    "implementedHooks": ["ngOnInit"],
+    "declaredInterfaces": ["OnInit"],
+    "constructorDoesWork": false,
+    "fieldInitializerDoesWork": true,
+    "cleanupStrategy": "none",
+    "$comment": "No constructor at all, but `editForm` is built in a FIELD INITIALIZER that calls an injected service (line 43), creating a declaration-order dependency the source acknowledges with an eslint-disable at line 42. `fieldInitializerDoesWork` is not in the template schema — another Phase 0 candidate, since `constructorDoesWork` alone misses this."
+  },
+
+  "stateOutline": {
+    "fields": [
+      { "id": "field:isSaving", "name": "isSaving", "type": "boolean", "visibility": "public", "readonly": false, "initializerExpression": "false", "roleHints": { "isSignal": false, "signalKind": null, "isRxjs": false, "rxjsKind": null, "isFormEntity": false, "formKind": null, "isConstant": false }, "loc": { "file": "post-update.component.ts", "line": 28 } },
+      { "id": "field:post", "name": "post", "type": "IPost | null", "visibility": "public", "readonly": false, "initializerExpression": "null", "roleHints": { "isSignal": false, "signalKind": null, "isRxjs": false, "rxjsKind": null, "isFormEntity": false, "formKind": null, "isConstant": false }, "loc": { "file": "post-update.component.ts", "line": 29 } },
+      { "id": "field:blogsSharedCollection", "name": "blogsSharedCollection", "type": "IBlog[]", "visibility": "public", "readonly": false, "initializerExpression": "[]", "roleHints": { "isSignal": false, "signalKind": null, "isRxjs": false, "rxjsKind": null, "isFormEntity": false, "formKind": null, "isConstant": false }, "loc": { "file": "post-update.component.ts", "line": 31 } },
+      { "id": "field:tagsSharedCollection", "name": "tagsSharedCollection", "type": "ITag[]", "visibility": "public", "readonly": false, "initializerExpression": "[]", "roleHints": { "isSignal": false, "signalKind": null, "isRxjs": false, "rxjsKind": null, "isFormEntity": false, "formKind": null, "isConstant": false }, "loc": { "file": "post-update.component.ts", "line": 32 } },
+      { "id": "field:editForm", "name": "editForm", "type": "PostFormGroup", "visibility": "public", "readonly": false, "initializerExpression": "this.postFormService.createPostFormGroup()", "roleHints": { "isSignal": false, "signalKind": null, "isRxjs": false, "rxjsKind": null, "isFormEntity": true, "formKind": "FormGroup", "isConstant": false }, "loc": { "file": "post-update.component.ts", "line": 43 } },
+      { "id": "field:compareBlog", "name": "compareBlog", "type": "(o1: IBlog | null, o2: IBlog | null) => boolean", "visibility": "public", "readonly": false, "initializerExpression": "(o1, o2) => this.blogService.compareBlog(o1, o2)", "isArrowFunctionProperty": true, "roleHints": { "isSignal": false, "signalKind": null, "isRxjs": false, "rxjsKind": null, "isFormEntity": false, "formKind": null, "isConstant": false }, "loc": { "file": "post-update.component.ts", "line": 45 } },
+      { "id": "field:compareTag", "name": "compareTag", "type": "(o1: ITag | null, o2: ITag | null) => boolean", "visibility": "public", "readonly": false, "initializerExpression": "(o1, o2) => this.tagService.compareTag(o1, o2)", "isArrowFunctionProperty": true, "roleHints": { "isSignal": false, "signalKind": null, "isRxjs": false, "rxjsKind": null, "isFormEntity": false, "formKind": null, "isConstant": false }, "loc": { "file": "post-update.component.ts", "line": 47 } }
+    ],
+    "$comment_arrow": "compareBlog/compareTag are PROPERTIES holding arrow functions, not methods. They are called from the template like methods ([compareWith]). A naive extractor will classify them as either and get the call graph wrong — flagged as a specific thing to verify in Phase 1.",
+    "methodIds": [
+      "method:ngOnInit", "method:byteSize", "method:openFile", "method:setFileData",
+      "method:previousState", "method:save", "method:subscribeToSaveResponse",
+      "method:onSaveSuccess", "method:onSaveError", "method:onSaveFinalize",
+      "method:updateForm", "method:loadRelationshipsOptions"
+    ],
+    "accessorIds": [],
+    "formIds": ["form:editForm"],
+    "streamIds": ["stream:routeData", "stream:blogQuery", "stream:tagQuery", "stream:saveResponse", "stream:fileLoad"]
+  },
+
+  "decorator": {
+    "changeDetection": null,
+    "encapsulation": null,
+    "providers": [],
+    "imports": ["SharedModule", "FormsModule", "ReactiveFormsModule"],
+    "hostDirectives": [],
+    "animations": []
+  },
+
+  "metrics": {
+    "tsLineCount": 131,
+    "templateLineCount": 107,
+    "methodCount": 12,
+    "unreachableMethodCount": 3,
+    "publicApiSurface": 7,
+    "injectedDependencyCount": 7,
+    "effectivelyUnusedDependencyCount": 2,
+    "maxCyclomaticComplexity": 2,
+    "maxTemplateNestingDepth": 7
+  },
+
+  "provenance": {
+    "source": "hand-derived",
+    "resolverVersion": null,
+    "generatedAt": "2026-07-30",
+    "sourceRevision": null,
+    "inputHash": null,
+    "parseStatus": "ok",
+    "warnings": [
+      "Hand-derived baseline, not extractor output. Determinism is not claimed.",
+      "Reachability (3 unreachable methods, 2 effectively unused dependencies) rests on a manual search of this folder only. Nothing outside the folder was checked for external callers.",
+      "PostFormService is a separate unit under D1 and was not analyzed as one.",
+      "Three schema fields were invented during this run: effectivelyUnused, fieldInitializerDoesWork, isArrowFunctionProperty."
+    ]
+  }
+}
