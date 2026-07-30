@@ -44,9 +44,10 @@ This reads the component's `.ts`, `.html`, styles, and `.spec.ts` files and writ
 | `signature.json` | What the component is: public interface, dependencies, state outline. |
 | `dependencies.json` | How it connects: in-file call graph, cross-file edges. |
 
-The hand-derived `signature.json` and `callGraph` are the baseline Phase 1's extractor gets
-measured against, so copy them to `fixtures/poc-baseline/<component>/` after a run — `OUTPUT/`
-is gitignored and they are not disposable.
+`OUTPUT/` is gitignored scratch space. A run worth keeping — in particular the hand-derived
+`signature.json` and `callGraph`, which are the baseline Phase 1's extractor gets measured
+against — gets promoted by copying the whole component folder to `examples/`, preserving the
+same mirrored path.
 
 You can also just ask in plain language — "document the component at `INPUT/.../foo`" — and the
 relevant skills load automatically.
@@ -94,8 +95,9 @@ plans/
   2_ImplementationPlan.md  phases, risks, next steps
 templates/               output shapes (5 JSON tiers + 2 rendered Markdown views)
 tools/                   Resolver CLI — Phase 1, not yet built
+examples/                promoted runs, kept as reference output and Phase 1 baseline
 INPUT/                   Angular source under analysis (gitignored)
-OUTPUT/                  generated documentation (gitignored)
+OUTPUT/                  generated documentation, scratch (gitignored)
 ```
 
 ## Skills and slash commands

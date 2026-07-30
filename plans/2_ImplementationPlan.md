@@ -137,7 +137,7 @@ comparison (**D8**).
 *Why hand-fill the JSON.* Two payoffs. It tests whether the schema is fillable at all. And
 it stores a baseline: when the real extractor runs on the same components in Phase 1,
 diffing extractor output against the POC's hand-filled version **quantifies LLM recall**.
-Commit these as `fixtures/poc-baseline/`.
+Commit these under `examples/`.
 
 *What Phase A proves:* whether the `requirement.md` shape and granularity are right, whether
 the skill wording produces usable prose, whether reviewers trust the result, and which
@@ -369,7 +369,7 @@ Phase A only. Everything below Phase A stays untouched until the gate passes.
 2. Configure the single POC agent (Read/Grep/Glob + those skills, no tools).
 3. Pick 2–3 components of varying complexity from `INPUT/`, including one large one.
 4. Produce `requirement.md` and `migration_notes.md`, plus hand-filled `signature.json` and
-   `dependencies.json#/callGraph` per component; commit as `fixtures/poc-baseline/`.
+   `dependencies.json#/callGraph` per component; commit under `examples/`.
 5. Review against source, counting factual errors and omissions separately; write up which
    template fields went unused or missing.
 

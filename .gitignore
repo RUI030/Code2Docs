@@ -1,7 +1,8 @@
 # Analysis corpus (held-out evaluation fixture) and generated artifacts.
-# INPUT/ is a vendored Angular repo including node_modules; OUTPUT/ is fully regenerable.
+# INPUT/ is a vendored Angular repo including node_modules; OUTPUT/ is a scratch
+# directory. Runs worth keeping get promoted to the tracked examples/ tree.
 INPUT/
-# OUTPUT/
+OUTPUT/
 
 # Dependencies
 node_modules/
