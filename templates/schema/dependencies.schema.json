@@ -130,7 +130,8 @@
             },
             "properties": {
               "from": {
-                "$ref": "common.schema.json#/$defs/memberId"
+                "$comment": "A caller need not be a class member: a template binding calls in from outside the class. Same reasoning as callSiteId.",
+                "$ref": "common.schema.json#/$defs/callSiteId"
               },
               "to": {
                 "$ref": "common.schema.json#/$defs/memberId"

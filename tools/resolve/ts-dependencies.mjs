@@ -192,6 +192,21 @@ export function extractDependencies(filePath, sourceText, signature, opts = {}) 
     walk(site.body);
   }
 
+  // --- template bindings are callers too. Without this, "what calls save()?"
+  //     answers null on a method the template submits to, which is the exact
+  //     question the reverse index exists to make instant (D2).
+  for (const { node, member } of opts.templateCallers ?? []) {
+    if (!member) continue;
+    push(calledBy, member, node);
+    if (!edges.some((e) => e.from === node && e.to === member)) {
+      edges.push({ from: node, to: member, callCount: 1, conditional: false });
+    }
+  }
+  for (const { node, field } of opts.templateReaders ?? []) {
+    if (!field) continue;
+    push(readBy, field, node);
+  }
+
   // --- accessors derive from whatever they read
   for (const a of signature.stateOutline.accessorIds) {
     if (reads[a]?.length) derivedFrom[a] = [...reads[a]];

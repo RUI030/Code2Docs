@@ -85,13 +85,19 @@ for (const f of files) {
       delete tpl.maxTemplateNestingDepth;
       sig.manifest.template = "./template.json";
       const handlers = tpl.ast.eventBindings.map((e) => e.handlerMethod).filter(Boolean);
+      const templateCallers = tpl.ast.eventBindings
+        .filter((e) => e.handlerMethod)
+        .map((e) => ({ node: e.id, member: e.handlerMethod }));
+      const templateReaders = [...tpl.ast.propertyBindings, ...tpl.ast.interpolations,
+                               ...tpl.ast.controlFlow]
+        .flatMap((b) => (b.dependsOn ?? []).map((f) => ({ node: b.id, field: f })));
       const reachable = new Set([...handlers,
         ...tpl.ast.propertyBindings.flatMap((b) => b.dependsOn),
         ...tpl.ast.interpolations.flatMap((b) => b.dependsOn),
         ...tpl.ast.controlFlow.flatMap((b) => b.dependsOn)]);
       sig.publicApi.templateReachableMembers = [...reachable].sort();
       Object.assign(deps, extractDependencies(path, sourceText, sig,
-        { ...shared, templateHandlers: handlers }));
+        { ...shared, templateHandlers: handlers, templateCallers, templateReaders }));
     }
   }
 
