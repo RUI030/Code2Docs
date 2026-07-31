@@ -145,11 +145,22 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
   parsed.nodes.forEach((n) => collect(n, 0, null));
   flat.sort((a, b) => startOf(a.node) - startOf(b.node));
 
-  // Ids number the nodes this tier RECORDS, not every node the parser saw. The
-  // parse sees text and whitespace it emits no record for; numbering those left
-  // coverage.uncoveredNodeIds citing ids nothing declared, which the integrity
-  // checker caught as 24 dangling references. Assignment happens after
-  // classification, in document order over the recorded set (D13).
+  // Ids number the PARSED set -- every node the compiler produced, in document
+  // order -- not the subset this tier records (D13a).
+  //
+  // Numbering the recorded set made ids depend on the classifier, so changing
+  // what the extractor records renumbered ids with the source untouched. That is
+  // worse than churn under source edits: a source edit changes the file, while an
+  // extractor upgrade silently re-points every id in every artifact already
+  // generated. Removing one heuristic here shifted tpl:2 onward and made the
+  // probe and the extractor disagree about which node tpl:5 is.
+  //
+  // The dangling references that originally motivated numbering the recorded set
+  // were a separate bug: coverage.uncoveredNodeIds listed parsed ids rather than
+  // recorded-but-uncited ones. Fixed below, which removes the reason to couple
+  // ids to the classifier at all. Ids are now sparse, and stable against
+  // anything but a change of source or compiler version -- both of which are
+  // recorded in provenance.
   const emitted = [];
   const emit = (bucket, node, rec) => { emitted.push({ bucket, node, rec }); return rec; };
   const idOf = new Map();
@@ -157,7 +168,7 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
   const loc = (n) => ({ file: templateFile, line: lineOf(n), endLine: endLineOf(n) });
 
   const out = {
-    controlFlow: [], propertyBindings: [], eventBindings: [], twoWayBindings: [],
+    elements: [], controlFlow: [], propertyBindings: [], eventBindings: [], twoWayBindings: [],
     interpolations: [], childComponents: [], templateRefs: [], ngTemplates: [],
     contentProjection: [], hostBindings: [], hostListeners: [], accessibility: [],
     i18n: [], rawHtmlSinks: [], directivesUsed: [], pipesUsed: [], viewQueries: [],
@@ -301,6 +312,11 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
     } else if (n instanceof C.TmplAstContent) {
       emit("contentProjection", n, { id: null, select: n.selector === "*" ? null : n.selector });
     } else if (n instanceof C.TmplAstElement) {
+      emit("elements", n, {
+        id: null, tag: n.name,
+        attributes: (n.attributes ?? []).map((a) => a.name),
+        depth, loc: loc(n),
+      });
       // A dashed tag is a component or a custom element; the compiler alone
       // cannot say which, so resolvedUnitId stays null for the repo index.
       if (n.name.includes("-")) {
@@ -344,16 +360,17 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
     }
   }
 
-  // --- assign ids: document order by source start offset, over recorded nodes only
+  // --- assign ids over the parsed set, then hand them to the records that kept a node
+  flat.forEach((f, i) => { if (!idOf.has(f.node)) idOf.set(f.node, `tpl:${i}`); });
   emitted.sort((a, b) => startOf(a.node) - startOf(b.node));
-  emitted.forEach((e, i) => { if (!idOf.has(e.node)) idOf.set(e.node, `tpl:${i}`); });
   for (const e of emitted) { e.rec.id = idOf.get(e.node); out[e.bucket].push(e.rec); }
 
   const resolveNodes = (arr) => [...new Set(arr.map((x) => idOf.get(x)).filter(Boolean))];
   out.directivesUsed = [...directives.values()].map((d) => ({ ...d, occurrences: resolveNodes(d.occurrences) }));
   out.pipesUsed = [...pipes.values()].map((p) => ({ ...p, occurrences: resolveNodes(p.occurrences) }));
 
-  const recordedIds = emitted.map((e) => idOf.get(e.node));
+  const citedByRequirements = new Set();  // extractor emits no uiRequirements; the Synthesizer fills these
+  const recordedIds = [...new Set(emitted.map((e) => idOf.get(e.node)).filter(Boolean))];
   const nodesTotal = recordedIds.length;
   return {
     schemaVersion: "0.3.0",
@@ -375,10 +392,10 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
     } },
     uiRequirements: [],
     coverage: {
-      $comment: "nodesTotal counts nodes this tier RECORDS and gives an id. parse.nodesParsed counts everything the parser saw, including text and whitespace it emits no record for -- the two differ and mean different things.",
+      $comment: "nodesTotal counts nodes this tier RECORDS. parse.nodesParsed counts everything the compiler produced -- ids are numbered over that larger set (D13a), so recorded ids are sparse. uncoveredNodeIds lists recorded nodes no uiRequirement cites, never unrecorded ones: citing those was the original dangling bug.",
       nodesTotal,
       nodesCoveredByRequirements: 0,
-      uncoveredNodeIds: recordedIds,
+      uncoveredNodeIds: recordedIds.filter((rid) => !citedByRequirements.has(rid)),
     },
     provenance: {
       source: "ast",

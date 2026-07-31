@@ -14,7 +14,7 @@
   "ast": {
     "controlFlow": [
       {
-        "id": "tpl:1",
+        "id": "tpl:9",
         "construct": "@if",
         "expression": "success()",
         "itemAlias": null,
@@ -32,7 +32,7 @@
         }
       },
       {
-        "id": "tpl:5",
+        "id": "tpl:24",
         "construct": "@if",
         "expression": "error()",
         "itemAlias": null,
@@ -69,10 +69,10 @@
         "resolvedUnitId": null,
         "inputsPassed": [],
         "occurrences": [
-          "tpl:0",
-          "tpl:3",
-          "tpl:4",
-          "tpl:7"
+          "tpl:5",
+          "tpl:12",
+          "tpl:17",
+          "tpl:25"
         ]
       },
       {
@@ -86,7 +86,7 @@
           }
         ],
         "occurrences": [
-          "tpl:4"
+          "tpl:17"
         ]
       }
     ],
@@ -94,14 +94,14 @@
     "viewQueries": [],
     "accessibility": [
       {
-        "id": "tpl:2",
+        "id": "tpl:10",
         "target": "div.alert-success",
         "attributes": {},
         "isInteractiveNonSemantic": false,
         "$comment": "Carries presentational alert styling but no role and no live-region attribute, so assistive technology is not told the outcome."
       },
       {
-        "id": "tpl:6",
+        "id": "tpl:25",
         "target": "div.alert-danger",
         "attributes": {},
         "isInteractiveNonSemantic": false
@@ -109,25 +109,25 @@
     ],
     "i18n": [
       {
-        "id": "tpl:0",
+        "id": "tpl:5",
         "mechanism": "translate-directive",
         "key": "activate.title",
         "params": []
       },
       {
-        "id": "tpl:3",
+        "id": "tpl:12",
         "mechanism": "translate-directive",
         "key": "activate.messages.success",
         "params": []
       },
       {
-        "id": "tpl:4",
+        "id": "tpl:17",
         "mechanism": "translate-directive",
         "key": "global.messages.info.authenticated.link",
         "params": []
       },
       {
-        "id": "tpl:7",
+        "id": "tpl:25",
         "mechanism": "translate-directive",
         "key": "activate.messages.error",
         "params": []
@@ -142,7 +142,9 @@
       "importsGlobalStyles": [],
       "classesToggledFromTs": []
     },
-    "$comment_ids": "Ids are 0-based document order by source start offset (D13). Migrated from the semantic names this probe originally used -- tpl:if-success became tpl:1 -- because no parser reproduces a name the template never gave. Read loc, not the id, to locate a node."
+    "$comment_ids": "Ids are the node's index in the PARSED set, document order (D13a). Renumbered from the recorded-set scheme, which made ids depend on what the extractor chose to record: removing one heuristic moved tpl:2 onward and made this file and the extractor disagree about which node tpl:5 was. Sparse ids are expected. Two records may share an id when two buckets hold facts about the same node -- the id names the node, not the record.",
+    "elements": [],
+    "$comment_elements": "Empty here, unlike extractor output: this probe predates the elements bucket and its purpose -- giving the schema its first real-data contact -- is served. The extractor is the reference instance for ast content now; what this file still carries uniquely is hand-written uiRequirements, which no extractor produces."
   },
   "uiRequirements": [
     {
@@ -150,7 +152,7 @@
       "category": "structure",
       "statement": "The screen shows a centred column containing a heading and, at most, one status message. There is no other content.",
       "evidence": [
-        "tpl:0"
+        "tpl:5"
       ],
       "confidence": "high"
     },
@@ -159,7 +161,7 @@
       "category": "visibility",
       "statement": "A success message is shown only once a key has been redeemed successfully.",
       "evidence": [
-        "tpl:1"
+        "tpl:9"
       ],
       "confidence": "high"
     },
@@ -168,7 +170,7 @@
       "category": "visibility",
       "statement": "A failure message is shown only once a redemption attempt has failed.",
       "evidence": [
-        "tpl:5"
+        "tpl:24"
       ],
       "confidence": "high"
     },
@@ -177,8 +179,8 @@
       "category": "visibility",
       "statement": "The two conditions are independent, so nothing prevents both messages from being shown at once.",
       "evidence": [
-        "tpl:1",
-        "tpl:5"
+        "tpl:9",
+        "tpl:24"
       ],
       "confidence": "high"
     },
@@ -187,8 +189,8 @@
       "category": "loading",
       "statement": "While the server is being contacted, neither message is shown and only the heading appears. There is no pending indication.",
       "evidence": [
-        "tpl:1",
-        "tpl:5"
+        "tpl:9",
+        "tpl:24"
       ],
       "confidence": "high"
     },
@@ -197,7 +199,7 @@
       "category": "navigation",
       "statement": "A link to the sign-in screen is offered inside the success message, and only there.",
       "evidence": [
-        "tpl:4"
+        "tpl:17"
       ],
       "confidence": "high"
     },
@@ -206,10 +208,10 @@
       "category": "i18n",
       "statement": "All four visible strings are translation keys resolved at display time; the embedded English is fallback copy.",
       "evidence": [
-        "tpl:0",
-        "tpl:3",
-        "tpl:4",
-        "tpl:7"
+        "tpl:5",
+        "tpl:12",
+        "tpl:17",
+        "tpl:25"
       ],
       "confidence": "high"
     },
@@ -218,8 +220,8 @@
       "category": "accessibility",
       "statement": "Status messages carry alert styling but no announcement role, so assistive technology is not explicitly told the outcome.",
       "evidence": [
-        "tpl:2",
-        "tpl:6"
+        "tpl:10",
+        "tpl:25"
       ],
       "confidence": "high"
     }

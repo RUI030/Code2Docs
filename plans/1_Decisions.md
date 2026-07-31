@@ -442,3 +442,42 @@ does not is already a solved problem.
 node it is. That readability is what the semantic names were buying, and it is a real loss —
 mitigated only by `loc`, which every node carries and which is the thing an editor can actually
 jump to. Legibility is not a good enough reason to keep an identifier extraction cannot produce.
+
+### D13a — Template ids number the parsed set, not the recorded set
+
+D13 said `tpl:<n>` is the node's index "in document order by source start offset, over the
+flattened parse." The first implementation numbered the nodes the tier *records* instead, and
+the difference turned out to matter.
+
+**Numbering the recorded set makes ids a function of the classifier.** Removing one heuristic —
+the Bootstrap `alert`/`toast` class match, dropped as vendor-specific — deleted two
+`accessibility` records and renumbered everything after them. On a byte-identical template, the
+schema probe and the extractor came to disagree about which node `tpl:5` is: the probe's second
+`@if`, the extractor's error-message key.
+
+That is worse than churn under source edits, and the reason is asymmetric visibility. Editing a
+template changes the file, and every tier regenerates from it together. Changing the extractor
+changes nothing on disk, and silently re-points every id in every artifact already generated —
+including the pinned Phase A baseline and the probe, which is exactly what D11's Phase 2
+comparison is keyed on.
+
+**Rule, corrected.** `n` is the node's index in the **parsed** set: every node the compiler
+emits, document order by source start offset, whether or not this tier records it. Ids are
+therefore sparse — `tpl:5`, `tpl:9`, `tpl:24` — which is expected and mildly informative.
+
+Verified: recording an extra bucket doubled the recorded count from 6 to 12 and left the two
+`@if` ids at `tpl:9` and `tpl:24`.
+
+**The dangling references that prompted the wrong rule were a different bug.**
+`coverage.uncoveredNodeIds` listed *parsed* ids, including nodes the tier never recorded, so 24
+of them resolved to nothing. It now lists recorded nodes that no `uiRequirement` cites, which is
+what "uncovered" was always supposed to mean. With that fixed there is no reason to couple ids
+to the classifier at all.
+
+**What ids now depend on.** Source text and compiler version, both recorded in provenance — a
+narrower and more visible dependency than "whatever the extractor currently classifies."
+
+**One consequence, stated so it is not a surprise.** Two records may carry the same id when two
+buckets hold facts about one node — an element that is both an i18n host and an accessibility
+subject. The id names the node, not the record. Anything keyed on ids must treat them as node
+identity rather than record identity.

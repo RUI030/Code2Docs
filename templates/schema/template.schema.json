@@ -369,6 +369,10 @@
               }
             }
           }
+        },
+        "elements": {
+          "$comment": "Every element in the template, recorded as structure rather than as judgment. Without it, anything wanting to cite an element -- a directive's occurrences, an accessibility observation, a uiRequirement about layout -- can only cite nodes some heuristic decided were interesting, so the record set silently decides what is sayable. Same lesson as D13a one level up: keep the ast tier's contents independent of classifier opinion.",
+          "$ref": "#/$defs/nodeList"
         }
       }
     },
