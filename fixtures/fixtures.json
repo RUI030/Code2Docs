@@ -1,15 +1,17 @@
 {
   "$comment": "What each fixture isolates, and what the Resolver must get right about it. Written before the Resolver exists, so it reads as a specification rather than a description of whatever the extractor happens to do.",
-
   "design": {
     "handWritten": "Not sampled from a real repository. The Phase A corpus was two JHipster-generated components, and generated code is far more regular than hand-written code -- schema fields derived from it inherit that bias (3_PhaseAFindings.md F5a). These are written to isolate one construct each instead.",
-    "pairs": "Fixtures come in pairs that express the SAME semantics in different syntax. The pair is the assertion: both members must extract to equivalent output, differing only in the field that records which syntax was used. This is the check that catches D3's silent-failure mode -- a regex-based extractor tends to handle one member of a pair and quietly mis-handle the other, producing confidently wrong metadata rather than an error."
+    "pairs": "Fixtures come in pairs that express the SAME semantics in different syntax. The pair is the assertion: both members must extract to equivalent output, differing only in the field that records which syntax was used. This is the check that catches D3's silent-failure mode -- a regex-based extractor tends to handle one member of a pair and quietly mis-handle the other, producing confidently wrong metadata rather than an error.",
+    "equivalence": "Pairs are compared by SEMANTIC PROJECTION, not by diffing fields. Two different source files differ in array order, ids, line numbers and expression text for reasons that say nothing about whether they were read equivalently, so a field diff is mostly noise -- and quieting noise is how a first attempt ended up deriving its own expectations from the output it was judging. Each projection answers a question mustExtract already asks in prose, and those assertions predate the extractor, which is what makes them a specification. Anything a pair may legitimately differ on is named as a projection with a reason. A pair that cannot be field-compared at all is marked assertions-only and REPORTED AS UNCHECKED -- never as passing."
   },
-
   "fixtures": [
     {
       "id": "inputs",
-      "pair": ["inputs-decorator", "inputs-signal"],
+      "pair": [
+        "inputs-decorator",
+        "inputs-signal"
+      ],
       "isolates": "How the public API is declared: @Input/@Output decorators versus the input()/output()/model() functions.",
       "mustExtract": [
         "three inputs in both members, named label, count, internalName",
@@ -18,11 +20,20 @@
         "one output named changed with payload type number",
         "declarationStyle is the ONLY field that may differ: 'decorator' versus 'signal'",
         "the signal member additionally declares model:selected, which has no decorator equivalent"
-      ]
+      ],
+      "equivalence": {
+        "mayDiffer": [
+          "twoWay"
+        ],
+        "reason": "model() has no decorator equivalent, so the signal member declares one extra two-way binding. Everything else -- names, requiredness, aliases, the output payload -- must match."
+      }
     },
     {
       "id": "di",
-      "pair": ["di-constructor", "di-inject-fn"],
+      "pair": [
+        "di-constructor",
+        "di-inject-fn"
+      ],
       "isolates": "How dependencies are injected: constructor parameters versus inject() field initializers.",
       "mustExtract": [
         "three dependencies in both, named http, route, cache",
@@ -31,11 +42,18 @@
         "resolvedUnitId is null for the two Angular tokens and non-null for CacheService",
         "injectionStyle is the only field that may differ",
         "the inject() member's dependencies are field initializers, so their loc is a field, not a constructor parameter"
-      ]
+      ],
+      "equivalence": {
+        "mayDiffer": [],
+        "reason": "Syntax-only in both directions: same three dependencies, same tokens, same visibility, same optional/skipSelf modifiers. Nothing may differ."
+      }
     },
     {
       "id": "control-flow",
-      "pair": ["control-flow-structural", "control-flow-block"],
+      "pair": [
+        "control-flow-structural",
+        "control-flow-block"
+      ],
       "isolates": "Template control flow: structural directives (*ngIf/*ngFor/ngSwitch) versus block syntax (@if/@for/@switch).",
       "mustExtract": [
         "one conditional, one loop, one switch with two cases, in both",
@@ -45,11 +63,23 @@
         "the block member additionally declares an @empty branch, which has no structural-directive equivalent",
         "the uppercase pipe recorded once per member",
         "construct is the only field that may differ"
-      ]
+      ],
+      "equivalence": {
+        "mayDiffer": [
+          "controlFlowBranches",
+          "loopTracking",
+          "elementTags",
+          "publicMethods"
+        ],
+        "reason": "@else is a branch record while the structural form expresses it as a separate ng-template, and @empty has no structural equivalent -- so branch counts differ. trackBy: fn versus track item.id differ in kind. Structural directives need a host element, so ng-container appears where a block needs none. The primary constructs -- one conditional, one loop, one switch -- must match exactly."
+      }
     },
     {
       "id": "forms",
-      "pair": ["forms-reactive", "forms-template-driven"],
+      "pair": [
+        "forms-reactive",
+        "forms-template-driven"
+      ],
       "isolates": "Form construction: FormBuilder groups versus ngModel bindings.",
       "mustExtract": [
         "approach is 'reactive' versus 'template-driven'",
@@ -57,11 +87,18 @@
         "the reactive member's id control is disabled AND required -- the required rule is inert because disabled controls skip validation, and this must be visible in the output rather than collapsed",
         "getRawValue() is recorded distinctly from value(): it includes disabled controls, which is load-bearing",
         "the template-driven member has no form group id, so form:<name> ids are absent rather than invented"
-      ]
+      ],
+      "equivalence": {
+        "mode": "assertions-only",
+        "note": "these members differ in MECHANISM, not syntax: one builds a FormGroup in TypeScript, the other annotates a template, so almost nothing lines up structurally. Mechanising this needs a normalised form model both project into, which does not exist. The pair still earns its place -- it caught approach reporting 'none' instead of 'template-driven' -- but by reading, not by diffing."
+      }
     },
     {
       "id": "teardown",
-      "pair": ["teardown-takeuntildestroyed", "teardown-manual"],
+      "pair": [
+        "teardown-takeuntildestroyed",
+        "teardown-manual"
+      ],
       "isolates": "Subscription teardown: takeUntilDestroyed versus a Subscription field unsubscribed in ngOnDestroy.",
       "mustExtract": [
         "cleanupStrategy is 'takeUntilDestroyed' versus 'ngOnDestroy-unsubscribe'",
@@ -69,10 +106,21 @@
         "the manual member implements OnDestroy and the other does not",
         "the rxjs operator chain in both: map, plus takeUntilDestroyed in the first",
         "an extractor that equates 'has ngOnDestroy' with 'safe' would pass the manual member and wrongly flag the other"
-      ]
+      ],
+      "equivalence": {
+        "mayDiffer": [
+          "deps",
+          "lifecycleHooks",
+          "fields",
+          "callEdges",
+          "fieldWrites",
+          "unreachable",
+          "publicMethods"
+        ],
+        "reason": "The two mechanisms genuinely require different members: one injects DestroyRef, the other holds a Subscription and implements OnDestroy. What must NOT differ is leakRisk -- neither leaks, by different means -- and that is the assertion the pair exists to make."
+      }
     }
   ],
-
   "notCoveredYet": {
     "$comment": "Named so their absence is a decision rather than an oversight. Each is a construct the Phase A corpus exercised or the taxonomy names, with no fixture yet.",
     "constructs": [

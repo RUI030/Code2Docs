@@ -1,0 +1,145 @@
+{
+  "schemaVersion": "0.4.0",
+  "unitId": "component:fixtures/di-inject-fn:ReaderComponent",
+  "callGraph": {
+    "nodes": [
+      "method:load"
+    ],
+    "edges": [],
+    "calls": {},
+    "calledBy": {},
+    "entryPoints": [],
+    "executionOrder": [
+      "method:load"
+    ],
+    "depthFromEntry": {},
+    "cycles": [],
+    "unreachableMethods": [
+      "method:load"
+    ],
+    "leafMethods": [
+      "method:load"
+    ]
+  },
+  "fieldAccess": {
+    "reads": {},
+    "writes": {},
+    "readBy": {},
+    "writtenBy": {},
+    "derivedFrom": {},
+    "signalDependencies": {}
+  },
+  "dependencyUsage": [
+    {
+      "dep": "dep:http",
+      "resolvedUnitId": null,
+      "calledMembers": [
+        {
+          "member": "get",
+          "argTypes": [],
+          "returnType": "unknown",
+          "fromMethods": [
+            "method:load"
+          ],
+          "loc": {
+            "file": "reader.component.ts",
+            "line": 13
+          }
+        }
+      ],
+      "readProperties": [],
+      "usedByMethods": [
+        "method:load"
+      ]
+    },
+    {
+      "dep": "dep:route",
+      "resolvedUnitId": null,
+      "calledMembers": [],
+      "readProperties": [],
+      "usedByMethods": []
+    },
+    {
+      "dep": "dep:cache",
+      "resolvedUnitId": null,
+      "calledMembers": [],
+      "readProperties": [],
+      "usedByMethods": []
+    }
+  ],
+  "outboundUnitEdges": [],
+  "inboundUnitEdges": [],
+  "httpInteractions": [
+    {
+      "id": "http:1",
+      "method": "GET",
+      "urlExpression": "`/api/items/${id}`",
+      "requestType": null,
+      "responseType": null,
+      "viaDependency": "dep:http",
+      "calledFrom": "method:load",
+      "directHttpClientUse": true,
+      "loc": {
+        "file": "reader.component.ts",
+        "line": 13
+      }
+    }
+  ],
+  "routing": {
+    "isRoutedComponent": false,
+    "routePaths": [],
+    "routeParamsConsumed": [],
+    "queryParamsConsumed": [],
+    "routeDataConsumed": [],
+    "navigations": [],
+    "guards": [],
+    "resolvers": []
+  },
+  "imports": {
+    "angular": [
+      {
+        "module": "@angular/core",
+        "symbols": [
+          "Component",
+          "inject"
+        ]
+      },
+      {
+        "module": "@angular/common/http",
+        "symbols": [
+          "HttpClient"
+        ]
+      },
+      {
+        "module": "@angular/router",
+        "symbols": [
+          "ActivatedRoute"
+        ]
+      }
+    ],
+    "rxjs": [],
+    "thirdParty": [],
+    "internal": [
+      {
+        "module": "./cache.service",
+        "symbols": [
+          "CacheService"
+        ],
+        "resolvedUnitId": null
+      }
+    ],
+    "unresolved": []
+  },
+  "dataTypes": [],
+  "streams": [],
+  "provenance": {
+    "source": "ast",
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "inputHash": "980351e941b47589",
+    "warnings": [
+      "outboundUnitEdges and inboundUnitEdges are empty: cross-unit resolution needs the repo index (Phase 2).",
+      "unreachableMethods OVER-REPORTS: no template was parsed, so methods called only from a template binding or host listener look uncalled. Treat it as an upper bound until template.json exists."
+    ]
+  }
+}

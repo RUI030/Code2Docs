@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "0.4.0",
+  "unitId": "component:fixtures/teardown-manual:TickerComponent",
+  "callGraph": {
+    "nodes": [
+      "method:ngOnInit",
+      "method:ngOnDestroy"
+    ],
+    "edges": [],
+    "calls": {},
+    "calledBy": {},
+    "entryPoints": [
+      "method:ngOnInit",
+      "method:ngOnDestroy"
+    ],
+    "executionOrder": [
+      "method:ngOnInit",
+      "method:ngOnDestroy"
+    ],
+    "depthFromEntry": {
+      "method:ngOnInit": 0,
+      "method:ngOnDestroy": 0
+    },
+    "cycles": [],
+    "unreachableMethods": [],
+    "leafMethods": [
+      "method:ngOnInit",
+      "method:ngOnDestroy"
+    ]
+  },
+  "fieldAccess": {
+    "reads": {
+      "method:ngOnInit": [
+        "field:sub"
+      ],
+      "method:ngOnDestroy": [
+        "field:sub"
+      ]
+    },
+    "writes": {
+      "method:ngOnInit": [
+        "field:ticks"
+      ]
+    },
+    "readBy": {
+      "field:sub": [
+        "method:ngOnInit",
+        "method:ngOnDestroy"
+      ]
+    },
+    "writtenBy": {
+      "field:ticks": [
+        "method:ngOnInit"
+      ]
+    },
+    "derivedFrom": {},
+    "signalDependencies": {}
+  },
+  "dependencyUsage": [],
+  "outboundUnitEdges": [],
+  "inboundUnitEdges": [],
+  "httpInteractions": [],
+  "routing": {
+    "isRoutedComponent": false,
+    "routePaths": [],
+    "routeParamsConsumed": [],
+    "queryParamsConsumed": [],
+    "routeDataConsumed": [],
+    "navigations": [],
+    "guards": [],
+    "resolvers": []
+  },
+  "imports": {
+    "angular": [
+      {
+        "module": "@angular/core",
+        "symbols": [
+          "Component",
+          "OnInit",
+          "OnDestroy"
+        ]
+      }
+    ],
+    "rxjs": [
+      {
+        "module": "rxjs",
+        "symbols": [
+          "interval",
+          "Subscription"
+        ]
+      },
+      {
+        "module": "rxjs/operators",
+        "symbols": [
+          "map"
+        ]
+      }
+    ],
+    "thirdParty": [],
+    "internal": [],
+    "unresolved": []
+  },
+  "dataTypes": [],
+  "streams": [],
+  "provenance": {
+    "source": "ast",
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "inputHash": "7e61a3e3473c8c27",
+    "warnings": [
+      "outboundUnitEdges and inboundUnitEdges are empty: cross-unit resolution needs the repo index (Phase 2).",
+      "unreachableMethods OVER-REPORTS: no template was parsed, so methods called only from a template binding or host listener look uncalled. Treat it as an upper bound until template.json exists."
+    ]
+  }
+}

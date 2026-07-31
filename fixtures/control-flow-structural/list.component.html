@@ -1,11 +1,11 @@
-<div *ngIf="isReady; else loading">
+<ng-container *ngIf="isReady; else loading">
   <p *ngFor="let item of items; trackBy: trackById; let i = index">
     {{ i }}: {{ item.name | uppercase }}
   </p>
-</div>
+</ng-container>
 <ng-template #loading><span>Loading…</span></ng-template>
 
-<div [ngSwitch]="mode">
+<ng-container [ngSwitch]="mode">
   <p *ngSwitchCase="'edit'">Editing</p>
   <p *ngSwitchDefault>Viewing</p>
-</div>
+</ng-container>

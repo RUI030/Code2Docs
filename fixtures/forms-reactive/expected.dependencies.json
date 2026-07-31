@@ -1,0 +1,126 @@
+{
+  "schemaVersion": "0.4.0",
+  "unitId": "component:fixtures/forms-reactive:SignupComponent",
+  "callGraph": {
+    "nodes": [
+      "method:submit"
+    ],
+    "edges": [
+      {
+        "from": "tpl:2",
+        "to": "method:submit",
+        "callCount": 1,
+        "conditional": false
+      }
+    ],
+    "calls": {},
+    "calledBy": {
+      "method:submit": [
+        "tpl:2"
+      ]
+    },
+    "entryPoints": [
+      "method:submit"
+    ],
+    "executionOrder": [
+      "method:submit"
+    ],
+    "depthFromEntry": {
+      "method:submit": 0
+    },
+    "cycles": [],
+    "unreachableMethods": [],
+    "leafMethods": [
+      "method:submit"
+    ]
+  },
+  "fieldAccess": {
+    "reads": {
+      "method:submit": [
+        "field:form"
+      ]
+    },
+    "writes": {},
+    "readBy": {
+      "field:form": [
+        "method:submit",
+        "tpl:1",
+        "tpl:11",
+        "tpl:6"
+      ]
+    },
+    "writtenBy": {},
+    "derivedFrom": {},
+    "signalDependencies": {}
+  },
+  "dependencyUsage": [
+    {
+      "dep": "dep:fb",
+      "resolvedUnitId": null,
+      "calledMembers": [
+        {
+          "member": "group",
+          "argTypes": [],
+          "returnType": "unknown",
+          "fromMethods": [
+            "field-initializer:form"
+          ],
+          "loc": {
+            "file": "signup.component.ts",
+            "line": 8
+          }
+        }
+      ],
+      "readProperties": [],
+      "usedByMethods": [
+        "field-initializer:form"
+      ]
+    }
+  ],
+  "outboundUnitEdges": [],
+  "inboundUnitEdges": [],
+  "httpInteractions": [],
+  "routing": {
+    "isRoutedComponent": false,
+    "routePaths": [],
+    "routeParamsConsumed": [],
+    "queryParamsConsumed": [],
+    "routeDataConsumed": [],
+    "navigations": [],
+    "guards": [],
+    "resolvers": []
+  },
+  "imports": {
+    "angular": [
+      {
+        "module": "@angular/core",
+        "symbols": [
+          "Component",
+          "inject"
+        ]
+      },
+      {
+        "module": "@angular/forms",
+        "symbols": [
+          "FormBuilder",
+          "Validators"
+        ]
+      }
+    ],
+    "rxjs": [],
+    "thirdParty": [],
+    "internal": [],
+    "unresolved": []
+  },
+  "dataTypes": [],
+  "streams": [],
+  "provenance": {
+    "source": "ast",
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "inputHash": "4321e2eb51359fab",
+    "warnings": [
+      "outboundUnitEdges and inboundUnitEdges are empty: cross-unit resolution needs the repo index (Phase 2)."
+    ]
+  }
+}

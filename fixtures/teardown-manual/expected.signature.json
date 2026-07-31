@@ -1,0 +1,131 @@
+{
+  "schemaVersion": "0.3.0",
+  "unit": {
+    "id": "component:fixtures/teardown-manual:TickerComponent",
+    "kind": "component",
+    "className": "TickerComponent",
+    "selector": "x-ticker",
+    "path": "fixtures/teardown-manual",
+    "standalone": true,
+    "declaredInModule": null,
+    "isDefaultExport": false,
+    "files": {
+      "typescript": "ticker.component.ts",
+      "template": null,
+      "templateInline": true,
+      "styles": [],
+      "specs": []
+    }
+  },
+  "manifest": {
+    "dependencies": "./dependencies.json",
+    "functions": "./functions.json",
+    "template": null,
+    "analysis": null,
+    "requirement": null,
+    "migrationNotes": null,
+    "repoIndex": null
+  },
+  "publicApi": {
+    "inputs": [],
+    "outputs": [],
+    "twoWayBindings": [],
+    "publicMethods": [],
+    "templateReachableMembers": []
+  },
+  "injectedDependencies": [],
+  "lifecycle": {
+    "implementedHooks": [
+      "ngOnInit",
+      "ngOnDestroy"
+    ],
+    "declaredInterfaces": [
+      "OnInit",
+      "OnDestroy"
+    ],
+    "constructorDoesWork": false,
+    "fieldInitializerDoesWork": false,
+    "cleanupStrategy": "ngOnDestroy-unsubscribe"
+  },
+  "stateOutline": {
+    "fields": [
+      {
+        "id": "field:sub",
+        "name": "sub",
+        "type": "unknown",
+        "visibility": "private",
+        "readonly": false,
+        "initializerExpression": "new Subscription()",
+        "roleHints": {
+          "isSignal": false,
+          "signalKind": null,
+          "isRxjs": true,
+          "rxjsKind": "Subscription",
+          "isFormEntity": false,
+          "formKind": null,
+          "isConstant": false
+        },
+        "loc": {
+          "file": "ticker.component.ts",
+          "line": 7,
+          "endLine": 7
+        }
+      },
+      {
+        "id": "field:ticks",
+        "name": "ticks",
+        "type": "number",
+        "visibility": "public",
+        "readonly": false,
+        "initializerExpression": "0",
+        "roleHints": {
+          "isSignal": false,
+          "signalKind": null,
+          "isRxjs": false,
+          "rxjsKind": null,
+          "isFormEntity": false,
+          "formKind": null,
+          "isConstant": false
+        },
+        "loc": {
+          "file": "ticker.component.ts",
+          "line": 8,
+          "endLine": 8
+        }
+      }
+    ],
+    "methodIds": [
+      "method:ngOnInit",
+      "method:ngOnDestroy"
+    ],
+    "accessorIds": [],
+    "formIds": [],
+    "streamIds": []
+  },
+  "decorator": {
+    "changeDetection": null,
+    "encapsulation": null,
+    "providers": [],
+    "imports": [],
+    "hostDirectives": [],
+    "animations": []
+  },
+  "metrics": {
+    "tsLineCount": 21,
+    "templateLineCount": 0,
+    "methodCount": 2,
+    "publicApiSurface": 0,
+    "injectedDependencyCount": 0,
+    "maxCyclomaticComplexity": 1,
+    "maxTemplateNestingDepth": null
+  },
+  "provenance": {
+    "source": "ast",
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "sourceRevision": null,
+    "inputHash": "7e61a3e3473c8c27",
+    "parseStatus": "ok",
+    "warnings": []
+  }
+}

@@ -31,6 +31,26 @@ const OWNER = {
 };
 
 const read = (p) => JSON.parse(readFileSync(p, "utf8"));
+
+/**
+ * The schemaVersion each tier's schema demands. A unit written against an older
+ * one predates the decisions that shaped the current id space, so its dangling
+ * references are a recorded property of a pinned artifact rather than a fault to
+ * fix -- the Phase A baseline is exactly that, and F6 documents its six. Reported
+ * either way; only current-version units can fail the build.
+ */
+function schemaVersions() {
+  const dir = join(ROOT, "templates", "schema");
+  const out = {};
+  for (const n of readdirSync(dir)) {
+    if (!n.endsWith(".schema.json")) continue;
+    const s = JSON.parse(readFileSync(join(dir, n), "utf8"));
+    const want = s?.properties?.schemaVersion?.const;
+    if (want) out[n.replace(".schema.json", "")] = want;
+  }
+  return out;
+}
+const WANT = schemaVersions();
 const prefixOf = (id) => String(id).split(":")[0];
 
 /** Every id each tier *defines*. */
@@ -131,6 +151,7 @@ function checkUnit(dir) {
     if (existsSync(p)) { tiers[t] = read(p); present.push(t); }
   }
   if (present.length === 0) return null;
+  const legacy = present.filter((t) => WANT[t] && tiers[t].schemaVersion !== WANT[t]);
 
   const declared = declaredIds(tiers);
   const refs = references(tiers);
@@ -152,7 +173,7 @@ function checkUnit(dir) {
     else dangling.push({ ...r, owner });
   }
 
-  return { dir, present, declaredCount: declared.size, refCount: refs.length, dangling, unowned, unlinked };
+  return { dir, present, legacy, declaredCount: declared.size, refCount: refs.length, dangling, unowned, unlinked };
 }
 
 function unitDirs(root) {
@@ -180,9 +201,11 @@ for (const dir of targets) {
   if (!r) continue;
   const label = relative(ROOT, dir) || dir;
   const bad = r.dangling.length;
-  hardFailures += bad;
+  const isLegacy = r.legacy.length > 0;
+  if (!isLegacy) hardFailures += bad;
 
-  console.log(`${bad ? "FAIL  " : "ok    "} ${label}`);
+  console.log(`${bad ? (isLegacy ? "legacy" : "FAIL  ") : "ok    "} ${label}` +
+    (isLegacy ? `  (predates the current id space: ${r.legacy.join(", ")} at an older schemaVersion)` : ""));
   console.log(`        tiers: ${r.present.join(", ")}  |  ${r.declaredCount} ids declared, ${r.refCount} references`);
 
   for (const d of r.dangling)
@@ -197,5 +220,5 @@ for (const dir of targets) {
     console.log(`        unlinked: ${r.unlinked.length} test reference(s) stored as a title rather than test:<n>`);
 }
 
-console.log(`\n${hardFailures} dangling reference(s)`);
+console.log(`\n${hardFailures} dangling reference(s) in current-version units`);
 process.exit(hardFailures > 0 ? 1 : 0);

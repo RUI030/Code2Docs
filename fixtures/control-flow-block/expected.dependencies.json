@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "0.4.0",
+  "unitId": "component:fixtures/control-flow-block:ListComponent",
+  "callGraph": {
+    "nodes": [
+      "method:trackById"
+    ],
+    "edges": [],
+    "calls": {},
+    "calledBy": {},
+    "entryPoints": [],
+    "executionOrder": [
+      "method:trackById"
+    ],
+    "depthFromEntry": {},
+    "cycles": [],
+    "unreachableMethods": [
+      "method:trackById"
+    ],
+    "leafMethods": [
+      "method:trackById"
+    ]
+  },
+  "fieldAccess": {
+    "reads": {},
+    "writes": {},
+    "readBy": {
+      "field:isReady": [
+        "tpl:1"
+      ],
+      "field:items": [
+        "tpl:2"
+      ],
+      "field:mode": [
+        "tpl:8"
+      ]
+    },
+    "writtenBy": {},
+    "derivedFrom": {},
+    "signalDependencies": {}
+  },
+  "dependencyUsage": [],
+  "outboundUnitEdges": [],
+  "inboundUnitEdges": [],
+  "httpInteractions": [],
+  "routing": {
+    "isRoutedComponent": false,
+    "routePaths": [],
+    "routeParamsConsumed": [],
+    "queryParamsConsumed": [],
+    "routeDataConsumed": [],
+    "navigations": [],
+    "guards": [],
+    "resolvers": []
+  },
+  "imports": {
+    "angular": [
+      {
+        "module": "@angular/core",
+        "symbols": [
+          "Component"
+        ]
+      }
+    ],
+    "rxjs": [],
+    "thirdParty": [],
+    "internal": [],
+    "unresolved": []
+  },
+  "dataTypes": [],
+  "streams": [],
+  "provenance": {
+    "source": "ast",
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "inputHash": "8523b46dae7d2d58",
+    "warnings": [
+      "outboundUnitEdges and inboundUnitEdges are empty: cross-unit resolution needs the repo index (Phase 2)."
+    ]
+  }
+}

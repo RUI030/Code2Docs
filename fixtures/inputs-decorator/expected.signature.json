@@ -1,0 +1,141 @@
+{
+  "schemaVersion": "0.3.0",
+  "unit": {
+    "id": "component:fixtures/inputs-decorator:WidgetComponent",
+    "kind": "component",
+    "className": "WidgetComponent",
+    "selector": "x-widget",
+    "path": "fixtures/inputs-decorator",
+    "standalone": true,
+    "declaredInModule": null,
+    "isDefaultExport": false,
+    "files": {
+      "typescript": "widget.component.ts",
+      "template": null,
+      "templateInline": true,
+      "styles": [],
+      "specs": []
+    }
+  },
+  "manifest": {
+    "dependencies": "./dependencies.json",
+    "functions": "./functions.json",
+    "template": null,
+    "analysis": null,
+    "requirement": null,
+    "migrationNotes": null,
+    "repoIndex": null
+  },
+  "publicApi": {
+    "inputs": [
+      {
+        "id": "input:label",
+        "name": "label",
+        "alias": null,
+        "type": "string",
+        "required": false,
+        "defaultExpression": "'untitled'",
+        "declarationStyle": "decorator",
+        "transform": null,
+        "loc": {
+          "file": "widget.component.ts",
+          "line": 5,
+          "endLine": 5
+        }
+      },
+      {
+        "id": "input:count",
+        "name": "count",
+        "alias": null,
+        "type": "number",
+        "required": true,
+        "defaultExpression": null,
+        "declarationStyle": "decorator",
+        "transform": null,
+        "loc": {
+          "file": "widget.component.ts",
+          "line": 6,
+          "endLine": 6
+        }
+      },
+      {
+        "id": "input:internalName",
+        "name": "internalName",
+        "alias": "aliasedName",
+        "type": "string",
+        "required": false,
+        "defaultExpression": null,
+        "declarationStyle": "decorator",
+        "transform": null,
+        "loc": {
+          "file": "widget.component.ts",
+          "line": 7,
+          "endLine": 7
+        }
+      }
+    ],
+    "outputs": [
+      {
+        "id": "output:changed",
+        "name": "changed",
+        "alias": null,
+        "payloadType": "number",
+        "declarationStyle": "eventemitter",
+        "emittedFrom": [],
+        "loc": {
+          "file": "widget.component.ts",
+          "line": 8,
+          "endLine": 8
+        }
+      }
+    ],
+    "twoWayBindings": [],
+    "publicMethods": [
+      "method:bump"
+    ],
+    "templateReachableMembers": []
+  },
+  "injectedDependencies": [],
+  "lifecycle": {
+    "implementedHooks": [],
+    "declaredInterfaces": [],
+    "constructorDoesWork": false,
+    "fieldInitializerDoesWork": false,
+    "cleanupStrategy": "none"
+  },
+  "stateOutline": {
+    "fields": [],
+    "methodIds": [
+      "method:bump"
+    ],
+    "accessorIds": [],
+    "formIds": [],
+    "streamIds": []
+  },
+  "decorator": {
+    "changeDetection": null,
+    "encapsulation": null,
+    "providers": [],
+    "imports": [],
+    "hostDirectives": [],
+    "animations": []
+  },
+  "metrics": {
+    "tsLineCount": 13,
+    "templateLineCount": 0,
+    "methodCount": 1,
+    "publicApiSurface": 5,
+    "injectedDependencyCount": 0,
+    "maxCyclomaticComplexity": 1,
+    "maxTemplateNestingDepth": null
+  },
+  "provenance": {
+    "source": "ast",
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "sourceRevision": null,
+    "inputHash": "3250b7c890217976",
+    "parseStatus": "ok",
+    "warnings": []
+  }
+}

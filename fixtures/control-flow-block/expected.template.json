@@ -1,0 +1,251 @@
+{
+  "schemaVersion": "0.3.0",
+  "unitId": "component:fixtures/control-flow-block:ListComponent",
+  "templateFile": "list.component.html",
+  "parse": {
+    "status": "ok",
+    "parser": "@angular/compiler",
+    "angularVersion": null,
+    "diagnostics": [],
+    "nodesParsed": 15,
+    "nodesUnrecognized": 0
+  },
+  "ast": {
+    "elements": [
+      {
+        "id": "tpl:3",
+        "tag": "p",
+        "attributes": [],
+        "depth": 2,
+        "loc": {
+          "file": "list.component.html",
+          "line": 3,
+          "endLine": 3
+        }
+      },
+      {
+        "id": "tpl:6",
+        "tag": "span",
+        "attributes": [],
+        "depth": 1,
+        "loc": {
+          "file": "list.component.html",
+          "line": 6,
+          "endLine": 6
+        }
+      },
+      {
+        "id": "tpl:10",
+        "tag": "p",
+        "attributes": [],
+        "depth": 1,
+        "loc": {
+          "file": "list.component.html",
+          "line": 10,
+          "endLine": 10
+        }
+      },
+      {
+        "id": "tpl:13",
+        "tag": "p",
+        "attributes": [],
+        "depth": 1,
+        "loc": {
+          "file": "list.component.html",
+          "line": 11,
+          "endLine": 11
+        }
+      }
+    ],
+    "controlFlow": [
+      {
+        "id": "tpl:1",
+        "construct": "@if",
+        "expression": "isReady",
+        "itemAlias": null,
+        "trackBy": null,
+        "aliases": [],
+        "dependsOn": [
+          "field:isReady"
+        ],
+        "parent": null,
+        "depth": 0,
+        "loc": {
+          "file": "list.component.html",
+          "line": 1,
+          "endLine": 5
+        }
+      },
+      {
+        "id": "tpl:2",
+        "construct": "@for",
+        "expression": "items",
+        "itemAlias": "item",
+        "trackBy": "item.id",
+        "aliases": [
+          "i",
+          "$first",
+          "$last",
+          "$even",
+          "$odd",
+          "$count"
+        ],
+        "dependsOn": [
+          "field:items"
+        ],
+        "parent": null,
+        "depth": 1,
+        "loc": {
+          "file": "list.component.html",
+          "line": 2,
+          "endLine": 4
+        }
+      },
+      {
+        "id": "tpl:5",
+        "construct": "@else",
+        "expression": null,
+        "itemAlias": null,
+        "trackBy": null,
+        "aliases": [],
+        "dependsOn": [],
+        "parent": null,
+        "depth": 0,
+        "loc": {
+          "file": "list.component.html",
+          "line": 5,
+          "endLine": 7
+        }
+      },
+      {
+        "id": "tpl:8",
+        "construct": "@switch",
+        "expression": "mode",
+        "itemAlias": null,
+        "trackBy": null,
+        "aliases": [],
+        "dependsOn": [
+          "field:mode"
+        ],
+        "parent": null,
+        "depth": 0,
+        "loc": {
+          "file": "list.component.html",
+          "line": 9,
+          "endLine": 12
+        }
+      },
+      {
+        "id": "tpl:9",
+        "construct": "@case",
+        "expression": "'edit'",
+        "itemAlias": null,
+        "trackBy": null,
+        "aliases": [],
+        "dependsOn": [],
+        "parent": null,
+        "depth": 1,
+        "loc": {
+          "file": "list.component.html",
+          "line": 10,
+          "endLine": 10
+        }
+      },
+      {
+        "id": "tpl:12",
+        "construct": "@default",
+        "expression": null,
+        "itemAlias": null,
+        "trackBy": null,
+        "aliases": [],
+        "dependsOn": [],
+        "parent": null,
+        "depth": 1,
+        "loc": {
+          "file": "list.component.html",
+          "line": 11,
+          "endLine": 11
+        }
+      }
+    ],
+    "propertyBindings": [],
+    "eventBindings": [],
+    "twoWayBindings": [],
+    "interpolations": [
+      {
+        "id": "tpl:4",
+        "expression": "{{ i }}: {{ item.name | uppercase }}",
+        "pipes": [
+          "uppercase"
+        ],
+        "dependsOn": [],
+        "loc": {
+          "file": "list.component.html",
+          "line": 3,
+          "endLine": 3
+        }
+      }
+    ],
+    "childComponents": [],
+    "templateRefs": [],
+    "ngTemplates": [],
+    "contentProjection": [],
+    "hostBindings": [],
+    "hostListeners": [],
+    "accessibility": [],
+    "i18n": [],
+    "rawHtmlSinks": [],
+    "directivesUsed": [],
+    "pipesUsed": [
+      {
+        "name": "uppercase",
+        "origin": "angular",
+        "resolvedUnitId": null,
+        "isPure": true,
+        "occurrences": [
+          "tpl:4"
+        ]
+      }
+    ],
+    "viewQueries": [],
+    "styles": {
+      "files": [],
+      "encapsulation": null,
+      "usesEncapsulationEscapes": false,
+      "escapeSelectors": [],
+      "usesHostSelectors": false,
+      "importsGlobalStyles": [],
+      "classesToggledFromTs": []
+    }
+  },
+  "uiRequirements": [],
+  "coverage": {
+    "$comment": "nodesTotal counts nodes this tier RECORDS. parse.nodesParsed counts everything the compiler produced -- ids are numbered over that larger set (D13a), so recorded ids are sparse. uncoveredNodeIds lists recorded nodes no uiRequirement cites, never unrecorded ones: citing those was the original dangling bug.",
+    "nodesTotal": 11,
+    "nodesCoveredByRequirements": 0,
+    "uncoveredNodeIds": [
+      "tpl:1",
+      "tpl:2",
+      "tpl:3",
+      "tpl:4",
+      "tpl:5",
+      "tpl:6",
+      "tpl:8",
+      "tpl:9",
+      "tpl:10",
+      "tpl:12",
+      "tpl:13"
+    ]
+  },
+  "provenance": {
+    "source": "ast",
+    "astInputHash": "8523b46dae7d2d58",
+    "docInputHash": null,
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "warnings": [
+      "uiRequirements is empty by design: it is doc content, written by the Synthesizer, not extracted.",
+      "parsed with @angular/compiler from /home/rui030/home/rui030/JaseciLab/2607_AllyBaseCamp/Code2Docs/node_modules/@angular/compiler/fesm2022/compiler.mjs"
+    ]
+  }
+}

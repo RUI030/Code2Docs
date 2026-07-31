@@ -1,0 +1,128 @@
+{
+  "schemaVersion": "0.3.0",
+  "unit": {
+    "id": "component:fixtures/forms-reactive:SignupComponent",
+    "kind": "component",
+    "className": "SignupComponent",
+    "selector": "x-signup",
+    "path": "fixtures/forms-reactive",
+    "standalone": true,
+    "declaredInModule": null,
+    "isDefaultExport": false,
+    "files": {
+      "typescript": "signup.component.ts",
+      "template": "signup.component.html",
+      "templateInline": false,
+      "styles": [],
+      "specs": []
+    }
+  },
+  "manifest": {
+    "dependencies": "./dependencies.json",
+    "functions": "./functions.json",
+    "template": "./template.json",
+    "analysis": null,
+    "requirement": null,
+    "migrationNotes": null,
+    "repoIndex": null
+  },
+  "publicApi": {
+    "inputs": [],
+    "outputs": [],
+    "twoWayBindings": [],
+    "publicMethods": [
+      "method:submit"
+    ],
+    "templateReachableMembers": [
+      "field:form",
+      "method:submit"
+    ]
+  },
+  "injectedDependencies": [
+    {
+      "id": "dep:fb",
+      "propertyName": "fb",
+      "token": "FormBuilder",
+      "resolvedUnitId": null,
+      "origin": "angular",
+      "visibility": "private",
+      "injectionStyle": "inject-fn",
+      "modifiers": {
+        "optional": false,
+        "self": false,
+        "skipSelf": false,
+        "host": false
+      },
+      "loc": {
+        "file": "signup.component.ts",
+        "line": 6,
+        "endLine": 6
+      }
+    }
+  ],
+  "lifecycle": {
+    "implementedHooks": [],
+    "declaredInterfaces": [],
+    "constructorDoesWork": false,
+    "fieldInitializerDoesWork": true,
+    "cleanupStrategy": "none"
+  },
+  "stateOutline": {
+    "fields": [
+      {
+        "id": "field:form",
+        "name": "form",
+        "type": "unknown",
+        "visibility": "public",
+        "readonly": false,
+        "initializerExpression": "this.fb.group({\n    id: [{ value: null as number | null, disabled: true }, Validators.required],\n    email: ['', [Validators.required, Validators.email]],\n    nickname: [''],\n  })",
+        "roleHints": {
+          "isSignal": false,
+          "signalKind": null,
+          "isRxjs": false,
+          "rxjsKind": null,
+          "isFormEntity": false,
+          "formKind": null,
+          "isConstant": false
+        },
+        "loc": {
+          "file": "signup.component.ts",
+          "line": 8,
+          "endLine": 12
+        }
+      }
+    ],
+    "methodIds": [
+      "method:submit"
+    ],
+    "accessorIds": [],
+    "formIds": [],
+    "streamIds": []
+  },
+  "decorator": {
+    "changeDetection": null,
+    "encapsulation": null,
+    "providers": [],
+    "imports": [],
+    "hostDirectives": [],
+    "animations": []
+  },
+  "metrics": {
+    "tsLineCount": 18,
+    "templateLineCount": 7,
+    "methodCount": 1,
+    "publicApiSurface": 1,
+    "injectedDependencyCount": 1,
+    "maxCyclomaticComplexity": 2,
+    "maxTemplateNestingDepth": 2
+  },
+  "provenance": {
+    "source": "ast",
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "sourceRevision": null,
+    "inputHash": "4321e2eb51359fab",
+    "parseStatus": "ok",
+    "warnings": []
+  }
+}

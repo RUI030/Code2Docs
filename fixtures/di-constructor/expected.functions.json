@@ -1,0 +1,136 @@
+{
+  "schemaVersion": "0.4.0",
+  "unitId": "component:fixtures/di-constructor:ReaderComponent",
+  "symbols": {
+    "method:constructor": {
+      "ast": {
+        "id": "method:constructor",
+        "name": "constructor",
+        "symbolKind": "constructor",
+        "visibility": "public",
+        "static": false,
+        "isAsync": false,
+        "lifecycleHook": null,
+        "params": [
+          {
+            "name": "http",
+            "type": "HttpClient",
+            "optional": false,
+            "defaultExpression": null
+          },
+          {
+            "name": "route",
+            "type": "ActivatedRoute",
+            "optional": false,
+            "defaultExpression": null
+          },
+          {
+            "name": "cache",
+            "type": "CacheService",
+            "optional": false,
+            "defaultExpression": null
+          }
+        ],
+        "returnType": "unknown",
+        "isLeaf": false,
+        "cyclomaticComplexity": 1,
+        "lineCount": 5,
+        "loc": {
+          "file": "reader.component.ts",
+          "line": 8,
+          "endLine": 12
+        },
+        "sourceExcerpt": null,
+        "existingComments": {
+          "jsDoc": null,
+          "inline": []
+        },
+        "sideEffectHints": {
+          "touchesDom": false,
+          "domApis": [],
+          "subscribes": false,
+          "usesTimers": false,
+          "usesLocalOrSessionStorage": false,
+          "navigates": false,
+          "mutatesInjectedServiceState": false,
+          "throws": false,
+          "hasTryCatch": false
+        },
+        "subscriptions": []
+      }
+    },
+    "method:load": {
+      "ast": {
+        "id": "method:load",
+        "name": "load",
+        "symbolKind": "method",
+        "visibility": "public",
+        "static": false,
+        "isAsync": false,
+        "lifecycleHook": null,
+        "params": [
+          {
+            "name": "id",
+            "type": "string",
+            "optional": false,
+            "defaultExpression": null
+          }
+        ],
+        "returnType": "unknown",
+        "isLeaf": true,
+        "cyclomaticComplexity": 1,
+        "lineCount": 3,
+        "loc": {
+          "file": "reader.component.ts",
+          "line": 14,
+          "endLine": 16
+        },
+        "sourceExcerpt": null,
+        "existingComments": {
+          "jsDoc": null,
+          "inline": []
+        },
+        "sideEffectHints": {
+          "touchesDom": false,
+          "domApis": [],
+          "subscribes": false,
+          "usesTimers": false,
+          "usesLocalOrSessionStorage": false,
+          "navigates": false,
+          "mutatesInjectedServiceState": false,
+          "throws": false,
+          "hasTryCatch": false
+        },
+        "subscriptions": []
+      }
+    }
+  },
+  "forms": {
+    "approach": "none",
+    "groups": [],
+    "ngModelBindings": []
+  },
+  "streams": [],
+  "signals": [],
+  "tests": {
+    "files": [],
+    "framework": "unknown",
+    "cases": []
+  },
+  "coverage": {
+    "symbolsTotal": 2,
+    "symbolsExplained": 0,
+    "symbolsTrivialSkipped": 0
+  },
+  "provenance": {
+    "source": "ast",
+    "astInputHash": "5a7644fbc81680d6",
+    "docInputHash": null,
+    "resolverVersion": "0.1.0",
+    "explainerModel": null,
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "warnings": [
+      "doc is absent on every symbol: it is the Explainer's output, and a placeholder would put model-shaped content in a tier that contains none."
+    ]
+  }
+}

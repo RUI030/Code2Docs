@@ -1,0 +1,204 @@
+{
+  "schemaVersion": "0.3.0",
+  "unitId": "component:fixtures/forms-template-driven:SignupComponent",
+  "templateFile": "signup.component.html",
+  "parse": {
+    "status": "ok",
+    "parser": "@angular/compiler",
+    "angularVersion": null,
+    "diagnostics": [],
+    "nodesParsed": 17,
+    "nodesUnrecognized": 0
+  },
+  "ast": {
+    "elements": [
+      {
+        "id": "tpl:0",
+        "tag": "form",
+        "attributes": [],
+        "depth": 0,
+        "loc": {
+          "file": "signup.component.html",
+          "line": 1,
+          "endLine": 7
+        }
+      },
+      {
+        "id": "tpl:3",
+        "tag": "input",
+        "attributes": [
+          "name",
+          "required",
+          "email"
+        ],
+        "depth": 1,
+        "loc": {
+          "file": "signup.component.html",
+          "line": 2,
+          "endLine": 2
+        }
+      },
+      {
+        "id": "tpl:11",
+        "tag": "small",
+        "attributes": [],
+        "depth": 2,
+        "loc": {
+          "file": "signup.component.html",
+          "line": 4,
+          "endLine": 4
+        }
+      },
+      {
+        "id": "tpl:13",
+        "tag": "button",
+        "attributes": [
+          "type"
+        ],
+        "depth": 1,
+        "loc": {
+          "file": "signup.component.html",
+          "line": 6,
+          "endLine": 6
+        }
+      }
+    ],
+    "controlFlow": [
+      {
+        "id": "tpl:10",
+        "construct": "@if",
+        "expression": "f.controls['email']?.invalid && f.controls['email']?.touched",
+        "itemAlias": null,
+        "trackBy": null,
+        "aliases": [],
+        "dependsOn": [],
+        "parent": null,
+        "depth": 1,
+        "loc": {
+          "file": "signup.component.html",
+          "line": 3,
+          "endLine": 5
+        }
+      }
+    ],
+    "propertyBindings": [
+      {
+        "id": "tpl:15",
+        "target": "button",
+        "property": "disabled",
+        "bindingKind": "property",
+        "expression": "f.invalid",
+        "dependsOn": [],
+        "loc": {
+          "file": "signup.component.html",
+          "line": 6,
+          "endLine": 6
+        }
+      }
+    ],
+    "eventBindings": [
+      {
+        "id": "tpl:2",
+        "target": "form",
+        "event": "ngSubmit",
+        "handlerExpression": "submit()",
+        "handlerMethod": "method:submit",
+        "passesEvent": false,
+        "loc": {
+          "file": "signup.component.html",
+          "line": 1,
+          "endLine": 1
+        }
+      },
+      {
+        "id": "tpl:6",
+        "target": "input",
+        "event": "ngModelChange",
+        "handlerExpression": "email",
+        "handlerMethod": null,
+        "passesEvent": false,
+        "loc": {
+          "file": "signup.component.html",
+          "line": 2,
+          "endLine": 2
+        }
+      }
+    ],
+    "twoWayBindings": [
+      {
+        "id": "tpl:5",
+        "target": "input",
+        "property": "ngModel",
+        "bindingKind": "property",
+        "expression": "email",
+        "dependsOn": [
+          "field:email"
+        ],
+        "loc": {
+          "file": "signup.component.html",
+          "line": 2,
+          "endLine": 2
+        },
+        "boundField": "field:email"
+      }
+    ],
+    "interpolations": [],
+    "childComponents": [],
+    "templateRefs": [
+      {
+        "id": "tpl:1",
+        "name": "f",
+        "onElement": "form",
+        "referencedBy": []
+      }
+    ],
+    "ngTemplates": [],
+    "contentProjection": [],
+    "hostBindings": [],
+    "hostListeners": [],
+    "accessibility": [],
+    "i18n": [],
+    "rawHtmlSinks": [],
+    "directivesUsed": [],
+    "pipesUsed": [],
+    "viewQueries": [],
+    "styles": {
+      "files": [],
+      "encapsulation": null,
+      "usesEncapsulationEscapes": false,
+      "escapeSelectors": [],
+      "usesHostSelectors": false,
+      "importsGlobalStyles": [],
+      "classesToggledFromTs": []
+    }
+  },
+  "uiRequirements": [],
+  "coverage": {
+    "$comment": "nodesTotal counts nodes this tier RECORDS. parse.nodesParsed counts everything the compiler produced -- ids are numbered over that larger set (D13a), so recorded ids are sparse. uncoveredNodeIds lists recorded nodes no uiRequirement cites, never unrecorded ones: citing those was the original dangling bug.",
+    "nodesTotal": 10,
+    "nodesCoveredByRequirements": 0,
+    "uncoveredNodeIds": [
+      "tpl:0",
+      "tpl:1",
+      "tpl:2",
+      "tpl:3",
+      "tpl:5",
+      "tpl:6",
+      "tpl:10",
+      "tpl:11",
+      "tpl:13",
+      "tpl:15"
+    ]
+  },
+  "provenance": {
+    "source": "ast",
+    "astInputHash": "a5538decd3ce7fc3",
+    "docInputHash": null,
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "warnings": [
+      "uiRequirements is empty by design: it is doc content, written by the Synthesizer, not extracted.",
+      "parsed with @angular/compiler from /home/rui030/home/rui030/JaseciLab/2607_AllyBaseCamp/Code2Docs/node_modules/@angular/compiler/fesm2022/compiler.mjs"
+    ]
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "schemaVersion": "0.3.0",
+  "unit": {
+    "id": "component:fixtures/di-constructor:ReaderComponent",
+    "kind": "component",
+    "className": "ReaderComponent",
+    "selector": "x-reader",
+    "path": "fixtures/di-constructor",
+    "standalone": true,
+    "declaredInModule": null,
+    "isDefaultExport": false,
+    "files": {
+      "typescript": "reader.component.ts",
+      "template": null,
+      "templateInline": true,
+      "styles": [],
+      "specs": []
+    }
+  },
+  "manifest": {
+    "dependencies": "./dependencies.json",
+    "functions": "./functions.json",
+    "template": null,
+    "analysis": null,
+    "requirement": null,
+    "migrationNotes": null,
+    "repoIndex": null
+  },
+  "publicApi": {
+    "inputs": [],
+    "outputs": [],
+    "twoWayBindings": [],
+    "publicMethods": [
+      "method:load"
+    ],
+    "templateReachableMembers": []
+  },
+  "injectedDependencies": [
+    {
+      "id": "dep:http",
+      "propertyName": "http",
+      "token": "HttpClient",
+      "resolvedUnitId": null,
+      "origin": "angular",
+      "visibility": "private",
+      "injectionStyle": "constructor-param",
+      "modifiers": {
+        "optional": false,
+        "self": false,
+        "skipSelf": false,
+        "host": false
+      },
+      "loc": {
+        "file": "reader.component.ts",
+        "line": 9,
+        "endLine": 9
+      }
+    },
+    {
+      "id": "dep:route",
+      "propertyName": "route",
+      "token": "ActivatedRoute",
+      "resolvedUnitId": null,
+      "origin": "angular",
+      "visibility": "protected",
+      "injectionStyle": "constructor-param",
+      "modifiers": {
+        "optional": false,
+        "self": false,
+        "skipSelf": false,
+        "host": false
+      },
+      "loc": {
+        "file": "reader.component.ts",
+        "line": 10,
+        "endLine": 10
+      }
+    },
+    {
+      "id": "dep:cache",
+      "propertyName": "cache",
+      "token": "CacheService",
+      "resolvedUnitId": null,
+      "origin": "internal",
+      "visibility": "private",
+      "injectionStyle": "constructor-param",
+      "modifiers": {
+        "optional": true,
+        "self": false,
+        "skipSelf": true,
+        "host": false
+      },
+      "loc": {
+        "file": "reader.component.ts",
+        "line": 11,
+        "endLine": 11
+      }
+    }
+  ],
+  "lifecycle": {
+    "implementedHooks": [],
+    "declaredInterfaces": [],
+    "constructorDoesWork": false,
+    "fieldInitializerDoesWork": false,
+    "cleanupStrategy": "none"
+  },
+  "stateOutline": {
+    "fields": [],
+    "methodIds": [
+      "method:load"
+    ],
+    "accessorIds": [],
+    "formIds": [],
+    "streamIds": []
+  },
+  "decorator": {
+    "changeDetection": null,
+    "encapsulation": null,
+    "providers": [],
+    "imports": [],
+    "hostDirectives": [],
+    "animations": []
+  },
+  "metrics": {
+    "tsLineCount": 17,
+    "templateLineCount": 0,
+    "methodCount": 1,
+    "publicApiSurface": 1,
+    "injectedDependencyCount": 3,
+    "maxCyclomaticComplexity": 1,
+    "maxTemplateNestingDepth": null
+  },
+  "provenance": {
+    "source": "ast",
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "sourceRevision": null,
+    "inputHash": "5a7644fbc81680d6",
+    "parseStatus": "ok",
+    "warnings": []
+  }
+}

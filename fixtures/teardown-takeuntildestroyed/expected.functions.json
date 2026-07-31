@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "0.4.0",
+  "unitId": "component:fixtures/teardown-takeuntildestroyed:TickerComponent",
+  "symbols": {
+    "method:ngOnInit": {
+      "ast": {
+        "id": "method:ngOnInit",
+        "name": "ngOnInit",
+        "symbolKind": "method",
+        "visibility": "public",
+        "static": false,
+        "isAsync": false,
+        "lifecycleHook": "ngOnInit",
+        "params": [],
+        "returnType": "void",
+        "isLeaf": true,
+        "cyclomaticComplexity": 1,
+        "lineCount": 5,
+        "loc": {
+          "file": "ticker.component.ts",
+          "line": 12,
+          "endLine": 16
+        },
+        "sourceExcerpt": null,
+        "existingComments": {
+          "jsDoc": null,
+          "inline": []
+        },
+        "sideEffectHints": {
+          "touchesDom": false,
+          "domApis": [],
+          "subscribes": true,
+          "usesTimers": false,
+          "usesLocalOrSessionStorage": false,
+          "navigates": false,
+          "mutatesInjectedServiceState": false,
+          "throws": false,
+          "hasTryCatch": false
+        },
+        "subscriptions": [
+          {
+            "index": 0,
+            "sourceExpression": "interval(1000)\n      .pipe(map((n) => n * 2), takeUntilDestroyed(this.destroyRef))",
+            "operators": [
+              "map",
+              "takeUntilDestroyed"
+            ],
+            "consumption": "explicit-subscribe",
+            "unsubscribeStrategy": "takeUntilDestroyed",
+            "loc": {
+              "file": "ticker.component.ts",
+              "line": 13,
+              "endLine": 15
+            }
+          }
+        ]
+      }
+    }
+  },
+  "forms": {
+    "approach": "none",
+    "groups": [],
+    "ngModelBindings": []
+  },
+  "streams": [],
+  "signals": [],
+  "tests": {
+    "files": [],
+    "framework": "unknown",
+    "cases": []
+  },
+  "coverage": {
+    "symbolsTotal": 1,
+    "symbolsExplained": 0,
+    "symbolsTrivialSkipped": 0
+  },
+  "provenance": {
+    "source": "ast",
+    "astInputHash": "36d61cdccaeba386",
+    "docInputHash": null,
+    "resolverVersion": "0.1.0",
+    "explainerModel": null,
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "warnings": [
+      "doc is absent on every symbol: it is the Explainer's output, and a placeholder would put model-shaped content in a tier that contains none."
+    ]
+  }
+}
