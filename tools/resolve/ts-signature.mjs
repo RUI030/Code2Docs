@@ -334,7 +334,7 @@ export function extractSignature(filePath, sourceText, opts = {}) {
   });
 
   return {
-    schemaVersion: "0.2.0",
+    schemaVersion: "0.3.0",
     unit: {
       id: `component:${unitPath}:${className}`,
       kind: "component",

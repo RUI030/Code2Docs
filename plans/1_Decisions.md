@@ -358,3 +358,46 @@ blocked by history or would silently drop history from the suite.
 
 Verified end to end by `examples/schema-probe/activate`, a complete four-tier unit at the new
 version: 21 ids declared, 67 references, nothing dangling.
+
+### D12a — The id space mirrors what the language names; anonymous streams get no id
+
+D12 split the stream record across tiers, joined by `stream:<name>`. Phase 1's extractor then
+could not produce that join key. Checking the corpus, **all six stream ids in both components
+are invented** — not one stream is assigned to a field in source. `analysis.json` cites four of
+them as evidence.
+
+So the join key D12 rests on is unreproducible by construction, and this is the normal case
+rather than an edge case: an RxJS chain is usually built and subscribed in one expression.
+
+**Rule: an id exists only where the source provides a name.** `items$ = this.http.get(...)`
+gets `stream:items$`. A chain built and subscribed inline gets nothing, and is recorded as an
+attribute of the symbol that subscribes it — `functions.symbols[<method>].ast.subscriptions[]`.
+
+**Why this is the stable choice, precisely.** It does not produce a better identifier; it
+produces none, which is the mechanism. Two inline subscriptions in one method still need
+distinguishing, so an index returns — but *inside* the method's record, where nothing can cite
+it. A local index that renumbers breaks no evidence; a global id that renumbers breaks every
+citation. Instability only does damage where something points at it.
+
+The alternatives were positional (`stream:ngOnInit#1`), which churns whenever a subscription is
+added above it; source-location (`stream:L22`), which churns on any inserted line; and a name
+derived from the expression, which is reproducible but collides, needs a suffix rule that
+reintroduces ordering, and encodes a guess at intent — `doc` content wearing an `ast` id.
+
+**And it is the cheapest decision to reverse.** Adding identity later is easy. Removing an id
+that four evidence citations already point at is not.
+
+**What it costs.** A method with two inline subscriptions can be described as leaking, but not
+*which one* leaks. Four evidence citations in this corpus become method-level. If that
+granularity is ever needed, a scoped path (`method:ngOnInit/subscription[0]`) is citable and
+deterministic, with churn contained to one method. Not built until something needs it.
+
+**Consequence for D12.** The split still holds for *named* streams, which is what it was written
+for. Anonymous subscriptions are not split at all: with no identity, nothing else references
+them, so the access-pattern split has nothing to buy and they live wholly on the owning symbol.
+
+**Versioning.** `signature` → 0.3.0, `dependencies` → 0.4.0, `functions` → 0.4.0. The narrowing
+of `streamIds` and `streams` changes what those fields *mean* without changing their shape,
+which is exactly the kind of change a validator cannot catch and a version must therefore
+signal. The Phase A baseline now predates both D12 and D12a and is reported wholly as legacy —
+correct, since every stream id in it is one this rule forbids.

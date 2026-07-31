@@ -17,7 +17,7 @@
   "additionalProperties": false,
   "properties": {
     "schemaVersion": {
-      "$ref": "common.schema.json#/$defs/schemaVersion"
+      "const": "0.3.0"
     },
     "unit": {
       "type": "object",
@@ -580,6 +580,7 @@
           }
         },
         "streamIds": {
+          "$comment": "Source-named streams only (D12a). A chain built and subscribed inline has no name in source, gets no id, and is recorded as an attribute of the subscribing symbol instead -- see functions.symbols[].ast.subscriptions.",
           "type": "array",
           "items": {
             "$ref": "common.schema.json#/$defs/memberId"

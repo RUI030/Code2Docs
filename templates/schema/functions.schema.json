@@ -18,7 +18,7 @@
   },
   "properties": {
     "schemaVersion": {
-      "const": "0.3.0"
+      "const": "0.4.0"
     },
     "unitId": {
       "$ref": "common.schema.json#/$defs/unitId"
@@ -190,6 +190,60 @@
                   },
                   "hasTryCatch": {
                     "type": "boolean"
+                  }
+                }
+              },
+              "subscriptions": {
+                "$comment": "Streams built and subscribed inline within this symbol (D12a). No id: the source gives them no name, and an invented one is not reproducible by extraction. `index` orders them within this symbol only -- it is deliberately not citable as evidence, so renumbering it cannot dangle a reference.",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "index"
+                  ],
+                  "additionalProperties": false,
+                  "patternProperties": {
+                    "^\\$comment": {
+                      "type": "string"
+                    }
+                  },
+                  "properties": {
+                    "index": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "sourceExpression": {
+                      "type": "string"
+                    },
+                    "operators": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "consumption": {
+                      "type": "string",
+                      "enum": [
+                        "explicit-subscribe",
+                        "async-pipe",
+                        "toSignal",
+                        "firstValueFrom",
+                        "none"
+                      ]
+                    },
+                    "unsubscribeStrategy": {
+                      "type": "string",
+                      "enum": [
+                        "takeUntilDestroyed",
+                        "Subscription.unsubscribe",
+                        "take/first",
+                        "DestroyRef",
+                        "none"
+                      ]
+                    },
+                    "loc": {
+                      "$ref": "common.schema.json#/$defs/loc"
+                    }
                   }
                 }
               }
@@ -394,7 +448,7 @@
       }
     },
     "streams": {
-      "$comment": "DETAIL HALF (D12). Mirrors how a method is split: signature.stateOutline.streamIds declares the id, dependencies.json holds who consumes it and how it is torn down, and the declaration detail lives here.",
+      "$comment": "Declaration detail of a SOURCE-NAMED stream (D12 + D12a). Inline subscriptions are not here; they have no id and live on the symbol that subscribes them.",
       "type": "array",
       "items": {
         "type": "object",

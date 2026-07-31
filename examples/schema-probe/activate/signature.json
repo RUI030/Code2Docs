@@ -1,7 +1,6 @@
 {
-  "schemaVersion": "0.2.0",
-  "$comment": "PHASE A BASELINE — hand-derived by reading source, NOT extractor output. Recorded so Phase 1's Resolver can be diffed against it to quantify what verified extraction adds. Treat every field as an approximation; the derived ones (call graph, read/write sets) are the least reliable.",
-
+  "schemaVersion": "0.3.0",
+  "$comment": "PHASE A BASELINE \u2014 hand-derived by reading source, NOT extractor output. Recorded so Phase 1's Resolver can be diffed against it to quantify what verified extraction adds. Treat every field as an approximation; the derived ones (call graph, read/write sets) are the least reliable.",
   "unit": {
     "id": "component:app/account/activate:ActivateComponent",
     "kind": "component",
@@ -16,12 +15,17 @@
       "template": "activate.component.html",
       "templateInline": false,
       "styles": [],
-      "specs": ["activate.component.spec.ts"]
+      "specs": [
+        "activate.component.spec.ts"
+      ]
     },
     "$comment_siblings": "The folder also contains activate.route.ts, activate.service.ts, and activate.service.spec.ts. Under D1 the service is its own unit and was NOT analyzed as one here; it is treated as a dependency. The route file is unit-level configuration.",
-    "siblings": ["activate.route.ts", "activate.service.ts", "activate.service.spec.ts"]
+    "siblings": [
+      "activate.route.ts",
+      "activate.service.ts",
+      "activate.service.spec.ts"
+    ]
   },
-
   "manifest": {
     "dependencies": "./dependencies.json",
     "functions": null,
@@ -31,16 +35,17 @@
     "migrationNotes": "./migration_notes.md",
     "repoIndex": null
   },
-
   "publicApi": {
     "inputs": [],
     "outputs": [],
     "twoWayBindings": [],
     "publicMethods": [],
-    "templateReachableMembers": ["field:error", "field:success"],
+    "templateReachableMembers": [
+      "field:error",
+      "field:success"
+    ],
     "$comment": "No @Input, @Output, or model(). The two signal fields are public and read by both the template and the spec, so they form the de facto external surface."
   },
-
   "injectedDependencies": [
     {
       "id": "dep:activateService",
@@ -49,8 +54,17 @@
       "resolvedUnitId": "service:app/account/activate:ActivateService",
       "origin": "internal",
       "injectionStyle": "inject-fn",
-      "modifiers": { "optional": false, "self": false, "skipSelf": false, "host": false },
-      "loc": { "file": "activate.component.ts", "line": 18, "endLine": 18 }
+      "modifiers": {
+        "optional": false,
+        "self": false,
+        "skipSelf": false,
+        "host": false
+      },
+      "loc": {
+        "file": "activate.component.ts",
+        "line": 18,
+        "endLine": 18
+      }
     },
     {
       "id": "dep:route",
@@ -59,19 +73,30 @@
       "resolvedUnitId": null,
       "origin": "angular",
       "injectionStyle": "inject-fn",
-      "modifiers": { "optional": false, "self": false, "skipSelf": false, "host": false },
-      "loc": { "file": "activate.component.ts", "line": 19, "endLine": 19 }
+      "modifiers": {
+        "optional": false,
+        "self": false,
+        "skipSelf": false,
+        "host": false
+      },
+      "loc": {
+        "file": "activate.component.ts",
+        "line": 19,
+        "endLine": 19
+      }
     }
   ],
-
   "lifecycle": {
-    "implementedHooks": ["ngOnInit"],
-    "declaredInterfaces": ["OnInit"],
+    "implementedHooks": [
+      "ngOnInit"
+    ],
+    "declaredInterfaces": [
+      "OnInit"
+    ],
     "constructorDoesWork": false,
     "cleanupStrategy": "none",
     "$comment": "No ngOnDestroy and no takeUntilDestroyed despite an active subscription."
   },
-
   "stateOutline": {
     "fields": [
       {
@@ -90,7 +115,11 @@
           "formKind": null,
           "isConstant": false
         },
-        "loc": { "file": "activate.component.ts", "line": 15, "endLine": 15 }
+        "loc": {
+          "file": "activate.component.ts",
+          "line": 15,
+          "endLine": 15
+        }
       },
       {
         "id": "field:success",
@@ -108,25 +137,33 @@
           "formKind": null,
           "isConstant": false
         },
-        "loc": { "file": "activate.component.ts", "line": 16, "endLine": 16 }
+        "loc": {
+          "file": "activate.component.ts",
+          "line": 16,
+          "endLine": 16
+        }
       }
     ],
-    "methodIds": ["method:ngOnInit"],
+    "methodIds": [
+      "method:ngOnInit"
+    ],
     "accessorIds": [],
     "formIds": [],
-    "streamIds": ["stream:queryParamsActivation"]
+    "streamIds": [],
+    "$comment_streams": "Empty under D12a: this component's only stream is built and subscribed inline in ngOnInit and has no name in source. It is recorded on method:ngOnInit in functions.json. The Phase A baseline invented 'stream:queryParamsActivation' here."
   },
-
   "decorator": {
     "changeDetection": null,
     "encapsulation": null,
     "providers": [],
-    "imports": ["SharedModule", "RouterModule"],
+    "imports": [
+      "SharedModule",
+      "RouterModule"
+    ],
     "hostDirectives": [],
     "animations": [],
     "$comment": "changeDetection unspecified, so Default applies. State is signal-based regardless."
   },
-
   "metrics": {
     "tsLineCount": 27,
     "templateLineCount": 18,
@@ -136,7 +173,6 @@
     "maxCyclomaticComplexity": 1,
     "maxTemplateNestingDepth": 4
   },
-
   "provenance": {
     "source": "hand-derived",
     "resolverVersion": null,

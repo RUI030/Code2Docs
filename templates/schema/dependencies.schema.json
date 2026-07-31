@@ -89,8 +89,8 @@
   },
   "properties": {
     "schemaVersion": {
-      "const": "0.3.0",
-      "$comment": "0.3.0 splits streams across tiers (D12). A 0.2.0 instance carries the whole record here; the validator reports those as legacy rather than failing them."
+      "const": "0.4.0",
+      "$comment": "0.4.0 narrows streams to source-named only (D12a); 0.3.0 split the record across tiers (D12)."
     },
     "unitId": {
       "$ref": "common.schema.json#/$defs/unitId"
@@ -654,7 +654,7 @@
       }
     },
     "streams": {
-      "$comment": "RELATIONSHIP HALF ONLY (D12). Declaration detail -- declaredType, sourceExpression, operators, multicast -- lives in functions.json under the same stream:<name> id, exactly as a method's body does. leakRisk is absent by design: it is derivable from consumption and unsubscribeStrategy, and a stored derivation is free to drift from its inputs (invariant #1).",
+      "$comment": "Relationship half of a SOURCE-NAMED stream (D12 + D12a). Declaration detail is in functions.json under the same id. leakRisk is absent by design: derivable from consumption and unsubscribeStrategy, and a stored derivation drifts from its inputs.",
       "type": "array",
       "items": {
         "type": "object",

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "0.3.0",
+  "schemaVersion": "0.4.0",
   "$comment": "SCHEMA PROBE. Copied from the Phase A baseline and migrated to 0.3.0 to exercise D12 end to end: the stream's declaration detail moved to functions.json, only the relationship half stays here, and leakRisk is gone because it is derivable from consumption and unsubscribeStrategy.",
   "unitId": "component:app/account/activate:ActivateComponent",
   "callGraph": {
@@ -208,18 +208,7 @@
     "unresolved": []
   },
   "dataTypes": [],
-  "streams": [
-    {
-      "$comment": "Relationship half only (D12). Detail lives in functions.json under this id. Derived leakRisk for this stream: 'possible' -- an explicit subscribe with no teardown -- computed from the two fields below rather than stored.",
-      "id": "stream:queryParamsActivation",
-      "consumedBy": [
-        "method:ngOnInit"
-      ],
-      "consumption": "explicit-subscribe",
-      "unsubscribeStrategy": "none",
-      "subscribedFrom": "method:ngOnInit"
-    }
-  ],
+  "streams": [],
   "provenance": {
     "source": "hand-derived",
     "resolverVersion": null,
@@ -230,5 +219,6 @@
       "inboundUnitEdges empty because no repository-wide index exists at this stage.",
       "httpInteractions describes a call defined in ActivateService, a separate unit, included here because this component triggers it."
     ]
-  }
+  },
+  "$comment_streams": "Empty under D12a -- no source-named streams in this component. The inline subscription's consumption and teardown are on method:ngOnInit in functions.json."
 }
