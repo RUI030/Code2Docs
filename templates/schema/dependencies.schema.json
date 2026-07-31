@@ -158,7 +158,7 @@
           "$ref": "#/$defs/idList"
         },
         "executionOrder": {
-          "$comment": "Leaf-first. The sequence the Explainer must follow, so that callees are already explained when a caller is reached.",
+          "$comment": "Leaf-first: the sequence the Explainer must follow so a caller is never reached before its callees are explained. A topological order is NOT unique, so the tiebreak is fixed: depth-first from each node in declaration order, emitting a node after its callees. Without a stated tiebreak two correct implementations disagree and the field cannot be diffed -- the same defect as the three metrics in F8b.",
           "$ref": "#/$defs/memberList"
         },
         "depthFromEntry": {

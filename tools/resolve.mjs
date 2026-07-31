@@ -12,6 +12,7 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from 
 import { dirname, basename, join, resolve as resolvePath } from "node:path";
 import { createHash } from "node:crypto";
 import { extractSignature } from "./resolve/ts-signature.mjs";
+import { extractDependencies } from "./resolve/ts-dependencies.mjs";
 
 const RESOLVER_VERSION = "0.1.0";
 
@@ -57,12 +58,21 @@ for (const f of files) {
     process.exit(1);
   }
 
+  const shared = {
+    resolverVersion: RESOLVER_VERSION,
+    generatedAt: has("--stamp") ? new Date().toISOString() : "1970-01-01T00:00:00.000Z",
+    inputHash: createHash("sha256").update(sourceText).update(templateText)
+      .update(RESOLVER_VERSION).digest("hex").slice(0, 16),
+  };
+  const deps = extractDependencies(path, sourceText, sig, shared);
+
   const out = flag("--out");
   if (out) {
     mkdirSync(out, { recursive: true });
     writeFileSync(join(out, "signature.json"), JSON.stringify(sig, null, 2) + "\n");
-    console.error(`wrote ${join(out, "signature.json")}`);
+    if (deps) writeFileSync(join(out, "dependencies.json"), JSON.stringify(deps, null, 2) + "\n");
+    console.error(`wrote signature.json${deps ? " + dependencies.json" : ""} -> ${out}`);
   } else {
-    console.log(JSON.stringify(sig, null, 2));
+    console.log(JSON.stringify(flag("--tier") === "dependencies" ? deps : sig, null, 2));
   }
 }

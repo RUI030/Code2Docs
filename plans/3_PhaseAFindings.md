@@ -303,6 +303,16 @@ extractor.
 
 Worth marking these as inferred rather than extracted, so a consumer can tell the difference.
 
+### F8f — `executionOrder` had the same defect, found by running the extractor
+
+The hand-derived baseline and the extractor produce **different** `executionOrder` for the
+complex component, and both are correct: a topological order is not unique, and nothing said
+which one to emit. Same defect as F8b's three metrics, in a field that matters more, since the
+Explainer consumes it directly.
+
+Now defined in the schema: depth-first from each node in declaration order, emitting a node
+after its callees. Stated so the field can be diffed at all.
+
 ### F8d — what checked out clean
 
 `unit.id`'s path segment **is** defined — "relative to the Angular source root", stated in both
