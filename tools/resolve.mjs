@@ -9,7 +9,7 @@
  * timestamp would make every run differ and defeat golden-file diffing.
  */
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from "node:fs";
-import { dirname, basename, join, resolve as resolvePath } from "node:path";
+import { dirname, basename, join, resolve as resolvePath, relative } from "node:path";
 import { createHash } from "node:crypto";
 import { extractSignature } from "./resolve/ts-signature.mjs";
 import { extractDependencies } from "./resolve/ts-dependencies.mjs";
@@ -19,6 +19,8 @@ import { pathToFileURL, fileURLToPath } from "node:url";
 
 const RESOLVER_VERSION = "0.1.0";
 const ROOT_DIR = resolvePath(dirname(fileURLToPath(import.meta.url)), "..");
+/** Absolute paths must not reach recorded output: they pin a golden to one machine. */
+const relativePath = (p) => relative(ROOT_DIR, p) || p;
 
 const args = process.argv.slice(2);
 const flag = (name, fallback = null) => {
@@ -33,10 +35,23 @@ if (files.length === 0) {
   process.exit(2);
 }
 
+let exitCode = 0;
+
 for (const f of files) {
   const path = resolvePath(f);
-  const sourceText = readFileSync(path, "utf8");
   const dir = dirname(path);
+
+  // Phase 1's cross-cutting rule: never throw on unparseable input. A run over a
+  // real repo must not die on one bad file, so a failure here is recorded against
+  // the unit and the loop continues.
+  let sourceText;
+  try {
+    sourceText = readFileSync(path, "utf8");
+  } catch (err) {
+    console.error(`  ${relativePath(path)}: unreadable (${err.code ?? err.message}) -- skipped`);
+    exitCode = 1;
+    continue;
+  }
 
   // Sibling files the component declares or that name it, for `files` and metrics.
   const siblings = readdirSync(dir);
@@ -46,6 +61,7 @@ for (const f of files) {
   const templateText = existsSync(templatePath) ? readFileSync(templatePath, "utf8") : "";
 
   const sig = extractSignature(path, sourceText, {
+    root: ROOT_DIR,
     unitPath: flag("--unit-path", ""),
     specs,
     templateText,
@@ -58,11 +74,15 @@ for (const f of files) {
   });
 
   if (!sig) {
-    console.error(`no @Component class found in ${f}`);
-    process.exit(1);
+    // Was process.exit(1). A unit the resolver cannot classify is a finding to
+    // report, not a reason to abandon the other files on the command line.
+    console.error(`  ${relativePath(path)}: no @Component class found -- skipped`);
+    exitCode = 1;
+    continue;
   }
 
   const shared = {
+    root: ROOT_DIR,
     resolverVersion: RESOLVER_VERSION,
     generatedAt: has("--stamp") ? new Date().toISOString() : "1970-01-01T00:00:00.000Z",
     inputHash: createHash("sha256").update(sourceText).update(templateText)
@@ -127,3 +147,5 @@ for (const f of files) {
     console.log(JSON.stringify(byTier[tier] ?? sig, null, 2));
   }
 }
+
+process.exit(exitCode);

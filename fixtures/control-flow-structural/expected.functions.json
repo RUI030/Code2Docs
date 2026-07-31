@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "0.4.0",
+  "schemaVersion": "0.5.0",
   "unitId": "component:fixtures/control-flow-structural:ListComponent",
   "symbols": {
     "method:trackById": {
@@ -78,8 +78,13 @@
     "resolverVersion": "0.1.0",
     "explainerModel": null,
     "generatedAt": "1970-01-01T00:00:00.000Z",
+    "parseStatus": "ok",
     "warnings": [
-      "doc is absent on every symbol: it is the Explainer's output, and a placeholder would put model-shaped content in a tier that contains none."
+      {
+        "code": "empty-by-design",
+        "severity": "info",
+        "message": "doc is absent on every symbol: it is the Explainer's output, and a placeholder would put model-shaped content in a tier that contains none."
+      }
     ]
   }
 }

@@ -16,6 +16,7 @@
  */
 import ts from "typescript";
 import { basename } from "node:path";
+import { createWarnings } from "./warnings.mjs";
 
 const SIGNAL_WRITERS = new Set(["set", "update", "mutate"]);
 const HTTP_VERBS = new Set(["get", "post", "put", "patch", "delete"]);
@@ -68,6 +69,16 @@ function callSites(cls, src) {
 
 export function extractDependencies(filePath, sourceText, signature, opts = {}) {
   const file = basename(filePath);
+  // Per-tier collector: warnings live in this tier's provenance, so a gap here
+  // must not be reported on signature's record or vice versa.
+  const w = opts.warn ?? createWarnings({ root: opts.root });
+  w.warn("empty-by-design",
+    "outboundUnitEdges and inboundUnitEdges are empty: cross-unit resolution needs the repo index (Phase 2).");
+  if (!opts.templateHandlers) {
+    w.warn("upper-bound-only",
+      "unreachableMethods OVER-REPORTS: no template was parsed, so methods called only from a "
+      + "template binding or host listener look uncalled. Treat it as an upper bound until template.json exists.");
+  }
   const src = ts.createSourceFile(file, sourceText, ts.ScriptTarget.Latest, true);
   const cls = src.statements.find((s) => ts.isClassDeclaration(s) && s.members?.length);
   if (!cls || !signature) return null;
@@ -333,7 +344,7 @@ export function extractDependencies(filePath, sourceText, signature, opts = {}) 
   }));
 
   return {
-    schemaVersion: "0.4.0",
+    schemaVersion: "0.5.0",
     unitId: signature.unit.id,
     callGraph: {
       nodes, edges, calls, calledBy, entryPoints, executionOrder,
@@ -357,14 +368,8 @@ export function extractDependencies(filePath, sourceText, signature, opts = {}) 
       resolverVersion: opts.resolverVersion ?? "0.1.0",
       generatedAt: opts.generatedAt ?? "1970-01-01T00:00:00.000Z",
       inputHash: opts.inputHash ?? null,
-      warnings: [
-        "outboundUnitEdges and inboundUnitEdges are empty: cross-unit resolution needs the repo index (Phase 2).",
-        ...(opts.templateHandlers
-          ? []
-          : ["unreachableMethods OVER-REPORTS: no template was parsed, so methods called only " +
-             "from a template binding or host listener look uncalled. Treat it as an upper bound " +
-             "until template.json exists."]),
-      ],
+      parseStatus: w.parseStatus(),
+      warnings: w.list(),
     },
   };
 }

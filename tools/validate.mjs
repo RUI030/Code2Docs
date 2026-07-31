@@ -52,8 +52,13 @@ function requiredVersion(schema) {
   return schema?.properties?.schemaVersion?.const ?? null;
 }
 
+/**
+ * `signature.json` and the goldens' `expected.signature.json` are the same tier.
+ * Matching only the bare stem meant every golden fell through to "skipped",
+ * which is why adding fixtures/ to the walk alone did not validate anything.
+ */
 function tierOf(file) {
-  const stem = basename(file).replace(/\.json$/, "");
+  const stem = basename(file).replace(/\.json$/, "").replace(/^expected\./, "");
   return TIERS.includes(stem) ? stem : null;
 }
 
@@ -61,11 +66,18 @@ const { ajv, available } = loadSchemas();
 
 let targets = process.argv.slice(2);
 if (targets.length === 0) {
-  const examples = join(ROOT, "examples");
-  try {
-    targets = walk(examples);
-  } catch {
-    console.error("no examples/ directory and no files given");
+  // examples/ AND the fixture goldens. examples/ alone was the original scope,
+  // and once every promoted example went legacy behind a schema bump it left the
+  // validator walking a directory where nothing was eligible -- reporting
+  // "0 validated" and exit 0, a green step that checked nothing. The goldens are
+  // current-version extractor output, so they are exactly what the schema should
+  // be enforced against.
+  targets = [];
+  for (const d of ["examples", "fixtures"]) {
+    try { targets.push(...walk(join(ROOT, d))); } catch { /* absent is fine */ }
+  }
+  if (targets.length === 0) {
+    console.error("nothing to validate: no examples/ or fixtures/, and no files given");
     process.exit(2);
   }
 }
@@ -124,4 +136,15 @@ if (legacy.length) {
   for (const l of legacy) console.log(`  ${l.tier} ${l.has} -> ${l.wants}  ${l.file.replace(ROOT + "/", "")}`);
 }
 console.log(`\n${checked} validated, ${failed} failed, ${skipped} skipped, ${legacy.length} legacy`);
+
+// A validator that validated nothing must not look like one that validated
+// everything successfully. This is how the legacy sweep hid: every candidate was
+// skipped, and the summary still read as a pass.
+if (checked === 0) {
+  console.error(
+    `\nNOTHING WAS VALIDATED -- ${targets.length} target(s) were all legacy, skipped, or `
+    + `unmatched by a tier name. Treating as a failure: a green check that checked nothing `
+    + `is worse than a red one.`);
+  process.exit(1);
+}
 process.exit(failed > 0 ? 1 : 0);

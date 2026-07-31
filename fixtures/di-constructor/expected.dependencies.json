@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "0.4.0",
+  "schemaVersion": "0.5.0",
   "unitId": "component:fixtures/di-constructor:ReaderComponent",
   "callGraph": {
     "nodes": [
@@ -148,9 +148,18 @@
     "resolverVersion": "0.1.0",
     "generatedAt": "1970-01-01T00:00:00.000Z",
     "inputHash": "5a7644fbc81680d6",
+    "parseStatus": "partial",
     "warnings": [
-      "outboundUnitEdges and inboundUnitEdges are empty: cross-unit resolution needs the repo index (Phase 2).",
-      "unreachableMethods OVER-REPORTS: no template was parsed, so methods called only from a template binding or host listener look uncalled. Treat it as an upper bound until template.json exists."
+      {
+        "code": "empty-by-design",
+        "severity": "info",
+        "message": "outboundUnitEdges and inboundUnitEdges are empty: cross-unit resolution needs the repo index (Phase 2)."
+      },
+      {
+        "code": "upper-bound-only",
+        "severity": "warning",
+        "message": "unreachableMethods OVER-REPORTS: no template was parsed, so methods called only from a template binding or host listener look uncalled. Treat it as an upper bound until template.json exists."
+      }
     ]
   }
 }

@@ -360,3 +360,227 @@ implementations agree on is a rule; that is the property the 23 semantic names n
 first implementation counted attributes and text as nesting levels, giving 8 — contradicting the
 schema definition F8b had just added. The definition existed before the code, so the mismatch
 was visible immediately rather than becoming the de facto meaning of the field.
+
+---
+
+## F10. Vocabulary sweep against Angular 17.3.9 — deliberate, per F8e
+
+F8e found four missing template constructs and two missing lifecycle callbacks *incidentally*,
+and concluded the sweep should be done deliberately. This is that pass. Method: dump every
+closed set our schemas and extractors enumerate, then diff each against the pinned
+`angular-docs/typings/` for 17.3.9 — typings, not guides, per that directory's own README.
+
+Sorted by what each gap costs, not by set.
+
+### F10a — the walker has no fallthrough, so every future gap is silent
+
+`ng-template.mjs` dispatches on node type through a chain of `else if`, handling 13 of the 31
+`TmplAst*` classes 17.3.9 defines. There is **no terminal `else`**. An unrecognised node is not
+recorded, not counted, and not reported — it simply does not exist in the output.
+
+This is the finding that matters, because the individual construct gaps below are instances of
+it rather than independent bugs. Every construct Angular adds after 17.3.9 lands here the same
+way: `@let` (v18) and any v19+ block would vanish with a passing test suite, because goldens are
+written from the extractor's own output and cannot fail on a node nobody knew to expect.
+
+The fix is general (principle 2): a terminal `else` that emits an `unhandled-template-node`
+warning carrying the class name and location. It converts an open-ended class of silent
+omissions into flagged ones, and it is the same shape of fix as the structural-directive bug
+F9-adjacent notes — that one was found only because a fixture pair happened to cover it.
+
+Of the 18 unhandled classes most are structural (`TmplAstVariable`, `TmplAstSwitchBlockCase`)
+and already reached through their parent. One is a real behavioral gap: **`TmplAstIcu`** —
+i18n plural/select expressions, which encode pluralisation rules. `template.schema.json` already
+has an `i18n` category under `uiRequirements` with nothing feeding it, and every node type
+carries an `i18n?: I18nMeta` field the extractor never reads.
+
+### F10b — `model()` cannot be represented at all
+
+17.3.9 ships `model()` (`core/index.d.ts:6847`). Our vocabulary has no slot for it:
+
+| Set | Ours | Angular 17.3.9 |
+|---|---|---|
+| `publicApi.inputs.declarationStyle` | decorator, signal, setter | + **model** |
+| `publicApi.outputs.declarationStyle` | eventemitter, output-fn, subject | + **model** (`xChange`), + **outputFromObservable** |
+
+`model()` is a single declaration that is *both* an input and an output — the two-way binding
+`[(x)]` desugars against it. It is precisely the migration-sensitive construct this project
+exists to catch, and it currently extracts as neither. Note the schema cannot express it by
+adding one enum value to each side either: one declaration producing two contract entries needs
+a decision about whether it is recorded once or twice. That is a **D14**, not a patch.
+
+**It is not merely unrepresentable — it is silently dropped, and the pair check hides it.**
+`fixtures/inputs-signal/widget.component.ts:9` declares `selected = model<boolean>(false)`.
+`fixtures/fixtures.json` lists under the `inputs` pair's `mustExtract`: *"the signal member
+additionally declares model:selected, which has no decorator equivalent"* — an assertion written
+before the extractor existed, which is what makes it a specification rather than a description.
+The extractor records it nowhere: not in `inputs`, not in `outputs`, and `publicApi.twoWay` is
+`null`.
+
+The pair passes anyway, because it declares `mayDiffer: ["twoWay"]`, reasoned as *"the signal
+member declares one extra two-way binding."* That exclusion was written expecting `twoWay` to be
+**populated** on the signal member and empty on the decorator one. It is `null` on **both**, so
+the single field that would have caught the omission is the exact field the check was told to
+ignore.
+
+This is the golden-file circularity recurring one layer up. The commit that rebuilt `golden.mjs`
+caught exactly this pattern in field-diffing — exclusions written until the check went quiet,
+deriving the expectation from the output being judged — and replaced it with semantic
+projections. `mayDiffer` is the same hazard in the mechanism that survived. A `mayDiffer` entry
+should have to state what the field is expected to *contain*, so that "empty on both members"
+cannot satisfy "these two may differ."
+
+`outputFromObservable` (rxjs-interop) is the smaller sibling: an output driven by a stream,
+which is both a public-contract entry and a teardown concern, and today matches no style.
+
+### F10c — `linkedSignal` is an invented value
+
+`functions.schema.json#/signals/signalKind` allows `linkedSignal`. It does not exist in 17.3.9 —
+it is a v19 API. Nothing can ever emit it, and its presence implies a coverage we do not have.
+Same class as F8's invented-value audit. Either drop it, or keep it with an explicit
+"post-17.3.9, unreachable at the pinned version" comment; silently allowing it is the one option
+that is wrong.
+
+### F10d — `@defer` records triggers but not prefetch triggers
+
+`TmplAstDeferredBlock` carries **two** trigger sets, `triggers` and `prefetchTriggers`
+(`compiler/index.d.ts`). `ng-template.mjs:236` reads only the first. `@defer (on viewport;
+prefetch on idle)` therefore records the viewport trigger and drops the prefetch entirely —
+"when does this content load" answered half-right, which is worse than unanswered because it
+looks complete. Trigger *arguments* are also dropped: `on timer(500ms)` and `on viewport(ref)`
+both flatten to a bare key name.
+
+### F10e — two of our own sets disagree about forms
+
+Not an Angular gap — an internal one, found by laying our sets side by side:
+
+- `signature.schema.json#/stateOutline/fields/roleHints/formKind`: FormGroup, FormControl, FormArray, **FormRecord**
+- `functions.schema.json#/forms/groups/controls/type`: control, group, **array only**
+
+`FormRecord` exists in 17.3.9 and is representable in one tier but not the other. Whichever way
+it resolves, one of the two is wrong today.
+
+### F10f — the lifecycle set is correct but duplicated
+
+The eight interface hooks match Angular's exactly — no gap. Two notes anyway:
+
+- `afterRender` / `afterNextRender` confirmed absent, as F8e said. They are not interface hooks
+  but functions registered in an injection context, so they need a different detection path than
+  `LIFECYCLE_HOOKS.has(name)` — which is why F8e's fix has not happened by accident.
+- The set is **defined twice**, `ts-signature.mjs:18` and `ts-functions.mjs:15`, and the two are
+  currently identical. A closed vocabulary maintained in two places is a drift waiting to
+  happen; adding the `afterRender` pair to one and not the other is exactly how it starts.
+
+### F10g — what checked out clean
+
+DI modifiers (`InjectOptions`: optional/skipSelf/self/host) are fully covered. HTTP verbs,
+`updateOn` (`change | blur | submit`), view-query types, encapsulation and change-detection
+modes all match the typings exactly. `unsubscribeStrategy` and `consumption` cover the real
+teardown and consumption idioms including the rxjs-interop ones.
+
+### What this pass is not
+
+A sweep of *enumerations*. It cannot find a field we never thought to add — only a value missing
+from a list we already keep. F10a is the mitigation for that class, and it is a detector, not a
+cure.
+
+### Disposition
+
+Phase 1 fixes F10a, F10c, F10d, F10f. F10b needs a decision record first (**D14**), and F10e
+needs one of the two tiers to be declared authoritative. Neither is Phase 1 work being skipped;
+both are Phase 1 work correctly identified as needing a decision, and are recorded here so the
+gap is carried forward rather than rediscovered.
+
+---
+
+## F11. The warning channel, and three things it exposed on arrival
+
+Phase 1's cross-cutting rule — *never throw on unparseable input; degrade, set `parseStatus`,
+record a warning* — had no implementation. `parseStatus` was the literal string `"ok"` in
+`ts-signature.mjs`, so the one field that exists to admit degradation could never admit any, and
+`provenance.warnings` was an array of free prose.
+
+`tools/resolve/warnings.mjs` now owns it: a closed code vocabulary (unlisted codes throw), a
+severity that maps onto `parseStatus`, and a `parseStatus` **derived** from what was recorded
+rather than asserted, so the two cannot disagree. Schema-side, `warnings` became structured
+objects shared via `common.schema.json#/$defs/warningList`, which bumped all four `ast` tiers.
+
+Three defects surfaced the moment real warnings ran through it. Each had been invisible for the
+same reason: nothing was watching the channel they should have used.
+
+**The fallback-compiler warning could never fire.** `findAngularCompiler` searched upward from
+the analysed file and reported `vendored: true` on whatever it found. Anything nested inside this
+repo — every fixture, and `INPUT/` too — reaches *our* `node_modules` by walking up, so the
+Resolver claimed the analysed repo had supplied a compiler it never had, and suppressed the
+version-mismatch hazard universally. `vendored` is now decided by whose `node_modules` the file
+came from, not by which search found it. All four template fixtures moved to `partial` as a
+result — the warning firing for the first time, not a regression.
+
+**The goldens were machine-specific.** `provenance.warnings` embedded
+`/home/<user>/.../compiler.mjs`, so a committed golden could only pass on the machine that wrote
+it. Messages are relativised through the collector now, and the rule is in the module header
+because it will recur.
+
+**`nodesUnrecognized` counted the wrong thing.** It counted `TmplAstUnknownBlock` — *Angular*
+failing to parse — while our own coverage gaps read as zero. The two are now separate:
+`unknown-block` for the source's failure, `unhandled-template-node` for ours, and the count
+reports ours.
+
+`fixtures/i18n-icu` locks the detector in. It is the project's first fixture whose expected output
+is **an honest gap rather than a correct extraction**: `parseStatus: partial`,
+`nodesUnrecognized: 1`, one warning naming `TmplAstIcu`, and the sibling interpolation still
+extracted — proving the walker continues past what it cannot handle. That shape is worth reusing.
+
+### F11a — the validator had stopped validating
+
+Bumping the four schema versions turned every promoted example legacy. `npm run validate` walks
+only `examples/`, so it reported **`0 validated, 0 failed`** and exited 0. A green step that
+checked nothing, arrived at by a change that looked purely additive.
+
+Two fixes, both general. The walk now includes `fixtures/`, whose 38 goldens are current-version
+extractor output and therefore exactly what the schemas should be enforced against — they had
+never been schema-checked at all, only diffed against themselves. And `checked === 0` is now a
+hard failure: a validator that validated nothing must not be indistinguishable from one that
+validated everything successfully.
+
+The general lesson is the one F10a made about goldens, in a second mechanism: **a check whose
+scope can silently empty will eventually report success from an empty scope.** Both were found by
+reading the summary line rather than the exit code.
+
+---
+
+## F12. Free strings where the value set is closed
+
+Prompted by the question of whether the schemas actually constrain their fields. Audited: **46
+closed enums against 206 free strings.** The ratio sounds alarming and mostly is not — nearly
+every free string is prose in `analysis`, the `doc` tier, where free text is the correct choice.
+`purpose.statement` and `behavioralInvariants[].statement` are sentences for a human, and an enum
+would be absurd.
+
+The distinction that matters is not "how many" but **which tier**: `doc` content is prose by
+definition, `ast` content is a finite value set by definition. Filtering to the four `ast` tiers,
+and setting aside genuinely open values (identifiers, TypeScript type text, expressions, file
+paths), three fields were free strings whose value set is closed in fact:
+
+| Field | Emitted values | Now |
+|---|---|---|
+| `dependencies.inboundUnitEdges[].relation` | same nine as outbound | shared `$defs/unitEdgeRelation` |
+| `dependencies.routing.navigations[].api` | `router.navigate`, `router.navigateByUrl` | enum |
+| `functions.forms.groups[].builtWith` | `FormBuilder`, `new FormGroup` | enum, nullable |
+
+The first is the interesting one. `outboundUnitEdges[].relation` was already a closed enum;
+`inboundUnitEdges[].relation` — **the same relation read from the opposite end** — was a free
+string. Two spellings of one concept, one constrained and one not, which is a drift that needs no
+mistake to occur: it was already latent in the schema. Both now reference one definition, so the
+question "is `provides` a legal relation" has exactly one answer.
+
+`builtWith` is deliberately **nullable** as well as closed. Per the standing rule that a hard
+case should raise a flag rather than get a patch, an unrecognised form construction must record
+"not determined" plus a warning — never a guess. A free string is what lets a half-matching
+heuristic write a plausible wrong value, and a plausible wrong value is the one failure mode this
+project cannot tolerate, because nothing downstream can detect it.
+
+**Rule going forward:** in an `ast` tier, a field whose values come from a fixed set in the
+extractor gets an enum in the schema. If the extractor cannot classify confidently, the enum
+gains `null` and the extractor emits a warning. Free strings in `ast` are for identifiers, type
+text, expressions, and paths — things the language itself leaves open.

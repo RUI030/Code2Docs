@@ -14,6 +14,7 @@
  */
 import ts from "typescript";
 import { basename } from "node:path";
+import { createWarnings } from "./warnings.mjs";
 
 const LIFECYCLE_HOOKS = new Set([
   "ngOnInit", "ngOnDestroy", "ngOnChanges", "ngDoCheck", "ngAfterContentInit",
@@ -155,7 +156,7 @@ export function extractSignature(filePath, sourceText, opts = {}) {
   const meta = componentMeta(cls, src) ?? {};
   const className = cls.name?.text ?? "(anonymous)";
   const unitPath = opts.unitPath ?? "";
-  const warnings = [];
+  const w = opts.warn ?? createWarnings({ root: opts.root });
 
   const inputs = [], outputs = [], twoWay = [], fields = [];
   const deps = [], methodIds = [], accessorIds = [], formIds = [], streamIds = [];
@@ -334,7 +335,7 @@ export function extractSignature(filePath, sourceText, opts = {}) {
   });
 
   return {
-    schemaVersion: "0.3.0",
+    schemaVersion: "0.4.0",
     unit: {
       id: `component:${unitPath}:${className}`,
       kind: "component",
@@ -390,8 +391,8 @@ export function extractSignature(filePath, sourceText, opts = {}) {
       generatedAt: opts.generatedAt ?? new Date().toISOString(),
       sourceRevision: opts.sourceRevision ?? null,
       inputHash: opts.inputHash ?? null,
-      parseStatus: "ok",
-      warnings,
+      parseStatus: w.parseStatus(),
+      warnings: w.list(),
     },
   };
 }

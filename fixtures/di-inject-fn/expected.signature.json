@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "0.3.0",
+  "schemaVersion": "0.4.0",
   "unit": {
     "id": "component:fixtures/di-inject-fn:ReaderComponent",
     "kind": "component",

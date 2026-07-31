@@ -18,7 +18,8 @@
   },
   "properties": {
     "schemaVersion": {
-      "const": "0.4.0"
+      "const": "0.5.0",
+      "$comment": "0.5.0 makes provenance.warnings structured objects with a closed code vocabulary and requires a computed parseStatus; 0.4.0 carried free prose that mixed designed gaps with real degradations, so nothing downstream could tell them apart."
     },
     "unitId": {
       "$ref": "common.schema.json#/$defs/unitId"
@@ -357,7 +358,16 @@
                 "$ref": "common.schema.json#/$defs/identifier"
               },
               "builtWith": {
-                "type": "string"
+                "$comment": "Closed to what the extractor can actually recognise, and nullable so an unrecognised construction is recorded as 'not determined' plus a warning rather than as a guess. A free string here would let a half-matched heuristic write a plausible wrong value.",
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "enum": [
+                  "FormBuilder",
+                  "new FormGroup",
+                  null
+                ]
               },
               "controls": {
                 "type": "array",
@@ -654,7 +664,8 @@
       "$comment": "Two cache keys, because the halves invalidate independently: editing source invalidates ast, changing the prompt or model invalidates doc only.",
       "type": "object",
       "required": [
-        "generatedAt"
+        "generatedAt",
+        "parseStatus"
       ],
       "additionalProperties": false,
       "patternProperties": {
@@ -683,10 +694,10 @@
           "minLength": 1
         },
         "warnings": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+          "$ref": "common.schema.json#/$defs/warningList"
+        },
+        "parseStatus": {
+          "$ref": "common.schema.json#/$defs/parseStatus"
         }
       }
     }

@@ -138,12 +138,71 @@
       ]
     },
     "parseStatus": {
+      "$comment": "Derived from the recorded warnings, never asserted: 'failed' if any error-severity warning, 'partial' if any warning-severity, else 'ok'. It was previously a hardcoded 'ok', which meant the one field that exists to admit degradation could never admit any.",
       "type": "string",
       "enum": [
         "ok",
         "partial",
         "failed"
       ]
+    },
+    "warning": {
+      "$comment": "Structured so downstream stages branch on 'code' rather than parsing English. The free-text array this replaces mixed 'empty by design' notes with real degradations in one list, so nothing could tell a designed gap from a failed extraction. Severities map onto parseStatus: error->failed, warning->partial, info->ok. The code vocabulary is closed and lives in tools/resolve/warnings.mjs, which throws on an unlisted code.",
+      "type": "object",
+      "required": [
+        "code",
+        "severity",
+        "message"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": [
+            "source-unreadable",
+            "no-component-decorator",
+            "source-parse-errors",
+            "template-not-found",
+            "template-parse-errors",
+            "compiler-not-found",
+            "compiler-version-fallback",
+            "unhandled-template-node",
+            "unknown-block",
+            "unhandled-declaration",
+            "recall-gap",
+            "upper-bound-only",
+            "empty-by-design",
+            "parser-selected"
+          ]
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "error",
+            "warning",
+            "info"
+          ]
+        },
+        "message": {
+          "$comment": "Human-readable. Must not embed an absolute path -- a golden holding /home/<user>/... passes only on the machine that wrote it.",
+          "type": "string",
+          "minLength": 1
+        },
+        "loc": {
+          "$ref": "#/$defs/loc"
+        },
+        "count": {
+          "$comment": "Present when identical code+message occurrences were collapsed.",
+          "type": "integer",
+          "minimum": 2
+        }
+      }
+    },
+    "warningList": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/warning"
+      }
     },
     "schemaVersion": {
       "type": "string",
@@ -177,6 +236,21 @@
         {
           "$ref": "#/$defs/templateNodeId"
         }
+      ]
+    },
+    "unitEdgeRelation": {
+      "$comment": "Shared by outboundUnitEdges and inboundUnitEdges: they are the same relation read from opposite ends, so a value legal on one must be legal on the other. Outbound was a closed enum and inbound a free string, which let the two sides drift by construction.",
+      "type": "string",
+      "enum": [
+        "injects",
+        "renders",
+        "extends",
+        "implements",
+        "imports-type",
+        "routes-to",
+        "guarded-by",
+        "resolved-by",
+        "provides"
       ]
     }
   }

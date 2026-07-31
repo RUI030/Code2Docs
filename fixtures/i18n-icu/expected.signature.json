@@ -1,17 +1,17 @@
 {
   "schemaVersion": "0.4.0",
   "unit": {
-    "id": "component:fixtures/control-flow-structural:ListComponent",
+    "id": "component:fixtures/i18n-icu:MessageComponent",
     "kind": "component",
-    "className": "ListComponent",
-    "selector": "x-list",
-    "path": "fixtures/control-flow-structural",
+    "className": "MessageComponent",
+    "selector": "app-message",
+    "path": "fixtures/i18n-icu",
     "standalone": true,
     "declaredInModule": null,
     "isDefaultExport": false,
     "files": {
-      "typescript": "list.component.ts",
-      "template": "list.component.html",
+      "typescript": "message.component.ts",
+      "template": "message.component.html",
       "templateInline": false,
       "styles": [],
       "specs": []
@@ -30,14 +30,9 @@
     "inputs": [],
     "outputs": [],
     "twoWayBindings": [],
-    "publicMethods": [
-      "method:trackById"
-    ],
+    "publicMethods": [],
     "templateReachableMembers": [
-      "field:isReady",
-      "field:items",
-      "field:mode",
-      "method:trackById"
+      "field:label"
     ]
   },
   "injectedDependencies": [],
@@ -51,12 +46,12 @@
   "stateOutline": {
     "fields": [
       {
-        "id": "field:isReady",
-        "name": "isReady",
-        "type": "boolean",
+        "id": "field:count",
+        "name": "count",
+        "type": "number",
         "visibility": "public",
         "readonly": false,
-        "initializerExpression": "false",
+        "initializerExpression": "0",
         "roleHints": {
           "isSignal": false,
           "signalKind": null,
@@ -67,18 +62,18 @@
           "isConstant": false
         },
         "loc": {
-          "file": "list.component.ts",
-          "line": 5,
-          "endLine": 5
+          "file": "message.component.ts",
+          "line": 17,
+          "endLine": 17
         }
       },
       {
-        "id": "field:mode",
-        "name": "mode",
-        "type": "'edit' | 'view'",
+        "id": "field:label",
+        "name": "label",
+        "type": "string",
         "visibility": "public",
         "readonly": false,
-        "initializerExpression": "'view'",
+        "initializerExpression": "'items'",
         "roleHints": {
           "isSignal": false,
           "signalKind": null,
@@ -89,37 +84,13 @@
           "isConstant": false
         },
         "loc": {
-          "file": "list.component.ts",
-          "line": 6,
-          "endLine": 6
-        }
-      },
-      {
-        "id": "field:items",
-        "name": "items",
-        "type": "{ id: number; name: string }[]",
-        "visibility": "public",
-        "readonly": false,
-        "initializerExpression": "[]",
-        "roleHints": {
-          "isSignal": false,
-          "signalKind": null,
-          "isRxjs": false,
-          "rxjsKind": null,
-          "isFormEntity": false,
-          "formKind": null,
-          "isConstant": false
-        },
-        "loc": {
-          "file": "list.component.ts",
-          "line": 7,
-          "endLine": 7
+          "file": "message.component.ts",
+          "line": 18,
+          "endLine": 18
         }
       }
     ],
-    "methodIds": [
-      "method:trackById"
-    ],
+    "methodIds": [],
     "accessorIds": [],
     "formIds": [],
     "streamIds": []
@@ -133,20 +104,20 @@
     "animations": []
   },
   "metrics": {
-    "tsLineCount": 12,
-    "templateLineCount": 11,
-    "methodCount": 1,
-    "publicApiSurface": 1,
+    "tsLineCount": 19,
+    "templateLineCount": 2,
+    "methodCount": 0,
+    "publicApiSurface": 0,
     "injectedDependencyCount": 0,
-    "maxCyclomaticComplexity": 1,
-    "maxTemplateNestingDepth": 3
+    "maxCyclomaticComplexity": 0,
+    "maxTemplateNestingDepth": 0
   },
   "provenance": {
     "source": "ast",
     "resolverVersion": "0.1.0",
     "generatedAt": "1970-01-01T00:00:00.000Z",
     "sourceRevision": null,
-    "inputHash": "a336450b2456984b",
+    "inputHash": "b8ebae3339efaca0",
     "parseStatus": "ok",
     "warnings": []
   }

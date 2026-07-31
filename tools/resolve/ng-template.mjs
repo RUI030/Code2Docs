@@ -16,8 +16,9 @@
  * this file contains only what the parser saw.
  */
 import { existsSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { dirname, join, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
+import { createWarnings } from "./warnings.mjs";
 
 /**
  * The analyzed repo's own compiler, else ours.
@@ -31,9 +32,17 @@ import { pathToFileURL } from "node:url";
  * between parser and repo is a real hazard rather than a detail.
  */
 export function findAngularCompiler(startDir, fallbackDir) {
+  // `vendored` is a claim about the ANALYZED repo, so it is decided by whose
+  // node_modules the file came from -- not by which search found it. Walking up
+  // from a unit nested inside this repo reaches OUR node_modules, and reporting
+  // that as the analyzed repo's silently suppressed every version-mismatch
+  // warning for anything under this tree, INPUT/ included.
+  const ours = fallbackDir ? join(resolve(fallbackDir), "node_modules") : null;
+  const isOurs = (p) => !!ours && resolve(p).startsWith(ours + sep);
+
   const found = searchUp(startDir);
-  if (found) return { path: found, vendored: true };
-  const own = fallbackDir ? searchUp(fallbackDir) : null;
+  if (found && !isOurs(found)) return { path: found, vendored: true };
+  const own = found ?? (fallbackDir ? searchUp(fallbackDir) : null);
   return own ? { path: own, vendored: false } : null;
 }
 
@@ -105,9 +114,69 @@ function readsOf(ast, C) {
   return [...found];
 }
 
+/**
+ * Node classes that legitimately have no branch of their own because a parent's
+ * branch already consumes them -- `@if` reads its own branches, an element reads
+ * its own attributes. Matched by NAME, not identity: a class absent from an older
+ * or newer compiler must not throw here.
+ *
+ * Anything not in this set and not dispatched is reported as
+ * `unhandled-template-node` rather than dropped. That is the whole point: the
+ * walker covers 13 of the 31 TmplAst classes 17.3.9 defines, and before this the
+ * other 18 vanished in silence -- including TmplAstIcu, which carries
+ * pluralisation rules. No golden could catch it, because goldens are written from
+ * this extractor's own output (F10a).
+ *
+ * The names are resolved through `exportedNames` below, NOT `constructor.name`:
+ * this module's header records that the fesm build minifies those to `Element$1`
+ * and similar, which would make every node look unhandled.
+ */
+const REACHED_VIA_PARENT = new Set([
+  "TmplAstIfBlockBranch",           // via TmplAstIfBlock.branches
+  "TmplAstSwitchBlockCase",         // via TmplAstSwitchBlock.cases
+  "TmplAstForLoopBlockEmpty",       // via TmplAstForLoopBlock.empty
+  "TmplAstDeferredBlockPlaceholder",
+  "TmplAstDeferredBlockLoading",
+  "TmplAstDeferredBlockError",      // all three via TmplAstDeferredBlock
+  "TmplAstVariable",                // via the block or template that declares it
+  "TmplAstTextAttribute",           // via TmplAstElement.attributes
+  "TmplAstText",                    // static text carries no behavior
+]);
+
+/**
+ * constructor -> the name @angular/compiler exports it under.
+ *
+ * Built from the module's own exports so it survives minification and needs no
+ * hardcoded class list: whatever TmplAst* classes this compiler version ships,
+ * we can name them.
+ */
+function exportedNames(C) {
+  const m = new Map();
+  for (const [k, v] of Object.entries(C)) {
+    if (k.startsWith("TmplAst") && typeof v === "function") m.set(v, k);
+  }
+  return m;
+}
+
 export function extractTemplate(templateFile, templateText, signature, compilerPath, opts = {}) {
   const C = opts.compiler;
+  const w = opts.warn ?? createWarnings({ root: opts.root });
+  const nameOf = (n) => exportNames.get(n?.constructor) ?? n?.constructor?.name ?? "unknown node";
+  const exportNames = exportedNames(C);
   const parsed = C.parseTemplate(templateText, templateFile, { preserveWhitespaces: false });
+
+  w.warn("empty-by-design",
+    "uiRequirements is empty by design: it is doc content, written by the Synthesizer, not extracted.");
+  // Relativised: an absolute path here pins the golden to the machine that wrote it.
+  w.warn("parser-selected", `parsed with @angular/compiler from ${w.relativise(compilerPath)}`);
+  if (!opts.vendored) {
+    w.warn("compiler-version-fallback",
+      "the analyzed source tree vendors no @angular/compiler, so this Resolver's own pinned copy "
+      + "was used. Its version may differ from the version the repo builds with.");
+  }
+  for (const e of parsed.errors ?? []) {
+    w.warn("template-parse-errors", String(e), { file: templateFile, line: e.span?.start?.line ?? 0 });
+  }
 
   const fieldNames = new Set(signature.stateOutline.fields.map((f) => f.name));
   const methodNames = new Set(signature.stateOutline.methodIds.map((m) => m.slice(7)));
@@ -166,6 +235,8 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
   const idOf = new Map();
   const id = (n) => idOf.get(n) ?? null;
   const loc = (n) => ({ file: templateFile, line: lineOf(n), endLine: endLineOf(n) });
+  // Nodes the walker had no branch for -- see REACHED_VIA_PARENT.
+  const unhandledNodes = new Set();
 
   const out = {
     elements: [], controlFlow: [], propertyBindings: [], eventBindings: [], twoWayBindings: [],
@@ -357,6 +428,19 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
           isInteractiveNonSemantic: nonSemanticInteractive,
         });
       }
+    } else if (n instanceof C.TmplAstUnknownBlock) {
+      // Angular itself did not recognise the block: an invalid template, or one
+      // using syntax newer than the compiler doing the parsing. Distinct from the
+      // branch below -- that one is OUR gap, this one is the source's.
+      w.warn("unknown-block",
+        `@${n.name ?? "?"} is not a block this compiler recognises`, loc(n));
+    } else if (!REACHED_VIA_PARENT.has(nameOf(n))) {
+      // The terminal branch F10a exists for. Reported once per class with a count,
+      // so a template with 40 ICU expressions yields one line, not forty.
+      unhandledNodes.add(n);
+      w.warn("unhandled-template-node",
+        `${nameOf(n)} is parsed by @angular/compiler but has no `
+        + `branch in this walker, so its content is not recorded`, loc(n));
     }
   }
 
@@ -373,16 +457,19 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
   const recordedIds = [...new Set(emitted.map((e) => idOf.get(e.node)).filter(Boolean))];
   const nodesTotal = recordedIds.length;
   return {
-    schemaVersion: "0.3.0",
+    schemaVersion: "0.4.0",
     unitId: signature.unit.id,
     templateFile,
     parse: {
-      status: parsed.errors?.length ? "partial" : "ok",
+      status: w.parseStatus(),
       parser: "@angular/compiler",
       angularVersion: opts.angularVersion ?? null,
       diagnostics: (parsed.errors ?? []).map(String),
       nodesParsed: flat.length,
-      nodesUnrecognized: flat.filter((f) => f.node instanceof C.TmplAstUnknownBlock).length,
+      // Nodes THIS WALKER did not record. Previously this counted TmplAstUnknownBlock,
+      // which is Angular failing to parse -- a different failure, now carried by the
+      // unknown-block warning. Conflating them meant our own coverage gaps read as 0.
+      nodesUnrecognized: unhandledNodes.size,
     },
     ast: { ...out, styles: {
       files: signature.unit.files.styles ?? [],
@@ -403,15 +490,8 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
       docInputHash: null,
       resolverVersion: opts.resolverVersion ?? "0.1.0",
       generatedAt: opts.generatedAt ?? "1970-01-01T00:00:00.000Z",
-      warnings: [
-        "uiRequirements is empty by design: it is doc content, written by the Synthesizer, not extracted.",
-        `parsed with @angular/compiler from ${compilerPath}`,
-        ...(opts.vendored ? [] : [
-          "FALLBACK PARSER: the analyzed source tree vendors no @angular/compiler, " +
-          "so this Resolver's own pinned copy was used. Its version may differ from " +
-          "the version the repo builds with.",
-        ]),
-      ],
+      parseStatus: w.parseStatus(),
+      warnings: w.list(),
     },
     maxTemplateNestingDepth: maxDepth,
   };

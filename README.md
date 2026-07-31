@@ -99,6 +99,8 @@ of English sentences, with no Angular knowledge required.
 Its limit: tests cover only part of a component's behavior, so this establishes a floor on
 omissions, not a full measurement. Definitive review is owned by a separate team.
 
+See **`ARCHITECTURE.md`** for the pipeline, dataflow, and what each file is responsible for.
+
 ## Layout
 
 ```

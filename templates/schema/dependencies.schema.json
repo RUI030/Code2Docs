@@ -89,8 +89,8 @@
   },
   "properties": {
     "schemaVersion": {
-      "const": "0.4.0",
-      "$comment": "0.4.0 narrows streams to source-named only (D12a); 0.3.0 split the record across tiers (D12)."
+      "const": "0.5.0",
+      "$comment": "0.5.0 makes provenance.warnings structured objects with a closed code vocabulary and requires a computed parseStatus; 0.4.0 carried free prose that mixed designed gaps with real degradations, so nothing downstream could tell them apart. 0.4.0 narrows streams to source-named only (D12a); 0.3.0 split the record across tiers (D12)."
     },
     "unitId": {
       "$ref": "common.schema.json#/$defs/unitId"
@@ -310,18 +310,7 @@
             "$ref": "common.schema.json#/$defs/unitId"
           },
           "relation": {
-            "type": "string",
-            "enum": [
-              "injects",
-              "renders",
-              "extends",
-              "implements",
-              "imports-type",
-              "routes-to",
-              "guarded-by",
-              "resolved-by",
-              "provides"
-            ]
+            "$ref": "common.schema.json#/$defs/unitEdgeRelation"
           },
           "via": {
             "$ref": "#/$defs/idList"
@@ -349,7 +338,7 @@
             "$ref": "common.schema.json#/$defs/unitId"
           },
           "relation": {
-            "type": "string"
+            "$ref": "common.schema.json#/$defs/unitEdgeRelation"
           },
           "via": {
             "$ref": "#/$defs/idList"
@@ -516,7 +505,12 @@
                 "pattern": "^nav:[0-9]+$"
               },
               "api": {
-                "type": "string"
+                "$comment": "Closed: the extractor derives this from a fixed NAV_APIS set, so a free string could only ever hold one of these or a typo.",
+                "type": "string",
+                "enum": [
+                  "router.navigate",
+                  "router.navigateByUrl"
+                ]
               },
               "targetExpression": {
                 "type": "string"
@@ -708,7 +702,8 @@
       "type": "object",
       "required": [
         "source",
-        "generatedAt"
+        "generatedAt",
+        "parseStatus"
       ],
       "additionalProperties": false,
       "patternProperties": {
@@ -731,10 +726,10 @@
           "$ref": "common.schema.json#/$defs/nullableString"
         },
         "warnings": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+          "$ref": "common.schema.json#/$defs/warningList"
+        },
+        "parseStatus": {
+          "$ref": "common.schema.json#/$defs/parseStatus"
         }
       }
     }

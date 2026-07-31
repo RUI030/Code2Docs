@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "0.5.0",
+  "unitId": "component:fixtures/i18n-icu:MessageComponent",
+  "symbols": {},
+  "forms": {
+    "approach": "none",
+    "groups": [],
+    "ngModelBindings": []
+  },
+  "streams": [],
+  "signals": [],
+  "tests": {
+    "files": [],
+    "framework": "unknown",
+    "cases": []
+  },
+  "coverage": {
+    "symbolsTotal": 0,
+    "symbolsExplained": 0,
+    "symbolsTrivialSkipped": 0
+  },
+  "provenance": {
+    "source": "ast",
+    "astInputHash": "b8ebae3339efaca0",
+    "docInputHash": null,
+    "resolverVersion": "0.1.0",
+    "explainerModel": null,
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "parseStatus": "ok",
+    "warnings": [
+      {
+        "code": "empty-by-design",
+        "severity": "info",
+        "message": "doc is absent on every symbol: it is the Explainer's output, and a placeholder would put model-shaped content in a tier that contains none."
+      }
+    ]
+  }
+}

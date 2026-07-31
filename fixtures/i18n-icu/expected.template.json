@@ -1,0 +1,125 @@
+{
+  "schemaVersion": "0.4.0",
+  "unitId": "component:fixtures/i18n-icu:MessageComponent",
+  "templateFile": "message.component.html",
+  "parse": {
+    "status": "partial",
+    "parser": "@angular/compiler",
+    "angularVersion": null,
+    "diagnostics": [],
+    "nodesParsed": 4,
+    "nodesUnrecognized": 1
+  },
+  "ast": {
+    "elements": [
+      {
+        "id": "tpl:0",
+        "tag": "p",
+        "attributes": [],
+        "depth": 0,
+        "loc": {
+          "file": "message.component.html",
+          "line": 1,
+          "endLine": 1
+        }
+      },
+      {
+        "id": "tpl:2",
+        "tag": "span",
+        "attributes": [],
+        "depth": 0,
+        "loc": {
+          "file": "message.component.html",
+          "line": 2,
+          "endLine": 2
+        }
+      }
+    ],
+    "controlFlow": [],
+    "propertyBindings": [],
+    "eventBindings": [],
+    "twoWayBindings": [],
+    "interpolations": [
+      {
+        "id": "tpl:3",
+        "expression": "{{ label }}",
+        "pipes": [],
+        "dependsOn": [
+          "field:label"
+        ],
+        "loc": {
+          "file": "message.component.html",
+          "line": 2,
+          "endLine": 2
+        }
+      }
+    ],
+    "childComponents": [],
+    "templateRefs": [],
+    "ngTemplates": [],
+    "contentProjection": [],
+    "hostBindings": [],
+    "hostListeners": [],
+    "accessibility": [],
+    "i18n": [],
+    "rawHtmlSinks": [],
+    "directivesUsed": [],
+    "pipesUsed": [],
+    "viewQueries": [],
+    "styles": {
+      "files": [],
+      "encapsulation": null,
+      "usesEncapsulationEscapes": false,
+      "escapeSelectors": [],
+      "usesHostSelectors": false,
+      "importsGlobalStyles": [],
+      "classesToggledFromTs": []
+    }
+  },
+  "uiRequirements": [],
+  "coverage": {
+    "$comment": "nodesTotal counts nodes this tier RECORDS. parse.nodesParsed counts everything the compiler produced -- ids are numbered over that larger set (D13a), so recorded ids are sparse. uncoveredNodeIds lists recorded nodes no uiRequirement cites, never unrecorded ones: citing those was the original dangling bug.",
+    "nodesTotal": 3,
+    "nodesCoveredByRequirements": 0,
+    "uncoveredNodeIds": [
+      "tpl:0",
+      "tpl:2",
+      "tpl:3"
+    ]
+  },
+  "provenance": {
+    "source": "ast",
+    "astInputHash": "b8ebae3339efaca0",
+    "docInputHash": null,
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "parseStatus": "partial",
+    "warnings": [
+      {
+        "code": "empty-by-design",
+        "severity": "info",
+        "message": "uiRequirements is empty by design: it is doc content, written by the Synthesizer, not extracted."
+      },
+      {
+        "code": "parser-selected",
+        "severity": "info",
+        "message": "parsed with @angular/compiler from node_modules/@angular/compiler/fesm2022/compiler.mjs"
+      },
+      {
+        "code": "compiler-version-fallback",
+        "severity": "warning",
+        "message": "the analyzed source tree vendors no @angular/compiler, so this Resolver's own pinned copy was used. Its version may differ from the version the repo builds with."
+      },
+      {
+        "code": "unhandled-template-node",
+        "severity": "warning",
+        "message": "TmplAstIcu is parsed by @angular/compiler but has no branch in this walker, so its content is not recorded",
+        "loc": {
+          "file": "message.component.html",
+          "line": 1,
+          "endLine": 1
+        }
+      }
+    ]
+  }
+}

@@ -11,6 +11,7 @@
  */
 import ts from "typescript";
 import { basename } from "node:path";
+import { createWarnings } from "./warnings.mjs";
 
 const LIFECYCLE_HOOKS = new Set([
   "ngOnInit", "ngOnDestroy", "ngOnChanges", "ngDoCheck", "ngAfterContentInit",
@@ -222,6 +223,10 @@ function extractTests(specFile, specText, memberNames, depNames) {
 }
 
 export function extractFunctions(filePath, sourceText, signature, dependencies, opts = {}) {
+  const w = opts.warn ?? createWarnings({ root: opts.root });
+  w.warn("empty-by-design",
+    "doc is absent on every symbol: it is the Explainer's output, and a placeholder would put "
+    + "model-shaped content in a tier that contains none.");
   const file = basename(filePath);
   const src = ts.createSourceFile(file, sourceText, ts.ScriptTarget.Latest, true);
   const cls = src.statements.find((s) => ts.isClassDeclaration(s) && s.members?.length);
@@ -290,7 +295,7 @@ export function extractFunctions(filePath, sourceText, signature, dependencies, 
   }
 
   return {
-    schemaVersion: "0.4.0",
+    schemaVersion: "0.5.0",
     unitId: signature.unit.id,
     symbols,
     forms,
@@ -315,9 +320,8 @@ export function extractFunctions(filePath, sourceText, signature, dependencies, 
       resolverVersion: opts.resolverVersion ?? "0.1.0",
       explainerModel: null,
       generatedAt: opts.generatedAt ?? "1970-01-01T00:00:00.000Z",
-      warnings: [
-        "doc is absent on every symbol: it is the Explainer's output, and a placeholder would put model-shaped content in a tier that contains none.",
-      ],
+      parseStatus: w.parseStatus(),
+      warnings: w.list(),
     },
   };
 }

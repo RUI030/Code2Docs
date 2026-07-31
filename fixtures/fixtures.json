@@ -119,6 +119,24 @@
         ],
         "reason": "The two mechanisms genuinely require different members: one injects DestroyRef, the other holds a Subscription and implements OnDestroy. What must NOT differ is leakRisk -- neither leaks, by different means -- and that is the assertion the pair exists to make."
       }
+    },
+    {
+      "id": "i18n-icu",
+      "pair": [
+        "i18n-icu"
+      ],
+      "isolates": "An ICU plural expression -- deliberately a construct the walker does NOT handle. This fixture asserts the GAP IS REPORTED, not that ICU is extracted.",
+      "mustExtract": [
+        "the interpolation of `label` in the sibling span, proving the walker keeps working past the node it cannot handle",
+        "parse.nodesUnrecognized is 1, counting nodes THIS walker did not record",
+        "provenance.parseStatus is 'partial', derived from the warning rather than asserted",
+        "one unhandled-template-node warning naming TmplAstIcu",
+        "the ICU content itself is absent from ast -- recorded nowhere, which is honest, because guessing at pluralisation rules would be worse"
+      ],
+      "equivalence": {
+        "mayDiffer": [],
+        "reason": "Single-member fixture: there is no second syntax for an ICU expression, so there is nothing to pair it against. It earns its place as a regression test for the detector rather than as a syntax-equivalence pair (F10a)."
+      }
     }
   ],
   "notCoveredYet": {
@@ -129,7 +147,8 @@
       "host bindings and host listeners",
       "computed() and linkedSignal() dependency chains",
       "inherited members from a base class -- the extensionPoints case (F5a)",
-      "cross-component shared mutable service state, which is the highest-severity migration risk and not observable from one unit (F3)"
+      "cross-component shared mutable service state, which is the highest-severity migration risk and not observable from one unit (F3)",
+      "ICU expressions themselves -- fixtures/i18n-icu asserts the gap is REPORTED, not that it is extracted"
     ]
   }
 }

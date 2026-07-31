@@ -17,7 +17,8 @@
   "additionalProperties": false,
   "properties": {
     "schemaVersion": {
-      "const": "0.3.0"
+      "const": "0.4.0",
+      "$comment": "0.4.0 makes provenance.warnings structured objects with a closed code vocabulary and requires a computed parseStatus; 0.3.0 carried free prose that mixed designed gaps with real degradations, so nothing downstream could tell them apart."
     },
     "unit": {
       "type": "object",
@@ -732,10 +733,7 @@
           "$ref": "common.schema.json#/$defs/parseStatus"
         },
         "warnings": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
+          "$ref": "common.schema.json#/$defs/warningList"
         }
       },
       "patternProperties": {
