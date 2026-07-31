@@ -50,6 +50,7 @@
         "builtWith": "FormBuilder",
         "controls": [
           {
+            "id": "control:form.id",
             "path": "id",
             "type": "control",
             "valueType": "unknown",
@@ -62,6 +63,7 @@
             "updateOn": null
           },
           {
+            "id": "control:form.email",
             "path": "email",
             "type": "control",
             "valueType": "unknown",
@@ -75,6 +77,7 @@
             "updateOn": null
           },
           {
+            "id": "control:form.nickname",
             "path": "nickname",
             "type": "control",
             "valueType": "unknown",

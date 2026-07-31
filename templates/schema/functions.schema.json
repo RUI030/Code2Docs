@@ -426,8 +426,14 @@
                     },
                     "boundTo": {
                       "$ref": "common.schema.json#/$defs/templateNodeId"
+                    },
+                    "id": {
+                      "$ref": "common.schema.json#/$defs/formControlId"
                     }
-                  }
+                  },
+                  "required": [
+                    "id"
+                  ]
                 }
               },
               "crossFieldValidators": {

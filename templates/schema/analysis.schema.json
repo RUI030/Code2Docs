@@ -20,32 +20,12 @@
   "$defs": {
     "ev": {
       "$ref": "common.schema.json#/$defs/evidenceList"
-    },
-    "claim": {
-      "$comment": "The recurring shape: an id, prose, and the evidence backing it.",
-      "type": "object",
-      "additionalProperties": true,
-      "patternProperties": {
-        "^\\$comment": {
-          "type": "string"
-        }
-      },
-      "properties": {
-        "id": {
-          "$ref": "common.schema.json#/$defs/synthesizedId"
-        },
-        "evidence": {
-          "$ref": "common.schema.json#/$defs/evidenceList"
-        },
-        "confidence": {
-          "$ref": "common.schema.json#/$defs/confidence"
-        }
-      }
     }
   },
   "properties": {
     "schemaVersion": {
-      "const": "0.3.0"
+      "const": "0.4.0",
+      "$comment": "0.4.0 closes the per-section claim shapes (0.3.0 shared one open $defs/claim with additionalProperties:true, which let `statement` and `description` both mean 'the prose' -- a renderer cannot choose between them), normalises that prose field to `statement` everywhere, restructures stateModel.form to cite form controls rather than carry a flat validationRules array, and adds `notes` to every section."
     },
     "unitId": {
       "$ref": "common.schema.json#/$defs/unitId"
@@ -86,11 +66,68 @@
         "responsibilities": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/claim"
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "statement"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
           }
         },
         "evidence": {
           "$ref": "#/$defs/ev"
+        },
+        "notes": {
+          "$comment": "Orientation prose and absence-explanations. An empty array renders as nothing, so 'propsAndEvents: []' silently drops 'None -- its input arrives through routing instead.' Also the home for unit-level findings that belong to no single member. Evidence-backed like any other claim: this is a voice for absence, not a free-text escape hatch.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "statement"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              }
+            }
+          }
         }
       }
     },
@@ -106,37 +143,300 @@
         "external": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/claim"
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "statement"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "owner": {
+                "type": "string",
+                "minLength": 1
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
           }
         },
         "propsAndEvents": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/claim"
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "statement"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "in",
+                  "out",
+                  "two-way"
+                ]
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
           }
         },
         "local": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/claim"
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "statement"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              },
+              "member": {
+                "$ref": "common.schema.json#/$defs/anyId"
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              },
+              "mutatedBy": {
+                "type": "array",
+                "items": {
+                  "$ref": "common.schema.json#/$defs/anyId"
+                }
+              }
+            }
           }
         },
         "derived": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/claim"
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "rule"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "rule": {
+                "type": "string",
+                "minLength": 1
+              },
+              "derivedFrom": {
+                "type": "array",
+                "items": {
+                  "$ref": "common.schema.json#/$defs/anyId"
+                }
+              }
+            }
           }
         },
         "form": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/claim"
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "form"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              },
+              "form": {
+                "$ref": "common.schema.json#/$defs/anyId"
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              },
+              "controls": {
+                "$comment": "One entry per control the document says something about. `control` cites functions.json; validators, type and disabled state live THERE and are not repeated here. This replaces a flat validationRules string array, which could only render as a bullet list where reviewers wanted a table (D2a).",
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "control",
+                    "statement"
+                  ],
+                  "properties": {
+                    "control": {
+                      "$ref": "common.schema.json#/$defs/formControlId"
+                    },
+                    "statement": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "evidence": {
+                      "$ref": "common.schema.json#/$defs/evidenceList"
+                    }
+                  }
+                }
+              }
+            }
           }
         },
         "async": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/claim"
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              },
+              "stream": {
+                "type": "string",
+                "minLength": 1
+              },
+              "trigger": {
+                "type": "string",
+                "minLength": 1
+              },
+              "loadingIndicator": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "errorHandling": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "notes": {
+          "$comment": "Orientation prose and absence-explanations. An empty array renders as nothing, so 'propsAndEvents: []' silently drops 'None -- its input arrives through routing instead.' Also the home for unit-level findings that belong to no single member. Evidence-backed like any other claim: this is a voice for absence, not a free-text escape hatch.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "statement"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              }
+            }
           }
         }
       }
@@ -159,26 +459,191 @@
         "methods": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/claim"
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "contract"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              },
+              "symbol": {
+                "$ref": "common.schema.json#/$defs/anyId"
+              },
+              "signature": {
+                "type": "string",
+                "minLength": 1
+              },
+              "contract": {
+                "type": "string",
+                "minLength": 1
+              },
+              "preconditions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "postconditions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "unreachable": {
+                "type": "boolean"
+              }
+            }
           }
         },
         "inputContracts": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/claim"
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "statement"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              },
+              "member": {
+                "$ref": "common.schema.json#/$defs/anyId"
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
           }
         },
         "outputContracts": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/claim"
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "statement"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              },
+              "member": {
+                "$ref": "common.schema.json#/$defs/anyId"
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
           }
         },
         "extensionPoints": {
-          "$comment": "Members existing to be overridden by a subclass rather than called by a consumer. Common wherever a component extends a base class -- scaffolded or hand-written -- and easy to drop in a rewrite because nothing in this unit calls them.",
           "type": "array",
           "items": {
-            "$ref": "#/$defs/claim"
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "statement"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              },
+              "symbols": {
+                "type": "array",
+                "items": {
+                  "$ref": "common.schema.json#/$defs/anyId"
+                }
+              }
+            }
+          }
+        },
+        "notes": {
+          "$comment": "Orientation prose and absence-explanations. An empty array renders as nothing, so 'propsAndEvents: []' silently drops 'None -- its input arrives through routing instead.' Also the home for unit-level findings that belong to no single member. Evidence-backed like any other claim: this is a voice for absence, not a free-text escape hatch.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "statement"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              }
+            }
           }
         }
       }
@@ -305,6 +770,38 @@
               }
             }
           }
+        },
+        "notes": {
+          "$comment": "Orientation prose and absence-explanations. An empty array renders as nothing, so 'propsAndEvents: []' silently drops 'None -- its input arrives through routing instead.' Also the home for unit-level findings that belong to no single member. Evidence-backed like any other claim: this is a voice for absence, not a free-text escape hatch.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "statement"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              }
+            }
+          }
         }
       }
     },
@@ -320,19 +817,139 @@
         "services": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/claim"
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "purpose"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              },
+              "dep": {
+                "$ref": "common.schema.json#/$defs/anyId"
+              },
+              "purpose": {
+                "type": "string",
+                "minLength": 1
+              },
+              "operations": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
           }
         },
         "apis": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/claim"
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "purpose"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              },
+              "http": {
+                "$ref": "common.schema.json#/$defs/anyId"
+              },
+              "purpose": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
           }
         },
         "packages": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/claim"
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "package"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              },
+              "package": {
+                "type": "string",
+                "minLength": 1
+              },
+              "usedFor": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "notes": {
+          "$comment": "Orientation prose and absence-explanations. An empty array renders as nothing, so 'propsAndEvents: []' silently drops 'None -- its input arrives through routing instead.' Also the home for unit-level findings that belong to no single member. Evidence-backed like any other claim: this is a voice for absence, not a free-text escape hatch.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "statement"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              }
+            }
           }
         }
       }
@@ -411,18 +1028,102 @@
         "statelessOperations": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/claim"
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "operation"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              },
+              "service": {
+                "$ref": "common.schema.json#/$defs/anyId"
+              },
+              "operation": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
           }
         },
         "couplingNotes": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/claim"
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "statement"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
           }
         },
         "applicable": {
           "$comment": "False when the unit touches no state outliving it. Distinguishes 'no shared state' from 'not analyzed', which an empty array cannot.",
           "type": "boolean"
+        },
+        "notes": {
+          "$comment": "Orientation prose and absence-explanations. An empty array renders as nothing, so 'propsAndEvents: []' silently drops 'None -- its input arrives through routing instead.' Also the home for unit-level findings that belong to no single member. Evidence-backed like any other claim: this is a voice for absence, not a free-text escape hatch.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "statement"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              }
+            }
+          }
         }
       }
     },
@@ -540,13 +1241,67 @@
         "businessConstraints": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/claim"
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "statement"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
           }
         },
         "edgeCases": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/claim"
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "situation"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              },
+              "situation": {
+                "type": "string",
+                "minLength": 1
+              },
+              "currentBehavior": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
           }
         },
         "terminology": {
@@ -594,6 +1349,38 @@
               },
               "evidence": {
                 "$ref": "#/$defs/ev"
+              }
+            }
+          }
+        },
+        "notes": {
+          "$comment": "Orientation prose and absence-explanations. An empty array renders as nothing, so 'propsAndEvents: []' silently drops 'None -- its input arrives through routing instead.' Also the home for unit-level findings that belong to no single member. Evidence-backed like any other claim: this is a voice for absence, not a free-text escape hatch.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "statement"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
               }
             }
           }
@@ -766,6 +1553,38 @@
         "isLowerBound": {
           "$comment": "True when the risk list is known incomplete. An unmarked list reads as exhaustive, which is the failure mode this whole project exists to prevent.",
           "type": "boolean"
+        },
+        "notes": {
+          "$comment": "Orientation prose and absence-explanations. An empty array renders as nothing, so 'propsAndEvents: []' silently drops 'None -- its input arrives through routing instead.' Also the home for unit-level findings that belong to no single member. Evidence-backed like any other claim: this is a voice for absence, not a free-text escape hatch.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+              "^\\$comment": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "statement"
+            ],
+            "properties": {
+              "id": {
+                "$ref": "common.schema.json#/$defs/synthesizedId"
+              },
+              "statement": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidence": {
+                "$ref": "common.schema.json#/$defs/evidenceList"
+              },
+              "confidence": {
+                "$ref": "common.schema.json#/$defs/confidence"
+              }
+            }
+          }
         }
       }
     },

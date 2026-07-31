@@ -164,8 +164,12 @@ function extractForms(cls, src, file) {
         if (!ts.isPropertyAssignment(p)) continue;
         const ctrlText = p.initializer.getText(src);
         const validators = [...ctrlText.matchAll(/Validators\.(\w+)/g)].map((x) => x[1]);
+        const path = p.name.getText(src);
         controls.push({
-          path: p.name.getText(src),
+          // Citable in its own right: a claim about the identifier field should not
+          // have to cite the whole group and lose which control it meant.
+          id: `control:${name}.${path}`,
+          path,
           type: /FormArray/.test(ctrlText) ? "array" : /FormGroup/.test(ctrlText) ? "group" : "control",
           valueType: "unknown",
           initialValueExpression: ctrlText,

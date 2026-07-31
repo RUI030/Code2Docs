@@ -78,6 +78,9 @@
         {
           "type": "string",
           "pattern": "^field-initializer:[A-Za-z_$][A-Za-z0-9_$]*$"
+        },
+        {
+          "$ref": "#/$defs/formControlId"
         }
       ]
     },
@@ -98,6 +101,9 @@
         },
         {
           "$ref": "#/$defs/unitId"
+        },
+        {
+          "$ref": "#/$defs/formControlId"
         }
       ]
     },
@@ -252,6 +258,11 @@
         "resolved-by",
         "provides"
       ]
+    },
+    "formControlId": {
+      "$comment": "control:<group>.<path> -- a single form control. Added because a control could not previously be cited at all: evidence could name form:editForm but not the identifier field within it, so a claim about ONE control had to cite the whole group and lose its precision.",
+      "type": "string",
+      "pattern": "^control:[A-Za-z_$][A-Za-z0-9_$]*(\\.[A-Za-z_$][A-Za-z0-9_$]*)*$"
     }
   }
 }

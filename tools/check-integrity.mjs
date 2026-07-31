@@ -86,7 +86,10 @@ function declaredIds(tiers) {
   if (fns) {
     Object.keys(fns.symbols ?? {}).forEach(add);
     (fns.tests?.cases ?? []).forEach((c) => add(c.id));
-    (fns.forms?.groups ?? []).forEach((g) => add(g.id));
+    (fns.forms?.groups ?? []).forEach((g) => {
+      add(g.id);
+      (g.controls ?? []).forEach((c) => add(c.id));
+    });
     (fns.signals ?? []).forEach((s) => add(s.id));
   }
 

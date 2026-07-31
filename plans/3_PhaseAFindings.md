@@ -654,6 +654,29 @@ Restating D2a's own measurement, since it is the sharpest statement of the gap: 
 every "notably absent" remark. `propsAndEvents: []` renders as nothing, silently dropping *"None.
 Its input arrives through routing instead."*
 
+### F14a — fixed
+
+All three were closed rather than deferred, since the Explainer and Synthesizer would otherwise
+be tuned against shapes about to change.
+
+**`$defs.claim` is gone.** Its 18 use sites now have closed, per-location shapes derived from what
+the Phase A instance actually carries. The open shape had already caused the drift it invites:
+`statement` and `description` were both in use, 19 times each, as the name for "the prose." A
+renderer cannot choose between them. Every claim now uses `statement`.
+
+**`stateModel.form` cites rather than restates.** It carries a `controls` array whose entries name
+a `control:<group>.<path>` id and add the behavioral meaning; type, validators and disabled state
+stay in `functions.json`, where they are extracted. So the renderer builds the table's columns from
+the `ast` tier and takes only the meaning from `doc` — which is invariant #1 doing exactly the work
+it was written for. Form controls also became citable for the first time: `evidence` could
+previously name `form:editForm` but not the identifier field inside it, so any claim about one
+control had to cite the whole group.
+
+**`notes` exists on all nine sections.** Evidence-backed like any other claim, so it is a voice for
+absence rather than a free-text escape hatch.
+
+`analysis.schema.json` goes to 0.4.0.
+
 **Sequencing.** These belong before **Phase 4**, not at Phase 5 where the renderer is built. The
 Explainer and Synthesizer write *into* these shapes, so prompts tuned against a shape that later
 changes have to be retuned. The work is cheapest now, while nothing generates them yet — and
