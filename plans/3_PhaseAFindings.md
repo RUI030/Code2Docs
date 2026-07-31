@@ -331,3 +331,32 @@ earlier disagreement was my own `--unit-path` argument, not a missing rule.
 
 Both were found by reading fetched documentation against our own vocabulary, which argues for
 doing that deliberately rather than incidentally.
+
+---
+
+## F9. The template extractor corrected the hand-derived data twice
+
+Building `template.json` produced two disagreements with hand-derived values, and the extractor
+was right both times.
+
+**`maxTemplateNestingDepth`.** Baseline and probe say 4; the extractor says 6. Tracing it:
+`div > div > div > @if > div.alert > span > strong`. The `<strong>` nested inside the `<span>`
+on line 7 was simply missed by hand, as was one level of wrapper. Nobody counting by eye gets
+this reliably, and nothing before now could check it.
+
+**Reachability, verified rather than searched.** With the template supplying entry points, the
+extractor independently reports `unreachableMethods` as exactly `byteSize`, `openFile`,
+`setFileData` — matching F4, which the baseline itself flagged as its lowest-confidence claim
+because it rested on a manual search. It now rests on `@angular/compiler`'s parse plus a
+reachability walk. F4 predicted "verified reachability is a genuine Phase 1 deliverable"; it is,
+and it agrees.
+
+**Also worth recording: the id rule converged independently.** The probe's `tpl:1` and `tpl:5`
+for the two `@if` blocks were assigned by hand during the D13 migration. The extractor, applying
+D13's rule to the parse, assigned the same two ids to the same two nodes. A positional rule two
+implementations agree on is a rule; that is the property the 23 semantic names never had.
+
+**And a self-inflicted one, caught by having written the definition first.** The extractor's
+first implementation counted attributes and text as nesting levels, giving 8 — contradicting the
+schema definition F8b had just added. The definition existed before the code, so the mismatch
+was visible immediately rather than becoming the de facto meaning of the field.

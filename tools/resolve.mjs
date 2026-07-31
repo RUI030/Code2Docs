@@ -13,6 +13,8 @@ import { dirname, basename, join, resolve as resolvePath } from "node:path";
 import { createHash } from "node:crypto";
 import { extractSignature } from "./resolve/ts-signature.mjs";
 import { extractDependencies } from "./resolve/ts-dependencies.mjs";
+import { extractTemplate, findAngularCompiler } from "./resolve/ng-template.mjs";
+import { pathToFileURL } from "node:url";
 
 const RESOLVER_VERSION = "0.1.0";
 
@@ -66,13 +68,40 @@ for (const f of files) {
   };
   const deps = extractDependencies(path, sourceText, sig, shared);
 
+  // Template parsing uses the ANALYZED repo's compiler so the parser matches the
+  // syntax the repo can actually use. Missing is reported, never silently skipped.
+  let tpl = null;
+  if (templateText) {
+    const compilerPath = findAngularCompiler(dir);
+    if (!compilerPath) {
+      console.error(`  no @angular/compiler found above ${dir}: template not parsed`);
+    } else {
+      const compiler = await import(pathToFileURL(compilerPath).href);
+      tpl = extractTemplate(basename(templatePath), templateText, sig, compilerPath,
+        { ...shared, compiler });
+      sig.metrics.maxTemplateNestingDepth = tpl.maxTemplateNestingDepth;
+      delete tpl.maxTemplateNestingDepth;
+      sig.manifest.template = "./template.json";
+      const handlers = tpl.ast.eventBindings.map((e) => e.handlerMethod).filter(Boolean);
+      const reachable = new Set([...handlers,
+        ...tpl.ast.propertyBindings.flatMap((b) => b.dependsOn),
+        ...tpl.ast.interpolations.flatMap((b) => b.dependsOn),
+        ...tpl.ast.controlFlow.flatMap((b) => b.dependsOn)]);
+      sig.publicApi.templateReachableMembers = [...reachable].sort();
+      Object.assign(deps, extractDependencies(path, sourceText, sig,
+        { ...shared, templateHandlers: handlers }));
+    }
+  }
+
   const out = flag("--out");
   if (out) {
     mkdirSync(out, { recursive: true });
     writeFileSync(join(out, "signature.json"), JSON.stringify(sig, null, 2) + "\n");
     if (deps) writeFileSync(join(out, "dependencies.json"), JSON.stringify(deps, null, 2) + "\n");
-    console.error(`wrote signature.json${deps ? " + dependencies.json" : ""} -> ${out}`);
+    if (tpl) writeFileSync(join(out, "template.json"), JSON.stringify(tpl, null, 2) + "\n");
+    console.error(`wrote ${["signature", deps && "dependencies", tpl && "template"].filter(Boolean).join(" + ")}.json -> ${out}`);
   } else {
-    console.log(JSON.stringify(flag("--tier") === "dependencies" ? deps : sig, null, 2));
+    const tier = flag("--tier");
+    console.log(JSON.stringify(tier === "dependencies" ? deps : tier === "template" ? tpl : sig, null, 2));
   }
 }
