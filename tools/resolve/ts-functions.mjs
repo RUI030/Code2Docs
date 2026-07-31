@@ -257,7 +257,10 @@ export function extractFunctions(filePath, sourceText, signature, dependencies, 
         cyclomaticComplexity: complexityOf(m),
         lineCount: l.endLine - l.line + 1,
         loc: l,
-        sourceExcerpt: m.body ? m.body.getText(src) : null,
+        // Null unless asked for. The body is already in the file that `loc`
+        // points at, so storing it copies a fact rather than recording one --
+        // and the copy can go stale against the source it duplicates.
+        sourceExcerpt: opts.sourceExcerpt && m.body ? m.body.getText(src) : null,
         existingComments: existingComments(m, sourceText),
         sideEffectHints: sideEffectHints(m, src, depNames),
         subscriptions: m.body ? subscriptionsIn(m.body, src, file, signature.lifecycle.cleanupStrategy) : [],

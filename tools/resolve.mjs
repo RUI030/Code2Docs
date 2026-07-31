@@ -105,6 +105,7 @@ for (const f of files) {
   const specText = specPath ? readFileSync(specPath, "utf8") : null;
   const fns = extractFunctions(path, sourceText, sig, deps, {
     ...shared, specFile: specs[0] ?? null, specText,
+    sourceExcerpt: has("--source-excerpt"),
     templateTwoWay: tpl?.ast?.twoWayBindings ?? [],
     framework: specText ? (/\bjest\b/.test(specText) ? "jest"
       : /\bjasmine\b/.test(specText) ? "jasmine-karma"

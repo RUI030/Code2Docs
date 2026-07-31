@@ -9,7 +9,8 @@
     "check": "node tools/check-integrity.mjs",
     "golden": "node tools/golden.mjs",
     "test": "npm run validate && npm run check && npm run golden",
-    "resolve": "node tools/resolve.mjs"
+    "resolve": "node tools/resolve.mjs",
+    "q": "node tools/query.mjs"
   },
   "devDependencies": {
     "@angular/compiler": "^17.3.9",

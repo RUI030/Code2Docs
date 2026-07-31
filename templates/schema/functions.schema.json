@@ -130,7 +130,11 @@
                 "$ref": "common.schema.json#/$defs/loc"
               },
               "sourceExcerpt": {
-                "$ref": "common.schema.json#/$defs/nullableString"
+                "$comment": "Null by default. `loc` already points at the body, so carrying the text duplicates the source and can drift from it. Opt in with --source-excerpt when a consumer genuinely cannot open the file.",
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "existingComments": {
                 "$comment": "What the original developer wrote. High-signal, and must never be confused with generated prose -- which is why it lives in ast, not doc.",
