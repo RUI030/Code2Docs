@@ -22,6 +22,12 @@ target/
 .code2docs-cache/
 coverage/
 
+# Claude Code per-developer settings. settings.json IS tracked -- it carries the
+# examples/ write-denial that protects promoted baselines. settings.local.json is
+# one developer's accumulated permission grants and travels with nobody. Listed
+# here rather than relying on a global ignore, which only exists on one machine.
+.claude/settings.local.json
+
 # Editor / OS
 .DS_Store
 Thumbs.db
