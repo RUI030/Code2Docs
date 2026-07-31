@@ -394,44 +394,37 @@ i18n plural/select expressions, which encode pluralisation rules. `template.sche
 has an `i18n` category under `uiRequirements` with nothing feeding it, and every node type
 carries an `i18n?: I18nMeta` field the extractor never reads.
 
-### F10b — `model()` cannot be represented at all
+### F10b — CORRECTED: `model()` is handled; only `outputFromObservable` is missing
 
-17.3.9 ships `model()` (`core/index.d.ts:6847`). Our vocabulary has no slot for it:
+**This finding was originally written as "model() cannot be represented at all" and then
+escalated to "it is silently dropped, and the pair check hides it." Both claims were wrong, and
+the correction is recorded here rather than edited away, because the mistake is instructive.**
 
-| Set | Ours | Angular 17.3.9 |
-|---|---|---|
-| `publicApi.inputs.declarationStyle` | decorator, signal, setter | + **model** |
-| `publicApi.outputs.declarationStyle` | eventemitter, output-fn, subject | + **model** (`xChange`), + **outputFromObservable** |
+`model()` is extracted correctly. `publicApi.twoWayBindings` holds it as
+`{id: "model:selected", name, type, loc}`; `signature.schema.json` gives it its own id pattern
+`^model:`; `common.schema.json#/$defs/memberId` lists `model` among its prefixes; and
+`golden.mjs` projects it as `twoWay` for pair comparison. `fixtures/inputs-signal` records
+`model:selected` and `fixtures/inputs-decorator` records `[]`, which is exactly what the pair's
+`mustExtract` demands and why `mayDiffer: ["twoWay"]` is present and correct.
 
-`model()` is a single declaration that is *both* an input and an output — the two-way binding
-`[(x)]` desugars against it. It is precisely the migration-sensitive construct this project
-exists to catch, and it currently extracts as neither. Note the schema cannot express it by
-adding one enum value to each side either: one declaration producing two contract entries needs
-a decision about whether it is recorded once or twice. That is a **D14**, not a patch.
+So the design was right all along: `model()` is neither an input entry nor an output entry but a
+**third kind of public-contract member**, recorded once in its own array. There is no D14 to make.
 
-**It is not merely unrepresentable — it is silently dropped, and the pair check hides it.**
-`fixtures/inputs-signal/widget.component.ts:9` declares `selected = model<boolean>(false)`.
-`fixtures/fixtures.json` lists under the `inputs` pair's `mustExtract`: *"the signal member
-additionally declares model:selected, which has no decorator equivalent"* — an assertion written
-before the extractor existed, which is what makes it a specification rather than a description.
-The extractor records it nowhere: not in `inputs`, not in `outputs`, and `publicApi.twoWay` is
-`null`.
+The error was reading `publicApi.twoWay`, getting `undefined` because the field is
+`twoWayBindings`, and treating absence-of-key as absence-of-fact. Every downstream inference —
+that the schema had no slot, that the extractor dropped the declaration, that `mayDiffer`
+silenced the evidence — followed from one unchecked key name. **A wrong field name and a genuinely
+missing fact look identical from the outside**, which is the same shape as the omission problem
+this project exists to solve, arriving via the auditor rather than the extractor.
 
-The pair passes anyway, because it declares `mayDiffer: ["twoWay"]`, reasoned as *"the signal
-member declares one extra two-way binding."* That exclusion was written expecting `twoWay` to be
-**populated** on the signal member and empty on the decorator one. It is `null` on **both**, so
-the single field that would have caught the omission is the exact field the check was told to
-ignore.
+Worth keeping as method: the claim should have been checked against the extractor source
+(`ts-signature.mjs` pushes to `twoWay` on `sig.name === "model"`) before being written up, not
+after. A single `grep model` would have settled it.
 
-This is the golden-file circularity recurring one layer up. The commit that rebuilt `golden.mjs`
-caught exactly this pattern in field-diffing — exclusions written until the check went quiet,
-deriving the expectation from the output being judged — and replaced it with semantic
-projections. `mayDiffer` is the same hazard in the mechanism that survived. A `mayDiffer` entry
-should have to state what the field is expected to *contain*, so that "empty on both members"
-cannot satisfy "these two may differ."
-
-`outputFromObservable` (rxjs-interop) is the smaller sibling: an output driven by a stream,
-which is both a public-contract entry and a teardown concern, and today matches no style.
+**What survives.** One genuine gap: `outputFromObservable` (rxjs-interop) has no
+`declarationStyle` value. It is an output driven by a stream, so it is both a public-contract
+entry and a teardown concern, and today matches none of `eventemitter | output-fn | subject`. That
+is a small enum addition plus detection, not a design question.
 
 ### F10c — `linkedSignal` is an invented value
 
@@ -486,10 +479,9 @@ cure.
 
 ### Disposition
 
-Phase 1 fixes F10a, F10c, F10d, F10f. F10b needs a decision record first (**D14**), and F10e
-needs one of the two tiers to be declared authoritative. Neither is Phase 1 work being skipped;
-both are Phase 1 work correctly identified as needing a decision, and are recorded here so the
-gap is carried forward rather than rediscovered.
+Phase 1 fixes F10a, F10c, F10d, F10f, and F10b's surviving piece (`outputFromObservable`, a
+small enum addition). F10e needs one of the two forms tiers declared authoritative. No decision
+record is required — the D14 originally raised here dissolved when F10b was corrected.
 
 ---
 
