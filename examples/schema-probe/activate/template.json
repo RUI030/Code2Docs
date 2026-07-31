@@ -1,10 +1,8 @@
 {
-  "schemaVersion": "0.2.0",
-  "$comment": "SCHEMA PROBE, not a run. Hand-filled for app/account/activate to give template.schema.json its first contact with real data. The three tpl ids Phase A cited without defining -- tpl:if-success, tpl:if-error, tpl:link-login -- are defined here, which is what F7 predicted would resolve them.",
-
+  "schemaVersion": "0.3.0",
+  "$comment": "SCHEMA PROBE, not a run. Hand-filled for app/account/activate to give template.schema.json its first contact with real data. Originally used semantic tpl ids and was migrated to D13's positional rule -- which means it no longer resolves the three ids F7 pre-registered: the baseline cites tpl:if-success, this defines tpl:1, and under D13 the baseline's names are unreproducible and stay unresolved permanently.",
   "unitId": "component:app/account/activate:ActivateComponent",
   "templateFile": "activate.component.html",
-
   "parse": {
     "status": "ok",
     "parser": "hand-derived",
@@ -13,35 +11,45 @@
     "nodesParsed": 11,
     "nodesUnrecognized": 0
   },
-
   "ast": {
     "controlFlow": [
       {
-        "id": "tpl:if-success",
+        "id": "tpl:1",
         "construct": "@if",
         "expression": "success()",
         "itemAlias": null,
         "trackBy": null,
         "aliases": [],
-        "dependsOn": ["field:success"],
+        "dependsOn": [
+          "field:success"
+        ],
         "parent": null,
         "depth": 3,
-        "loc": { "file": "activate.component.html", "line": 5, "endLine": 10 }
+        "loc": {
+          "file": "activate.component.html",
+          "line": 5,
+          "endLine": 10
+        }
       },
       {
-        "id": "tpl:if-error",
+        "id": "tpl:5",
         "construct": "@if",
         "expression": "error()",
         "itemAlias": null,
         "trackBy": null,
         "aliases": [],
-        "dependsOn": ["field:error"],
+        "dependsOn": [
+          "field:error"
+        ],
         "parent": null,
         "depth": 3,
-        "loc": { "file": "activate.component.html", "line": 11, "endLine": 15 }
+        "loc": {
+          "file": "activate.component.html",
+          "line": 11,
+          "endLine": 15
+        }
       }
     ],
-
     "propertyBindings": [],
     "eventBindings": [],
     "twoWayBindings": [],
@@ -53,53 +61,78 @@
     "hostBindings": [],
     "hostListeners": [],
     "rawHtmlSinks": [],
-
     "$comment_empty": "Eleven of the eighteen node kinds are empty for this component. That is the honest shape of a passive screen -- no bindings, no events, no interpolation, no child components. An extractor that omitted empty arrays instead of emitting them would make 'no event handlers' indistinguishable from 'events not extracted'.",
-
     "directivesUsed": [
       {
         "selector": "jhiTranslate",
         "origin": "internal",
         "resolvedUnitId": null,
         "inputsPassed": [],
-        "occurrences": ["tpl:i18n-title", "tpl:i18n-success", "tpl:link-login", "tpl:i18n-error"]
+        "occurrences": [
+          "tpl:0",
+          "tpl:3",
+          "tpl:4",
+          "tpl:7"
+        ]
       },
       {
         "selector": "routerLink",
         "origin": "angular",
         "resolvedUnitId": null,
-        "inputsPassed": [{ "name": "routerLink", "expression": "/login" }],
-        "occurrences": ["tpl:link-login"]
+        "inputsPassed": [
+          {
+            "name": "routerLink",
+            "expression": "/login"
+          }
+        ],
+        "occurrences": [
+          "tpl:4"
+        ]
       }
     ],
-
     "pipesUsed": [],
-
     "viewQueries": [],
-
     "accessibility": [
       {
-        "id": "tpl:alert-success",
+        "id": "tpl:2",
         "target": "div.alert-success",
         "attributes": {},
         "isInteractiveNonSemantic": false,
         "$comment": "Carries presentational alert styling but no role and no live-region attribute, so assistive technology is not told the outcome."
       },
       {
-        "id": "tpl:alert-error",
+        "id": "tpl:6",
         "target": "div.alert-danger",
         "attributes": {},
         "isInteractiveNonSemantic": false
       }
     ],
-
     "i18n": [
-      { "id": "tpl:i18n-title", "mechanism": "translate-directive", "key": "activate.title", "params": [] },
-      { "id": "tpl:i18n-success", "mechanism": "translate-directive", "key": "activate.messages.success", "params": [] },
-      { "id": "tpl:link-login", "mechanism": "translate-directive", "key": "global.messages.info.authenticated.link", "params": [] },
-      { "id": "tpl:i18n-error", "mechanism": "translate-directive", "key": "activate.messages.error", "params": [] }
+      {
+        "id": "tpl:0",
+        "mechanism": "translate-directive",
+        "key": "activate.title",
+        "params": []
+      },
+      {
+        "id": "tpl:3",
+        "mechanism": "translate-directive",
+        "key": "activate.messages.success",
+        "params": []
+      },
+      {
+        "id": "tpl:4",
+        "mechanism": "translate-directive",
+        "key": "global.messages.info.authenticated.link",
+        "params": []
+      },
+      {
+        "id": "tpl:7",
+        "mechanism": "translate-directive",
+        "key": "activate.messages.error",
+        "params": []
+      }
     ],
-
     "styles": {
       "files": [],
       "encapsulation": null,
@@ -108,74 +141,94 @@
       "usesHostSelectors": false,
       "importsGlobalStyles": [],
       "classesToggledFromTs": []
-    }
+    },
+    "$comment_ids": "Ids are 0-based document order by source start offset (D13). Migrated from the semantic names this probe originally used -- tpl:if-success became tpl:1 -- because no parser reproduces a name the template never gave. Read loc, not the id, to locate a node."
   },
-
   "uiRequirements": [
     {
       "id": "ui:1",
       "category": "structure",
       "statement": "The screen shows a centred column containing a heading and, at most, one status message. There is no other content.",
-      "evidence": ["tpl:i18n-title"],
+      "evidence": [
+        "tpl:0"
+      ],
       "confidence": "high"
     },
     {
       "id": "ui:2",
       "category": "visibility",
       "statement": "A success message is shown only once a key has been redeemed successfully.",
-      "evidence": ["tpl:if-success"],
+      "evidence": [
+        "tpl:1"
+      ],
       "confidence": "high"
     },
     {
       "id": "ui:3",
       "category": "visibility",
       "statement": "A failure message is shown only once a redemption attempt has failed.",
-      "evidence": ["tpl:if-error"],
+      "evidence": [
+        "tpl:5"
+      ],
       "confidence": "high"
     },
     {
       "id": "ui:4",
       "category": "visibility",
       "statement": "The two conditions are independent, so nothing prevents both messages from being shown at once.",
-      "evidence": ["tpl:if-success", "tpl:if-error"],
+      "evidence": [
+        "tpl:1",
+        "tpl:5"
+      ],
       "confidence": "high"
     },
     {
       "id": "ui:5",
       "category": "loading",
       "statement": "While the server is being contacted, neither message is shown and only the heading appears. There is no pending indication.",
-      "evidence": ["tpl:if-success", "tpl:if-error"],
+      "evidence": [
+        "tpl:1",
+        "tpl:5"
+      ],
       "confidence": "high"
     },
     {
       "id": "ui:6",
       "category": "navigation",
       "statement": "A link to the sign-in screen is offered inside the success message, and only there.",
-      "evidence": ["tpl:link-login"],
+      "evidence": [
+        "tpl:4"
+      ],
       "confidence": "high"
     },
     {
       "id": "ui:7",
       "category": "i18n",
       "statement": "All four visible strings are translation keys resolved at display time; the embedded English is fallback copy.",
-      "evidence": ["tpl:i18n-title", "tpl:i18n-success", "tpl:link-login", "tpl:i18n-error"],
+      "evidence": [
+        "tpl:0",
+        "tpl:3",
+        "tpl:4",
+        "tpl:7"
+      ],
       "confidence": "high"
     },
     {
       "id": "ui:8",
       "category": "accessibility",
       "statement": "Status messages carry alert styling but no announcement role, so assistive technology is not explicitly told the outcome.",
-      "evidence": ["tpl:alert-success", "tpl:alert-error"],
+      "evidence": [
+        "tpl:2",
+        "tpl:6"
+      ],
       "confidence": "high"
     }
   ],
-
   "coverage": {
     "nodesTotal": 11,
     "nodesCoveredByRequirements": 11,
     "uncoveredNodeIds": []
   },
-
   "provenance": {
     "source": "hand-derived",
     "astInputHash": null,

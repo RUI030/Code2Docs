@@ -187,11 +187,19 @@ because the honest reading is "not yet extracted", not "invented".
 They become dangling the moment those two tiers exist and omit the ids, which makes this a
 useful pre-registered check for Phase 1 rather than a problem today.
 
-**Three of the 24 are now resolved.** `examples/schema-probe/activate` defines `tpl:if-success`,
-`tpl:if-error` and `tpl:link-login`, and that unit reports clean: 21 ids declared, 67
-references, nothing dangling or unresolvable. The prediction held — the ids were real and
-waiting for their tier, not invented. The remaining 21 belong to the complex component and to
-`functions.json`, neither of which was probed.
+**Three looked resolved, then D13 unresolved them — permanently.** The probe first defined
+`tpl:if-success`, `tpl:if-error` and `tpl:link-login`, and the unit reported clean. D13 then
+established that template ids are positional, so the probe now defines `tpl:1`, `tpl:5` and
+`tpl:4`, and the baseline's semantic names match nothing.
+
+The original prediction was wrong in an instructive way. F7 assumed those ids were "real and
+waiting for their tier." They were not real — they were invented names for nodes the template
+never named, and no extractor will ever produce them. They are not pending; they are
+unreachable, and they stay that way because the baseline is pinned and must not be edited.
+
+That reclassifies part of F7: of the 24, the 19 `tpl:` ids are **unreproducible**, not merely
+unresolved. The 8 test-title citations remain genuinely pending — `functions.json` will produce
+`test:<n>` ids, and the probe demonstrated it.
 
 ---
 
@@ -252,8 +260,12 @@ So this needs a **rule**, and the honest options all churn:
 different node, and nothing detects it because the id still resolves. That is a silent
 mis-citation, which is worse than a dangling one — the integrity checker catches dangling.
 
-Unresolved. It blocks nothing today because `template.json` has no extractor yet, and it blocks
-`template.json` entirely once there is one.
+**Resolved by D13**, which turned out to be compliance rather than a new decision: D2 had
+already specified numeric ids and practice had drifted. The severity claimed above was also
+overstated — see D13, which corrects it. `analysis.json`'s `inputHash` covers the `ast` tiers,
+so a template edit invalidates the citations alongside the nodes and the mismatch cannot arise
+from ordinary regeneration. The one residual case, human-approved prose outliving a template
+change, is already D2a's merge protocol.
 
 ### F8b — three derived numbers have no definition
 
@@ -266,6 +278,12 @@ against.
 
 A number in an `ast` tier reads as measured. Any of these three can differ between two correct
 implementations, which makes them useless as a Phase 1 recall signal until defined.
+
+**Resolved.** All three now carry definitions in the schemas. `publicApiSurface` counts what a
+parent can address and excludes template-read fields. `cyclomaticComplexity` enumerates the
+exact node kinds that count. `maxTemplateNestingDepth` became nullable and the extractor now
+emits `null` rather than `0` when no template was parsed — it had been claiming a measurement it
+never took, which made a flat template and an unparsed one identical.
 
 ### F8c — reproducible is not the same as correct
 

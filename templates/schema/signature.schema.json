@@ -668,6 +668,7 @@
           "minimum": 0
         },
         "publicApiSurface": {
+          "$comment": "Count of members a PARENT can address: inputs + outputs + twoWayBindings + publicMethods. Deliberately excludes public fields the template reads -- those are internal consumption, not a contract with a parent, and counting them made the baseline and the extractor disagree 2 against 0 with neither being wrong (F8b).",
           "type": "integer",
           "minimum": 0
         },
@@ -680,7 +681,11 @@
           "minimum": 0
         },
         "maxTemplateNestingDepth": {
-          "type": "integer",
+          "$comment": "Deepest nesting of elements and control-flow blocks in the template AST, root = 0. NULL when no template was parsed. Previously emitted as 0, which claims a measurement that was never taken -- a flat template and an unparsed one must not look identical (F8b).",
+          "type": [
+            "integer",
+            "null"
+          ],
           "minimum": 0
         },
         "unreachableMethodCount": {

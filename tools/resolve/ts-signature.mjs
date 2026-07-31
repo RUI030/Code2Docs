@@ -382,7 +382,7 @@ export function extractSignature(filePath, sourceText, opts = {}) {
       publicApiSurface: inputs.length + outputs.length + twoWay.length + publicMethods.length,
       injectedDependencyCount: deps.length,
       maxCyclomaticComplexity: maxComplexity,
-      maxTemplateNestingDepth: 0,
+      maxTemplateNestingDepth: opts.maxTemplateNestingDepth ?? null,
     },
     provenance: {
       source: "ast",

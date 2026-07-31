@@ -168,10 +168,11 @@
     "tsLineCount": 27,
     "templateLineCount": 18,
     "methodCount": 1,
-    "publicApiSurface": 2,
+    "publicApiSurface": 0,
     "injectedDependencyCount": 2,
     "maxCyclomaticComplexity": 1,
-    "maxTemplateNestingDepth": 4
+    "maxTemplateNestingDepth": 4,
+    "$comment_surface": "0 under the F8b definition: no inputs, outputs, two-way bindings or public methods. The baseline recorded 2, counting the public signal fields the template reads -- internal consumption, not a contract with a parent."
   },
   "provenance": {
     "source": "hand-derived",

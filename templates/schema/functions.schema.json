@@ -118,8 +118,9 @@
                 "type": "boolean"
               },
               "cyclomaticComplexity": {
+                "$comment": "1 + one per branch point, counting exactly: if, ternary, each case clause, for/for-of/for-in, while, do-while, catch, and the && || ?? operators. Optional chaining and switch's default clause do not count. Enumerated because two correct implementations otherwise differ and the number is useless as a recall signal (F8b).",
                 "type": "integer",
-                "minimum": 0
+                "minimum": 1
               },
               "lineCount": {
                 "type": "integer",

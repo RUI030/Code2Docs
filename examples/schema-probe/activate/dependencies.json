@@ -41,10 +41,10 @@
     },
     "readBy": {
       "field:success": [
-        "tpl:if-success"
+        "tpl:1"
       ],
       "field:error": [
-        "tpl:if-error"
+        "tpl:5"
       ]
     },
     "writtenBy": {
@@ -150,7 +150,7 @@
         "id": "nav:1",
         "api": "routerLink",
         "targetExpression": "/login",
-        "from": "tpl:link-login",
+        "from": "tpl:4",
         "loc": {
           "file": "activate.component.html",
           "line": 8

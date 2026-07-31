@@ -54,7 +54,7 @@
   },
   "properties": {
     "schemaVersion": {
-      "$ref": "common.schema.json#/$defs/schemaVersion"
+      "const": "0.3.0"
     },
     "unitId": {
       "$ref": "common.schema.json#/$defs/unitId"

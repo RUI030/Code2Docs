@@ -401,3 +401,44 @@ of `streamIds` and `streams` changes what those fields *mean* without changing t
 which is exactly the kind of change a validator cannot catch and a version must therefore
 signal. The Phase A baseline now predates both D12 and D12a and is reported wholly as legacy —
 correct, since every stream id in it is one this rule forbids.
+
+### D13 — Template node ids are numeric and positional, as D2 already said
+
+**This is compliance, not a new choice.** D2's example ids read `method:save`, **`tpl:12`**,
+`dep:fooService`. Phase A and the schema probe both emitted semantic names instead —
+`tpl:if-success`, `tpl:btn-save`, 23 of them across the corpus — and nothing caught the drift
+(F8a). A parser returns a node at a position; it does not return a name, so none of those 23 is
+reproducible.
+
+**Rule.** `tpl:<n>`, `tpl-handler:<n>`, `hostbind:<n>`, `hostlisten:<n>` — `n` is the 0-based
+index of the node in **document order by source start offset**, over the flattened parse. The
+`templateNodeId` pattern is tightened to `[0-9]+` so a semantic name fails validation rather
+than passing as data.
+
+D12a's principle does not apply here. It says the id space mirrors what the language names, and
+a template names nothing — but `uiRequirements` must cite template nodes and invariant #2
+requires evidence to resolve, so "no id" is unavailable. Where the language provides no name, a
+**positional rule** is the fallback, and it must be stated rather than improvised.
+
+**Correcting the severity in F8a.** That finding argued a template edit silently re-points a
+citation: `ui:3` cites `tpl:12`, the template changes, and `tpl:12` is now a different node
+while still resolving. On inspection the window is narrower than claimed. `analysis.json`'s
+`inputHash` covers the `ast` tiers, so editing a template invalidates `template.json` *and*
+`analysis.json` together; ids and the citations to them are rewritten in the same run. The
+mismatch cannot arise from ordinary regeneration.
+
+**What remains, and why it needs nothing new.** The residual case is a human-approved
+`requirement.md` outliving a template change. **D2a already covers it**: machine-owned regions
+carry a content hash, a mismatch marks the region human-owned and it is never overwritten, and
+the fresh machine version is written alongside as a diff to accept or reject. A human-owned
+section holds prose, not ids, so there is no citation to go stale — only prose that may now be
+wrong, which is precisely what D2a's diff exists to surface.
+
+So no per-node content hash, no stable-identity scheme, no extra machinery. Positional ids are
+sufficient because the pipeline regenerates citations with the nodes, and the one case where it
+does not is already a solved problem.
+
+**Cost, stated plainly.** `tpl:12` tells a human reading `analysis.json` nothing about which
+node it is. That readability is what the semantic names were buying, and it is a real loss —
+mitigated only by `loc`, which every node carries and which is the thing an editor can actually
+jump to. Legibility is not a good enough reason to keep an identifier extraction cannot produce.

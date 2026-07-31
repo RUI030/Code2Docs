@@ -41,9 +41,9 @@
       "pattern": "^type:[A-Za-z_$][A-Za-z0-9_$]*$"
     },
     "templateNodeId": {
-      "$comment": "Template nodes and host bindings. Cited as evidence by uiRequirements and by analysis.json.",
+      "$comment": "Numeric and positional per D2/D13: n is the 0-based index in document order by source start offset. A template gives its nodes no names, so a semantic id like 'tpl:if-success' is not reproducible by any parser -- the pattern rejects it rather than letting it pass as data. Human legibility comes from the node's loc, not its id.",
       "type": "string",
-      "pattern": "^(tpl|tpl-handler|hostbind|hostlisten):[A-Za-z0-9_\\-]+$"
+      "pattern": "^(tpl|tpl-handler|hostbind|hostlisten):[0-9]+$"
     },
     "extractedId": {
       "$comment": "Numbered entities the Resolver emits.",
