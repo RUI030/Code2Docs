@@ -27,7 +27,6 @@ Code2Docs/
     migration_notes.md     # rendered target-framework hazards    [written]
     schema/*.schema.json   # JSON Schema per tier                 [Phase 0]
     index.json             # repo-level inventory template        [Phase 2]
-    _superseded/           # earlier single-file drafts, archived
   .claude/skills/          # auto-discovered by location; no registration needed
     angular-semantics/     # Angular→framework-independent rules, shared by LLM stages
     requirements-writing/  # the "Requirements Skill File" of the description
