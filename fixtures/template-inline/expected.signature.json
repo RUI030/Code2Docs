@@ -1,17 +1,17 @@
 {
   "schemaVersion": "0.4.0",
   "unit": {
-    "id": "component:fixtures/teardown-manual:TickerComponent",
+    "id": "component:fixtures/template-inline:PanelComponent",
     "kind": "component",
-    "className": "TickerComponent",
-    "selector": "x-ticker",
-    "path": "fixtures/teardown-manual",
+    "className": "PanelComponent",
+    "selector": "x-panel",
+    "path": "fixtures/template-inline",
     "standalone": true,
     "declaredInModule": null,
     "isDefaultExport": false,
     "files": {
-      "typescript": "ticker.component.ts",
-      "template": "ticker.component.ts",
+      "typescript": "panel.component.ts",
+      "template": "panel.component.ts",
       "templateInline": true,
       "styles": [],
       "specs": []
@@ -20,7 +20,7 @@
   "manifest": {
     "dependencies": "./dependencies.json",
     "functions": "./functions.json",
-    "template": null,
+    "template": "./template.json",
     "analysis": null,
     "requirement": null,
     "migrationNotes": null,
@@ -30,54 +30,32 @@
     "inputs": [],
     "outputs": [],
     "twoWayBindings": [],
-    "publicMethods": [],
-    "templateReachableMembers": []
+    "publicMethods": [
+      "method:toggle"
+    ],
+    "templateReachableMembers": [
+      "field:open",
+      "field:title",
+      "method:toggle"
+    ]
   },
   "injectedDependencies": [],
   "lifecycle": {
-    "implementedHooks": [
-      "ngOnInit",
-      "ngOnDestroy"
-    ],
-    "declaredInterfaces": [
-      "OnInit",
-      "OnDestroy"
-    ],
+    "implementedHooks": [],
+    "declaredInterfaces": [],
     "constructorDoesWork": false,
     "fieldInitializerDoesWork": false,
-    "cleanupStrategy": "ngOnDestroy-unsubscribe"
+    "cleanupStrategy": "none"
   },
   "stateOutline": {
     "fields": [
       {
-        "id": "field:sub",
-        "name": "sub",
-        "type": "unknown",
-        "visibility": "private",
-        "readonly": false,
-        "initializerExpression": "new Subscription()",
-        "roleHints": {
-          "isSignal": false,
-          "signalKind": null,
-          "isRxjs": true,
-          "rxjsKind": "Subscription",
-          "isFormEntity": false,
-          "formKind": null,
-          "isConstant": false
-        },
-        "loc": {
-          "file": "ticker.component.ts",
-          "line": 7,
-          "endLine": 7
-        }
-      },
-      {
-        "id": "field:ticks",
-        "name": "ticks",
-        "type": "number",
+        "id": "field:title",
+        "name": "title",
+        "type": "string",
         "visibility": "public",
         "readonly": false,
-        "initializerExpression": "0",
+        "initializerExpression": "'Panel'",
         "roleHints": {
           "isSignal": false,
           "signalKind": null,
@@ -88,15 +66,36 @@
           "isConstant": false
         },
         "loc": {
-          "file": "ticker.component.ts",
-          "line": 8,
-          "endLine": 8
+          "file": "panel.component.ts",
+          "line": 21,
+          "endLine": 21
+        }
+      },
+      {
+        "id": "field:open",
+        "name": "open",
+        "type": "boolean",
+        "visibility": "public",
+        "readonly": false,
+        "initializerExpression": "false",
+        "roleHints": {
+          "isSignal": false,
+          "signalKind": null,
+          "isRxjs": false,
+          "rxjsKind": null,
+          "isFormEntity": false,
+          "formKind": null,
+          "isConstant": false
+        },
+        "loc": {
+          "file": "panel.component.ts",
+          "line": 22,
+          "endLine": 22
         }
       }
     ],
     "methodIds": [
-      "method:ngOnInit",
-      "method:ngOnDestroy"
+      "method:toggle"
     ],
     "accessorIds": [],
     "formIds": [],
@@ -111,20 +110,20 @@
     "animations": []
   },
   "metrics": {
-    "tsLineCount": 21,
-    "templateLineCount": 0,
-    "methodCount": 2,
-    "publicApiSurface": 0,
+    "tsLineCount": 27,
+    "templateLineCount": 6,
+    "methodCount": 1,
+    "publicApiSurface": 1,
     "injectedDependencyCount": 0,
     "maxCyclomaticComplexity": 1,
-    "maxTemplateNestingDepth": null
+    "maxTemplateNestingDepth": 1
   },
   "provenance": {
     "source": "ast",
     "resolverVersion": "0.1.0",
     "generatedAt": "1970-01-01T00:00:00.000Z",
     "sourceRevision": null,
-    "inputHash": "7e61a3e3473c8c27",
+    "inputHash": "6b8faddb21cf3f0b",
     "parseStatus": "ok",
     "warnings": []
   }

@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "0.5.0",
+  "unitId": "component:fixtures/template-inline:PanelComponent",
+  "symbols": {
+    "method:toggle": {
+      "ast": {
+        "id": "method:toggle",
+        "name": "toggle",
+        "symbolKind": "method",
+        "visibility": "public",
+        "static": false,
+        "isAsync": false,
+        "lifecycleHook": null,
+        "params": [],
+        "returnType": "void",
+        "isLeaf": true,
+        "cyclomaticComplexity": 1,
+        "lineCount": 3,
+        "loc": {
+          "file": "panel.component.ts",
+          "line": 24,
+          "endLine": 26
+        },
+        "sourceExcerpt": null,
+        "existingComments": {
+          "jsDoc": null,
+          "inline": []
+        },
+        "sideEffectHints": {
+          "touchesDom": false,
+          "domApis": [],
+          "subscribes": false,
+          "usesTimers": false,
+          "usesLocalOrSessionStorage": false,
+          "navigates": false,
+          "mutatesInjectedServiceState": false,
+          "throws": false,
+          "hasTryCatch": false
+        },
+        "subscriptions": []
+      }
+    }
+  },
+  "forms": {
+    "approach": "none",
+    "groups": [],
+    "ngModelBindings": []
+  },
+  "streams": [],
+  "signals": [],
+  "tests": {
+    "files": [],
+    "framework": "unknown",
+    "cases": []
+  },
+  "coverage": {
+    "symbolsTotal": 1,
+    "symbolsExplained": 0,
+    "symbolsTrivialSkipped": 0
+  },
+  "provenance": {
+    "source": "ast",
+    "astInputHash": "6b8faddb21cf3f0b",
+    "docInputHash": null,
+    "resolverVersion": "0.1.0",
+    "explainerModel": null,
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "parseStatus": "ok",
+    "warnings": [
+      {
+        "code": "empty-by-design",
+        "severity": "info",
+        "message": "doc is absent on every symbol: it is the Explainer's output, and a placeholder would put model-shaped content in a tier that contains none."
+      }
+    ]
+  }
+}

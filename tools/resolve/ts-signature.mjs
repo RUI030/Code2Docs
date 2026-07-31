@@ -146,6 +146,51 @@ function firstTypeArg(call, src) {
   return call.typeArguments?.length ? call.typeArguments[0].getText(src) : null;
 }
 
+/**
+ * What the @Component decorator declares about its own template and styles.
+ *
+ * Exists because the orchestrator used to GUESS the template as `<stem>.html`
+ * while this module separately parsed the real `templateUrl` -- so a component
+ * naming its template anything else got a signature citing one file and a
+ * template.json built from another, and an INLINE template got no template.json
+ * at all, with no message. A unit whose UI behavior is entirely unrecorded looked
+ * exactly like a unit that has no UI.
+ *
+ * Returns the DECLARATION, not the contents: resolving a path against the disk
+ * is the caller's job, so a declared-but-missing file is reportable rather than
+ * indistinguishable from an absent declaration.
+ *
+ * One function rather than one per field, because each would re-parse the file.
+ *
+ *   template.kind: "inline"   -> text, startLine   (template: `...`)
+ *                  "external" -> url               (templateUrl: './x.html')
+ *                  "none"                          neither -- legitimate
+ *                  "absent"                        no @Component at all
+ */
+export function readComponentDeclaration(filePath, sourceText) {
+  const src = ts.createSourceFile(basename(filePath), sourceText, ts.ScriptTarget.Latest, true);
+  const cls = src.statements.find((s) => ts.isClassDeclaration(s) && decoratorNamed(s, "Component"));
+  if (!cls) return { template: { kind: "absent" }, hasInlineStyles: false };
+  const meta = componentMeta(cls, src) ?? {};
+
+  let template = { kind: "none" };
+  if (meta.template) {
+    // Line of the opening quote/backtick. The literal's cooked text begins
+    // immediately after it, so this is the offset that maps a template line
+    // number back onto a real line in the .ts -- without it every loc in an
+    // inline template would point at the top of the file.
+    template = {
+      kind: "inline",
+      text: stringOf(meta.template, src),
+      startLine: src.getLineAndCharacterOfPosition(meta.template.getStart(src)).line,
+    };
+  } else if (meta.templateUrl) {
+    template = { kind: "external", url: stringOf(meta.templateUrl, src) };
+  }
+
+  return { template, hasInlineStyles: !!(meta.styles || meta.styleUrl) };
+}
+
 export function extractSignature(filePath, sourceText, opts = {}) {
   const file = basename(filePath);
   const src = ts.createSourceFile(file, sourceText, ts.ScriptTarget.Latest, true);
@@ -326,7 +371,11 @@ export function extractSignature(filePath, sourceText, opts = {}) {
     : "none";
 
   const isDefaultExport = !!(ts.getCombinedModifierFlags(cls) & ts.ModifierFlags.Default);
-  const templateFile = meta.templateUrl ? basename(stringOf(meta.templateUrl, src)) : null;
+  // The caller resolves the declaration against disk and passes back what it
+  // actually read; falling back to the declared url only when it did not.
+  const templateFile = opts.templateFile !== undefined
+    ? opts.templateFile
+    : (meta.templateUrl ? basename(stringOf(meta.templateUrl, src)) : null);
 
   const publicMethods = methodIds.filter((id) => {
     const n = id.slice("method:".length);

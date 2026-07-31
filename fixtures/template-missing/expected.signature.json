@@ -1,18 +1,18 @@
 {
   "schemaVersion": "0.4.0",
   "unit": {
-    "id": "component:fixtures/teardown-manual:TickerComponent",
+    "id": "component:fixtures/template-missing:OrphanComponent",
     "kind": "component",
-    "className": "TickerComponent",
-    "selector": "x-ticker",
-    "path": "fixtures/teardown-manual",
+    "className": "OrphanComponent",
+    "selector": "x-orphan",
+    "path": "fixtures/template-missing",
     "standalone": true,
     "declaredInModule": null,
     "isDefaultExport": false,
     "files": {
-      "typescript": "ticker.component.ts",
-      "template": "ticker.component.ts",
-      "templateInline": true,
+      "typescript": "orphan.component.ts",
+      "template": null,
+      "templateInline": false,
       "styles": [],
       "specs": []
     }
@@ -35,49 +35,21 @@
   },
   "injectedDependencies": [],
   "lifecycle": {
-    "implementedHooks": [
-      "ngOnInit",
-      "ngOnDestroy"
-    ],
-    "declaredInterfaces": [
-      "OnInit",
-      "OnDestroy"
-    ],
+    "implementedHooks": [],
+    "declaredInterfaces": [],
     "constructorDoesWork": false,
     "fieldInitializerDoesWork": false,
-    "cleanupStrategy": "ngOnDestroy-unsubscribe"
+    "cleanupStrategy": "none"
   },
   "stateOutline": {
     "fields": [
       {
-        "id": "field:sub",
-        "name": "sub",
-        "type": "unknown",
-        "visibility": "private",
-        "readonly": false,
-        "initializerExpression": "new Subscription()",
-        "roleHints": {
-          "isSignal": false,
-          "signalKind": null,
-          "isRxjs": true,
-          "rxjsKind": "Subscription",
-          "isFormEntity": false,
-          "formKind": null,
-          "isConstant": false
-        },
-        "loc": {
-          "file": "ticker.component.ts",
-          "line": 7,
-          "endLine": 7
-        }
-      },
-      {
-        "id": "field:ticks",
-        "name": "ticks",
-        "type": "number",
+        "id": "field:title",
+        "name": "title",
+        "type": "string",
         "visibility": "public",
         "readonly": false,
-        "initializerExpression": "0",
+        "initializerExpression": "'Orphan'",
         "roleHints": {
           "isSignal": false,
           "signalKind": null,
@@ -88,16 +60,13 @@
           "isConstant": false
         },
         "loc": {
-          "file": "ticker.component.ts",
-          "line": 8,
-          "endLine": 8
+          "file": "orphan.component.ts",
+          "line": 13,
+          "endLine": 13
         }
       }
     ],
-    "methodIds": [
-      "method:ngOnInit",
-      "method:ngOnDestroy"
-    ],
+    "methodIds": [],
     "accessorIds": [],
     "formIds": [],
     "streamIds": []
@@ -111,12 +80,12 @@
     "animations": []
   },
   "metrics": {
-    "tsLineCount": 21,
+    "tsLineCount": 14,
     "templateLineCount": 0,
-    "methodCount": 2,
+    "methodCount": 0,
     "publicApiSurface": 0,
     "injectedDependencyCount": 0,
-    "maxCyclomaticComplexity": 1,
+    "maxCyclomaticComplexity": 0,
     "maxTemplateNestingDepth": null
   },
   "provenance": {
@@ -124,8 +93,14 @@
     "resolverVersion": "0.1.0",
     "generatedAt": "1970-01-01T00:00:00.000Z",
     "sourceRevision": null,
-    "inputHash": "7e61a3e3473c8c27",
-    "parseStatus": "ok",
-    "warnings": []
+    "inputHash": "c3cd9841af556565",
+    "parseStatus": "partial",
+    "warnings": [
+      {
+        "code": "template-not-found",
+        "severity": "warning",
+        "message": "decorator declares templateUrl './this-file-does-not-exist.html', which does not resolve (looked for fixtures/template-missing/this-file-does-not-exist.html). No UI facts were extracted."
+      }
+    ]
   }
 }

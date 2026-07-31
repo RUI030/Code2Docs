@@ -11,7 +11,8 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from "node:fs";
 import { dirname, basename, join, resolve as resolvePath, relative } from "node:path";
 import { createHash } from "node:crypto";
-import { extractSignature } from "./resolve/ts-signature.mjs";
+import { extractSignature, readComponentDeclaration } from "./resolve/ts-signature.mjs";
+import { createWarnings } from "./resolve/warnings.mjs";
 import { extractDependencies } from "./resolve/ts-dependencies.mjs";
 import { extractTemplate, findAngularCompiler } from "./resolve/ng-template.mjs";
 import { extractFunctions } from "./resolve/ts-functions.mjs";
@@ -57,13 +58,44 @@ for (const f of files) {
   const siblings = readdirSync(dir);
   const stem = basename(path).replace(/\.ts$/, "");
   const specs = siblings.filter((s) => s === `${stem}.spec.ts`);
-  const templatePath = join(dir, `${stem}.html`);
-  const templateText = existsSync(templatePath) ? readFileSync(templatePath, "utf8") : "";
+
+  // Warnings raised here belong to signature, so the collector is made in the
+  // orchestrator and handed down rather than created inside the extractor.
+  const sigWarn = createWarnings({ root: ROOT_DIR });
+
+  // The DECORATOR says where the template is. This used to guess `<stem>.html`,
+  // which silently missed inline templates and any templateUrl not matching the
+  // .ts filename -- and produced no message either way.
+  const { template: decl, hasInlineStyles } = readComponentDeclaration(path, sourceText);
+  let templateText = "", templateFile = null, templateLineOffset = 0;
+  if (decl.kind === "inline") {
+    templateText = decl.text;
+    // Locations resolve into the .ts itself, offset to the literal's own line.
+    templateFile = basename(path);
+    templateLineOffset = decl.startLine;
+  } else if (decl.kind === "external") {
+    const declared = resolvePath(dir, decl.url);
+    if (existsSync(declared)) {
+      templateText = readFileSync(declared, "utf8");
+      templateFile = basename(declared);
+    } else {
+      sigWarn.warn("template-not-found",
+        `decorator declares templateUrl '${decl.url}', which does not resolve `
+        + `(looked for ${relativePath(declared)}). No UI facts were extracted.`);
+    }
+  }
+  if (hasInlineStyles) {
+    sigWarn.warn("empty-by-design",
+      "component declares inline styles, which unit.files.styles cannot record -- "
+      + "it holds filenames only. Style facts for this unit are incomplete.");
+  }
 
   const sig = extractSignature(path, sourceText, {
     root: ROOT_DIR,
+    warn: sigWarn,
     unitPath: flag("--unit-path", ""),
     specs,
+    templateFile,
     templateText,
     templateLineCount: templateText ? templateText.replace(/\n$/, "").split("\n").length : 0,
     resolverVersion: RESOLVER_VERSION,
@@ -99,8 +131,8 @@ for (const f of files) {
       console.error(`  no @angular/compiler found above ${dir} or in this tool: template not parsed`);
     } else {
       const compiler = await import(pathToFileURL(found.path).href);
-      tpl = extractTemplate(basename(templatePath), templateText, sig, found.path,
-        { ...shared, compiler, vendored: found.vendored });
+      tpl = extractTemplate(templateFile, templateText, sig, found.path,
+        { ...shared, compiler, vendored: found.vendored, lineOffset: templateLineOffset });
       sig.metrics.maxTemplateNestingDepth = tpl.maxTemplateNestingDepth;
       delete tpl.maxTemplateNestingDepth;
       sig.manifest.template = "./template.json";

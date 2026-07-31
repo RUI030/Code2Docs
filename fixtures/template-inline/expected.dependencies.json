@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "0.5.0",
+  "unitId": "component:fixtures/template-inline:PanelComponent",
+  "callGraph": {
+    "nodes": [
+      "method:toggle"
+    ],
+    "edges": [
+      {
+        "from": "tpl:5",
+        "to": "method:toggle",
+        "callCount": 1,
+        "conditional": false
+      }
+    ],
+    "calls": {},
+    "calledBy": {
+      "method:toggle": [
+        "tpl:5"
+      ]
+    },
+    "entryPoints": [
+      "method:toggle"
+    ],
+    "executionOrder": [
+      "method:toggle"
+    ],
+    "depthFromEntry": {
+      "method:toggle": 0
+    },
+    "cycles": [],
+    "unreachableMethods": [],
+    "leafMethods": [
+      "method:toggle"
+    ]
+  },
+  "fieldAccess": {
+    "reads": {
+      "method:toggle": [
+        "field:open"
+      ]
+    },
+    "writes": {
+      "method:toggle": [
+        "field:open"
+      ]
+    },
+    "readBy": {
+      "field:open": [
+        "method:toggle",
+        "tpl:3"
+      ],
+      "field:title": [
+        "tpl:1"
+      ]
+    },
+    "writtenBy": {
+      "field:open": [
+        "method:toggle"
+      ]
+    },
+    "derivedFrom": {},
+    "signalDependencies": {}
+  },
+  "dependencyUsage": [],
+  "outboundUnitEdges": [],
+  "inboundUnitEdges": [],
+  "httpInteractions": [],
+  "routing": {
+    "isRoutedComponent": false,
+    "routePaths": [],
+    "routeParamsConsumed": [],
+    "queryParamsConsumed": [],
+    "routeDataConsumed": [],
+    "navigations": [],
+    "guards": [],
+    "resolvers": []
+  },
+  "imports": {
+    "angular": [
+      {
+        "module": "@angular/core",
+        "symbols": [
+          "Component"
+        ]
+      }
+    ],
+    "rxjs": [],
+    "thirdParty": [],
+    "internal": [],
+    "unresolved": []
+  },
+  "dataTypes": [],
+  "streams": [],
+  "provenance": {
+    "source": "ast",
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "inputHash": "6b8faddb21cf3f0b",
+    "parseStatus": "ok",
+    "warnings": [
+      {
+        "code": "empty-by-design",
+        "severity": "info",
+        "message": "outboundUnitEdges and inboundUnitEdges are empty: cross-unit resolution needs the repo index (Phase 2)."
+      }
+    ]
+  }
+}

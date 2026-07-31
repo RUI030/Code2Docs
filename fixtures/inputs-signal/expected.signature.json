@@ -11,7 +11,7 @@
     "isDefaultExport": false,
     "files": {
       "typescript": "widget.component.ts",
-      "template": null,
+      "template": "widget.component.ts",
       "templateInline": true,
       "styles": [],
       "specs": []

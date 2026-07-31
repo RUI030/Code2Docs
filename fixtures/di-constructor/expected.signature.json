@@ -11,7 +11,7 @@
     "isDefaultExport": false,
     "files": {
       "typescript": "reader.component.ts",
-      "template": null,
+      "template": "reader.component.ts",
       "templateInline": true,
       "styles": [],
       "specs": []

@@ -137,6 +137,45 @@
         "mayDiffer": [],
         "reason": "Single-member fixture: there is no second syntax for an ICU expression, so there is nothing to pair it against. It earns its place as a regression test for the detector rather than as a syntax-equivalence pair (F10a)."
       }
+    },
+    {
+      "id": "template-location",
+      "pair": [
+        "template-inline",
+        "template-external"
+      ],
+      "isolates": "Where the template lives: an inline `template:` literal versus a `templateUrl` whose filename deliberately does not match the .ts stem.",
+      "mustExtract": [
+        "both members extract the SAME UI: one @if, one click event bound to method:toggle, one interpolation of title",
+        "the inline member's locs resolve into the .ts and are offset by the template literal's own line -- not line 1",
+        "the external member resolves ./panel-markup.html from the DECORATOR, not from the .ts stem",
+        "unit.files.templateInline distinguishes them and is the only field that may differ besides file names and line numbers",
+        "neither member raises template-not-found"
+      ],
+      "equivalence": {
+        "mayDiffer": [
+          "templateFile",
+          "templateInline"
+        ],
+        "reason": "The pair exists to prove template LOCATION does not change what is extracted. templateFile names two different files and templateInline records which mechanism was used; both must be non-null/boolean rather than merely absent, so an extractor that produced nothing for one member cannot satisfy this."
+      }
+    },
+    {
+      "id": "template-missing",
+      "pair": [
+        "template-missing"
+      ],
+      "isolates": "A declared templateUrl that does not resolve. Asserts the GAP IS REPORTED, not that a template is extracted.",
+      "mustExtract": [
+        "provenance.parseStatus is 'partial'",
+        "exactly one template-not-found warning, naming the declared url",
+        "no template.json is produced -- and that absence is accompanied by the warning, never silent",
+        "signature still extracts fully: one unreachable declaration must not cost the rest of the unit"
+      ],
+      "equivalence": {
+        "mayDiffer": [],
+        "reason": "Single-member: 'declared but missing' has no equivalent second syntax. It earns its place as a regression test for the distinction between a missing template and an absent one."
+      }
     }
   ],
   "notCoveredYet": {

@@ -1,0 +1,150 @@
+{
+  "schemaVersion": "0.4.0",
+  "unitId": "component:fixtures/template-inline:PanelComponent",
+  "templateFile": "panel.component.ts",
+  "parse": {
+    "status": "partial",
+    "parser": "@angular/compiler",
+    "angularVersion": null,
+    "diagnostics": [],
+    "nodesParsed": 7,
+    "nodesUnrecognized": 0
+  },
+  "ast": {
+    "elements": [
+      {
+        "id": "tpl:0",
+        "tag": "p",
+        "attributes": [],
+        "depth": 0,
+        "loc": {
+          "file": "panel.component.ts",
+          "line": 14,
+          "endLine": 14
+        }
+      },
+      {
+        "id": "tpl:4",
+        "tag": "button",
+        "attributes": [],
+        "depth": 1,
+        "loc": {
+          "file": "panel.component.ts",
+          "line": 16,
+          "endLine": 16
+        }
+      }
+    ],
+    "controlFlow": [
+      {
+        "id": "tpl:3",
+        "construct": "@if",
+        "expression": "open",
+        "itemAlias": null,
+        "trackBy": null,
+        "aliases": [],
+        "dependsOn": [
+          "field:open"
+        ],
+        "parent": null,
+        "depth": 0,
+        "loc": {
+          "file": "panel.component.ts",
+          "line": 15,
+          "endLine": 17
+        }
+      }
+    ],
+    "propertyBindings": [],
+    "eventBindings": [
+      {
+        "id": "tpl:5",
+        "target": "button",
+        "event": "click",
+        "handlerExpression": "toggle()",
+        "handlerMethod": "method:toggle",
+        "passesEvent": false,
+        "loc": {
+          "file": "panel.component.ts",
+          "line": 16,
+          "endLine": 16
+        }
+      }
+    ],
+    "twoWayBindings": [],
+    "interpolations": [
+      {
+        "id": "tpl:1",
+        "expression": "{{ title }}",
+        "pipes": [],
+        "dependsOn": [
+          "field:title"
+        ],
+        "loc": {
+          "file": "panel.component.ts",
+          "line": 14,
+          "endLine": 14
+        }
+      }
+    ],
+    "childComponents": [],
+    "templateRefs": [],
+    "ngTemplates": [],
+    "contentProjection": [],
+    "hostBindings": [],
+    "hostListeners": [],
+    "accessibility": [],
+    "i18n": [],
+    "rawHtmlSinks": [],
+    "directivesUsed": [],
+    "pipesUsed": [],
+    "viewQueries": [],
+    "styles": {
+      "files": [],
+      "encapsulation": null,
+      "usesEncapsulationEscapes": false,
+      "escapeSelectors": [],
+      "usesHostSelectors": false,
+      "importsGlobalStyles": [],
+      "classesToggledFromTs": []
+    }
+  },
+  "uiRequirements": [],
+  "coverage": {
+    "$comment": "nodesTotal counts nodes this tier RECORDS. parse.nodesParsed counts everything the compiler produced -- ids are numbered over that larger set (D13a), so recorded ids are sparse. uncoveredNodeIds lists recorded nodes no uiRequirement cites, never unrecorded ones: citing those was the original dangling bug.",
+    "nodesTotal": 5,
+    "nodesCoveredByRequirements": 0,
+    "uncoveredNodeIds": [
+      "tpl:0",
+      "tpl:1",
+      "tpl:3",
+      "tpl:4",
+      "tpl:5"
+    ]
+  },
+  "provenance": {
+    "source": "ast",
+    "astInputHash": "6b8faddb21cf3f0b",
+    "docInputHash": null,
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "parseStatus": "partial",
+    "warnings": [
+      {
+        "code": "empty-by-design",
+        "severity": "info",
+        "message": "uiRequirements is empty by design: it is doc content, written by the Synthesizer, not extracted."
+      },
+      {
+        "code": "parser-selected",
+        "severity": "info",
+        "message": "parsed with @angular/compiler from node_modules/@angular/compiler/fesm2022/compiler.mjs"
+      },
+      {
+        "code": "compiler-version-fallback",
+        "severity": "warning",
+        "message": "the analyzed source tree vendors no @angular/compiler, so this Resolver's own pinned copy was used. Its version may differ from the version the repo builds with."
+      }
+    ]
+  }
+}

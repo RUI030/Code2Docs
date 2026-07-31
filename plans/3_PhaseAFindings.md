@@ -584,3 +584,40 @@ project cannot tolerate, because nothing downstream can detect it.
 extractor gets an enum in the schema. If the extractor cannot classify confidently, the enum
 gains `null` and the extractor emits a warning. Free strings in `ast` are for identifiers, type
 text, expressions, and paths — things the language itself leaves open.
+
+---
+
+## F13. The template was guessed, not read
+
+`resolve.mjs` located a component's template by filename convention — `<stem>.html` — while
+`ts-signature.mjs` separately parsed the real `templateUrl` from the decorator. Two answers to one
+question, and no check that they agreed.
+
+Three consequences, in increasing order of harm:
+
+1. A `templateUrl` naming anything other than `<stem>.html` produced a `signature.json` citing one
+   file and a `template.json` built from another, or from nothing.
+2. An **inline** `template:` yielded no `template.json`, no message, and no warning. A unit whose
+   UI behavior was entirely unrecorded was indistinguishable from a unit that has no UI.
+3. A declared-but-missing `templateUrl` was indistinguishable from no declaration at all.
+
+The second is the project's own stated worst case — an omission invisible from the output side —
+sitting in the orchestrator. And it was **already exercised**: `fixtures/inputs-signal` declares an
+inline template and reports `unit.files.templateInline: true`, a field the schema defined and the
+signature populated correctly, while the tier that would have recorded the UI was never produced.
+The information needed to catch this was in the output the whole time.
+
+Now `readComponentDeclaration` reads the decorator, and the orchestrator resolves that declaration
+against disk. Inline templates parse from the literal, with a **line offset** so locations resolve
+into the `.ts` at the literal's real line rather than all pointing at line 1. A declared template
+that cannot be found is a `template-not-found` warning and `parseStatus: partial`.
+
+Inline `styles:` are still not recorded — `unit.files.styles` holds filenames only. Per the
+standing rule that a hard case earns a flag rather than a patch, that now raises a warning instead
+of silently reporting an empty style list.
+
+`fixtures/template-inline` + `template-external` are a pair asserting that *where* a template lives
+does not change *what* is extracted: same `@if`, same click handler, same interpolation, with
+`templateFile` and `templateInline` the only permitted differences. `fixtures/template-missing`
+asserts the gap is reported. Both were written from the declaration's semantics, not from what the
+extractor happened to produce.

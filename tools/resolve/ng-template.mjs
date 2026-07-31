@@ -89,8 +89,14 @@ function ctxVarNames(cv) {
 
 const has = (n, k) => n && Object.prototype.hasOwnProperty.call(n, k);
 const startOf = (n) => n?.sourceSpan?.start?.offset ?? n?.sourceSpan?.start ?? 0;
-const lineOf = (n) => (n?.sourceSpan?.start?.line ?? 0) + 1;
-const endLineOf = (n) => (n?.sourceSpan?.end?.line ?? n?.sourceSpan?.start?.line ?? 0) + 1;
+/**
+ * `off` shifts template-relative lines onto real file lines. It is 0 for an
+ * external .html, and the line of the template literal for an inline one --
+ * without it every loc in an inline template points at the top of the .ts.
+ */
+const lineOf = (n, off = 0) => (n?.sourceSpan?.start?.line ?? 0) + 1 + off;
+const endLineOf = (n, off = 0) =>
+  (n?.sourceSpan?.end?.line ?? n?.sourceSpan?.start?.line ?? 0) + 1 + off;
 
 /** Field ids an expression reads: `success()` and `post.title` both count. */
 function readsOf(ast, C) {
@@ -234,7 +240,12 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
   const emit = (bucket, node, rec) => { emitted.push({ bucket, node, rec }); return rec; };
   const idOf = new Map();
   const id = (n) => idOf.get(n) ?? null;
-  const loc = (n) => ({ file: templateFile, line: lineOf(n), endLine: endLineOf(n) });
+  const lineOffset = opts.lineOffset ?? 0;
+  const loc = (n) => ({
+    file: templateFile,
+    line: lineOf(n, lineOffset),
+    endLine: endLineOf(n, lineOffset),
+  });
   // Nodes the walker had no branch for -- see REACHED_VIA_PARENT.
   const unhandledNodes = new Set();
 
