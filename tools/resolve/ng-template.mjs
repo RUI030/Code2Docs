@@ -23,13 +23,36 @@ import { pathToFileURL } from "node:url";
 export function findAngularCompiler(startDir) {
   let dir = resolve(startDir);
   for (;;) {
-    const cand = join(dir, "node_modules", "@angular", "compiler", "fesm2022", "compiler.mjs");
-    if (existsSync(cand)) return cand;
+    // Angular's published entry point has moved between majors (fesm2015 ->
+    // fesm2020 -> fesm2022), so try the known ones rather than pin one.
+    for (const rel of [["fesm2022", "compiler.mjs"], ["fesm2020", "compiler.mjs"],
+                       ["fesm2015", "compiler.js"], ["bundles", "compiler.umd.js"]]) {
+      const cand = join(dir, "node_modules", "@angular", "compiler", ...rel);
+      if (existsSync(cand)) return cand;
+    }
     const parent = dirname(dir);
     if (parent === dir) return null;
     dir = parent;
   }
 }
+
+/**
+ * Attribute-based translation mechanisms, by directive name.
+ *
+ * Angular's built-in `i18n` / `i18n-*` needs no entry -- it is handled below and
+ * is the only one that is part of Angular itself. The rest are third-party
+ * libraries an Angular app may or may not use, so they are listed rather than
+ * assumed: `jhiTranslate` is JHipster's, and hardcoding it as the sole mechanism
+ * meant every other Angular codebase silently reported no i18n at all.
+ *
+ * An unlisted directive is not guessed at. A missing entry shows up as absent
+ * i18n, which is visible, rather than as a wrong mechanism, which is not.
+ */
+const TRANSLATE_DIRECTIVES = new Map([
+  ["jhiTranslate", "translate-directive"],   // JHipster
+  ["translate", "translate-directive"],      // @ngx-translate
+  ["transloco", "translate-directive"],      // @jsverse/transloco
+]);
 
 /** contextVariables is an array in some majors and a keyed record in others. */
 function ctxVarNames(cv) {
@@ -238,8 +261,10 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
       const attrs = {};
       for (const a of n.attributes ?? []) {
         if (/^(role|aria-|alt$|tabindex$)/.test(a.name)) attrs[a.name] = a.value;
-        if (a.name === "jhiTranslate" || a.name === "i18n" || a.name.startsWith("i18n-")) {
-          emit("i18n", n, { id: null, mechanism: a.name === "jhiTranslate" ? "translate-directive" : "i18n-attr", key: a.value, params: [] });
+        const translateMechanism = TRANSLATE_DIRECTIVES.get(a.name)
+          ?? (a.name === "i18n" || a.name.startsWith("i18n-") ? "i18n-attr" : null);
+        if (translateMechanism) {
+          emit("i18n", n, { id: null, mechanism: translateMechanism, key: a.value, params: [] });
         }
         if (!directives.has(a.name) && /^[a-z][a-zA-Z]*$/.test(a.name) && a.name !== a.name.toLowerCase()) {
           directives.set(a.name, { selector: a.name, origin: "internal", resolvedUnitId: null, inputsPassed: [], occurrences: [] });
@@ -251,10 +276,16 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
           directives.get("routerLink").occurrences.push(n);
         }
       }
-      if (Object.keys(attrs).length || /^(div|span)$/.test(n.name) && (n.attributes ?? []).some((a) => a.name === "class" && /alert|toast/.test(a.value))) {
+      // Recorded when the element carries a11y-relevant attributes, or is a
+      // non-semantic element wired to handle events. An earlier version also
+      // matched Bootstrap's `alert`/`toast` class names, which reads one CSS
+      // framework's conventions as if they were Angular's.
+      const nonSemanticInteractive = !!(n.outputs ?? []).length
+        && !/^(button|a|input|select|textarea|form|label|summary|details)$/.test(n.name);
+      if (Object.keys(attrs).length || nonSemanticInteractive) {
         emit("accessibility", n, {
           id: null, target: n.name, attributes: attrs,
-          isInteractiveNonSemantic: !!(n.outputs ?? []).length && !/^(button|a|input|select|textarea)$/.test(n.name),
+          isInteractiveNonSemantic: nonSemanticInteractive,
         });
       }
     }

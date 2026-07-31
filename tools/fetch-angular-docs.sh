@@ -24,7 +24,10 @@ OUT="$ROOT/angular-docs"
 # Match the version under analysis unless told otherwise -- extractor behaviour
 # is version-sensitive, and reading 20.x docs while parsing a 17.x repo is how
 # you end up confidently wrong about @let or untagged template literals.
-DETECTED="$(node -p "require('$ROOT/INPUT/jhipster-ng17-fixture/node_modules/@angular/compiler/package.json').version" 2>/dev/null || echo "")"
+# Find whatever repo is under analysis rather than naming one -- INPUT/ holds a
+# vendored corpus whose name is not part of the design.
+LOCAL="$(dirname "$(dirname "$(find "$ROOT/INPUT" -maxdepth 4 -type d -path "*/node_modules/@angular/compiler" 2>/dev/null | head -1)")")"
+DETECTED="$([ -n "$LOCAL" ] && node -p "require('$LOCAL/@angular/compiler/package.json').version" 2>/dev/null || echo "")"
 VERSION="${ANGULAR_REF:-${DETECTED:-17.3.9}}"
 
 echo "Angular reference -> $OUT   (version $VERSION)"
@@ -33,8 +36,8 @@ mkdir -p "$OUT/typings" "$OUT/guides"
 # ---------------------------------------------------------------- 1. typings
 # If INPUT/ already vendors node_modules, copy from there: it is the exact build
 # the analyzed repo compiles against, which npm might not reproduce.
-LOCAL="$ROOT/INPUT/jhipster-ng17-fixture/node_modules/@angular"
-if [ -d "$LOCAL" ]; then
+LOCAL="${LOCAL:+$LOCAL/@angular}"
+if [ -n "$LOCAL" ] && [ -d "$LOCAL" ]; then
   echo
   echo "== typings from INPUT/node_modules (exact build under analysis) =="
   for pkg in compiler core forms router common; do

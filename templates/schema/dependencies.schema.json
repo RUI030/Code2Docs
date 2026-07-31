@@ -599,8 +599,10 @@
               "interface",
               "type-alias",
               "class",
-              "enum"
-            ]
+              "enum",
+              "unknown"
+            ],
+            "$comment": "'unknown' is the honest value for a type imported from another file: a single-file parse sees the reference, not the declaration. Phase 2's repo index resolves it. The predecessor claimed 'interface' for anything matching /^I[A-Z]/, which was a guess wearing an ast field (F8c)."
           },
           "definedHere": {
             "type": "boolean"

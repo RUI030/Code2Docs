@@ -259,6 +259,18 @@ export function extractDependencies(filePath, sourceText, signature, opts = {}) 
     };
   });
 
+  // --- every identifier appearing in a type position, so imported symbols can be
+  //     classified as types by use rather than by naming convention
+  const typePositionNames = new Set();
+  const collectTypeNames = (node) => {
+    if (ts.isTypeReferenceNode(node)) {
+      const nm = ts.isIdentifier(node.typeName) ? node.typeName.text : node.typeName.getText(src).split(".")[0];
+      typePositionNames.add(nm);
+    }
+    ts.forEachChild(node, collectTypeNames);
+  };
+  collectTypeNames(src);
+
   // --- imports, classified by module specifier
   const imports = { angular: [], rxjs: [], thirdParty: [], internal: [], unresolved: [] };
   const dataTypes = [];
@@ -277,13 +289,19 @@ export function extractDependencies(filePath, sourceText, signature, opts = {}) 
     else if (mod.startsWith(".") || mod.startsWith("app/")) {
       entry.resolvedUnitId = null;
       imports.internal.push(entry);
-      // Types imported from internal modules become type: ids so that doc-tier
-      // claims about domain terms have something to resolve to -- the gap that
-      // produced six dangling references in the Phase A baseline (F6).
+      // Types imported from internal modules become type: ids so doc-tier claims
+      // about domain terms have something to resolve to -- the gap behind the six
+      // dangling references in the Phase A baseline (F6).
+      //
+      // Membership is decided by whether the symbol is actually USED in a type
+      // position, not by its name. The first version matched /^I[A-Z]/, which
+      // works on a codebase using the IFoo convention and silently finds nothing
+      // on one that does not -- and Angular's own style guide discourages the
+      // prefix, so that was a JHipster reading rather than an Angular one.
       for (const n of names) {
-        if (/^I[A-Z]/.test(n) || /^(New|Partial)[A-Z]/.test(n)) {
+        if (typePositionNames.has(n)) {
           dataTypes.push({
-            id: `type:${n}`, name: n, declarationKind: "interface",
+            id: `type:${n}`, name: n, declarationKind: "unknown",
             definedHere: false, sourceUnitId: null, shape: [], usedBy: [],
           });
         }
