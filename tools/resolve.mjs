@@ -14,9 +14,11 @@ import { createHash } from "node:crypto";
 import { extractSignature } from "./resolve/ts-signature.mjs";
 import { extractDependencies } from "./resolve/ts-dependencies.mjs";
 import { extractTemplate, findAngularCompiler } from "./resolve/ng-template.mjs";
-import { pathToFileURL } from "node:url";
+import { extractFunctions } from "./resolve/ts-functions.mjs";
+import { pathToFileURL, fileURLToPath } from "node:url";
 
 const RESOLVER_VERSION = "0.1.0";
+const ROOT_DIR = resolvePath(dirname(fileURLToPath(import.meta.url)), "..");
 
 const args = process.argv.slice(2);
 const flag = (name, fallback = null) => {
@@ -72,13 +74,13 @@ for (const f of files) {
   // syntax the repo can actually use. Missing is reported, never silently skipped.
   let tpl = null;
   if (templateText) {
-    const compilerPath = findAngularCompiler(dir);
-    if (!compilerPath) {
-      console.error(`  no @angular/compiler found above ${dir}: template not parsed`);
+    const found = findAngularCompiler(dir, ROOT_DIR);
+    if (!found) {
+      console.error(`  no @angular/compiler found above ${dir} or in this tool: template not parsed`);
     } else {
-      const compiler = await import(pathToFileURL(compilerPath).href);
-      tpl = extractTemplate(basename(templatePath), templateText, sig, compilerPath,
-        { ...shared, compiler });
+      const compiler = await import(pathToFileURL(found.path).href);
+      tpl = extractTemplate(basename(templatePath), templateText, sig, found.path,
+        { ...shared, compiler, vendored: found.vendored });
       sig.metrics.maxTemplateNestingDepth = tpl.maxTemplateNestingDepth;
       delete tpl.maxTemplateNestingDepth;
       sig.manifest.template = "./template.json";
@@ -93,15 +95,28 @@ for (const f of files) {
     }
   }
 
+  const specPath = specs.length ? join(dir, specs[0]) : null;
+  const specText = specPath ? readFileSync(specPath, "utf8") : null;
+  const fns = extractFunctions(path, sourceText, sig, deps, {
+    ...shared, specFile: specs[0] ?? null, specText,
+    templateTwoWay: tpl?.ast?.twoWayBindings ?? [],
+    framework: specText ? (/\bjest\b/.test(specText) ? "jest"
+      : /\bjasmine\b/.test(specText) ? "jasmine-karma"
+      : /\bvitest\b/.test(specText) ? "vitest" : "unknown") : "unknown",
+  });
+  if (fns) sig.manifest.functions = "./functions.json";
+
   const out = flag("--out");
   if (out) {
     mkdirSync(out, { recursive: true });
     writeFileSync(join(out, "signature.json"), JSON.stringify(sig, null, 2) + "\n");
     if (deps) writeFileSync(join(out, "dependencies.json"), JSON.stringify(deps, null, 2) + "\n");
     if (tpl) writeFileSync(join(out, "template.json"), JSON.stringify(tpl, null, 2) + "\n");
-    console.error(`wrote ${["signature", deps && "dependencies", tpl && "template"].filter(Boolean).join(" + ")}.json -> ${out}`);
+    if (fns) writeFileSync(join(out, "functions.json"), JSON.stringify(fns, null, 2) + "\n");
+    console.error(`wrote ${["signature", deps && "dependencies", tpl && "template", fns && "functions"].filter(Boolean).join(" + ")} -> ${out}`);
   } else {
     const tier = flag("--tier");
-    console.log(JSON.stringify(tier === "dependencies" ? deps : tier === "template" ? tpl : sig, null, 2));
+    const byTier = { dependencies: deps, template: tpl, functions: fns, signature: sig };
+    console.log(JSON.stringify(byTier[tier] ?? sig, null, 2));
   }
 }

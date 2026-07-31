@@ -12,6 +12,7 @@
     "resolve": "node tools/resolve.mjs"
   },
   "devDependencies": {
+    "@angular/compiler": "^17.3.9",
     "ajv": "^8.17.1",
     "typescript": "^5.9.3"
   }

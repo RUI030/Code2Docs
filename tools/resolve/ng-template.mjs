@@ -19,8 +19,25 @@ import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
-/** Walk up from the component looking for the analyzed repo's own compiler. */
-export function findAngularCompiler(startDir) {
+/**
+ * The analyzed repo's own compiler, else ours.
+ *
+ * Repo-first because template syntax is version-sensitive: parsing a 17.x
+ * template with a 20.x parser accepts constructs that repo cannot use. The
+ * fallback exists because a source tree need not vendor node_modules at all --
+ * the fixtures are exactly that case, and without it the extractor's own unit
+ * tests could not exercise template parsing. Which one was used is recorded in
+ * provenance, and falling back raises a warning, since a version mismatch
+ * between parser and repo is a real hazard rather than a detail.
+ */
+export function findAngularCompiler(startDir, fallbackDir) {
+  const found = searchUp(startDir);
+  if (found) return { path: found, vendored: true };
+  const own = fallbackDir ? searchUp(fallbackDir) : null;
+  return own ? { path: own, vendored: false } : null;
+}
+
+function searchUp(startDir) {
   let dir = resolve(startDir);
   for (;;) {
     // Angular's published entry point has moved between majors (fesm2015 ->
@@ -215,7 +232,45 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
           dependsOn: [], parent: null, depth: depth + 1, loc: loc(blk),
         });
       }
+    } else if (n instanceof C.TmplAstTemplate) {
+      // Structural directives desugar to a Template node carrying the directive
+      // as a templateAttr -- *ngIf does NOT produce an IfBlock. Handling only the
+      // block syntax made the control-flow fixture pair's structural member report
+      // no control flow at all, while still emitting pipes, so nothing failed and
+      // the metadata was simply wrong. That is the failure the pairing exists for.
+      const attrs = new Map((n.templateAttrs ?? []).map((a) => [a.name, a]));
+      const structural = [
+        ["ngIf", "*ngIf"], ["ngForOf", "*ngFor"],
+        ["ngSwitchCase", "*ngSwitchCase"], ["ngSwitchDefault", "*ngSwitchDefault"],
+      ].find(([k]) => attrs.has(k));
+      if (structural) {
+        const [key, construct] = structural;
+        const a = attrs.get(key);
+        const trackAttr = attrs.get("ngForTrackBy");
+        emit("controlFlow", n, {
+          id: null, construct,
+          expression: a.value?.source ?? a.value ?? null,
+          itemAlias: (n.variables ?? []).find((v) => v.value === "$implicit")?.name ?? null,
+          trackBy: trackAttr ? (trackAttr.value?.source ?? trackAttr.value ?? null) : null,
+          aliases: (n.variables ?? []).map((v) => v.name),
+          dependsOn: a.value ? dependsOn(a.value) : [],
+          parent: null, depth, loc: loc(n),
+        });
+      } else {
+        emit("ngTemplates", n, {
+          id: null, name: (n.references ?? []).map((r) => r.name)[0] ?? null,
+          contextKeys: (n.variables ?? []).map((v) => v.name), instantiatedBy: [],
+        });
+      }
     } else if (n instanceof C.TmplAstBoundAttribute) {
+      if (n.name === "ngSwitch") {
+        emit("controlFlow", n, {
+          id: null, construct: "ngSwitch",
+          expression: n.value?.source ?? "", itemAlias: null, trackBy: null, aliases: [],
+          dependsOn: dependsOn(n.value), parent: null, depth, loc: loc(n),
+        });
+        continue;
+      }
       const target = parent?.name ?? "";
       const rec = {
         id: null, target, property: n.name,
@@ -245,8 +300,6 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
       emit("templateRefs", n, { id: null, name: n.name, onElement: parent?.name ?? "", referencedBy: [] });
     } else if (n instanceof C.TmplAstContent) {
       emit("contentProjection", n, { id: null, select: n.selector === "*" ? null : n.selector });
-    } else if (n instanceof C.TmplAstTemplate) {
-      emit("ngTemplates", n, { id: null, name: (n.references ?? []).map((r) => r.name)[0] ?? null, contextKeys: (n.variables ?? []).map((v) => v.name), instantiatedBy: [] });
     } else if (n instanceof C.TmplAstElement) {
       // A dashed tag is a component or a custom element; the compiler alone
       // cannot say which, so resolvedUnitId stays null for the repo index.
@@ -336,6 +389,11 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
       warnings: [
         "uiRequirements is empty by design: it is doc content, written by the Synthesizer, not extracted.",
         `parsed with @angular/compiler from ${compilerPath}`,
+        ...(opts.vendored ? [] : [
+          "FALLBACK PARSER: the analyzed source tree vendors no @angular/compiler, " +
+          "so this Resolver's own pinned copy was used. Its version may differ from " +
+          "the version the repo builds with.",
+        ]),
       ],
     },
     maxTemplateNestingDepth: maxDepth,

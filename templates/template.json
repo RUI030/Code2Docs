@@ -21,7 +21,7 @@
     "controlFlow": [
       {
         "id": "tpl:<id>",
-        "construct": "<@if | @else-if | @else | @for | @empty | @switch | @case | *ngIf | *ngFor | ngSwitch>",
+        "construct": "<@if | @else if | @else | @for | @empty | @switch | @case | @default | @defer | @placeholder | @loading | @error | *ngIf | *ngFor | ngSwitch | *ngSwitchCase | *ngSwitchDefault>",
         "expression": "<condition or iterable expression as written>",
         "itemAlias": "<loop variable, or null>",
         "trackBy": "<track expression or trackBy fn, or null>",
