@@ -64,6 +64,31 @@ function tierOf(file) {
 
 const { ajv, available } = loadSchemas();
 
+/**
+ * The warning-code vocabulary exists twice: as WARNING_CODES in
+ * tools/resolve/warnings.mjs (which throws on an unlisted code) and as an enum in
+ * common.schema.json (which rejects one). Two spellings of one contract drift the
+ * moment a code is added to only one, and the failure is confusing -- the
+ * extractor accepts the code, then the file it wrote fails validation.
+ *
+ * Rather than generate one from the other and add a build step, assert they are
+ * identical. Cheap, and it fails at the moment of divergence.
+ */
+{
+  const { WARNING_CODES } = await import("./resolve/warnings.mjs");
+  const common = JSON.parse(readFileSync(join(SCHEMA_DIR, "common.schema.json"), "utf8"));
+  const inSchema = new Set(common.$defs.warning.properties.code.enum);
+  const inCode = new Set(Object.keys(WARNING_CODES));
+  const missing = [...inCode].filter((c) => !inSchema.has(c));
+  const extra = [...inSchema].filter((c) => !inCode.has(c));
+  if (missing.length || extra.length) {
+    console.error("WARNING CODE VOCABULARY OUT OF SYNC between warnings.mjs and common.schema.json");
+    if (missing.length) console.error(`  in code, not in schema: ${missing.join(", ")}`);
+    if (extra.length) console.error(`  in schema, not in code:  ${extra.join(", ")}`);
+    process.exit(1);
+  }
+}
+
 let targets = process.argv.slice(2);
 if (targets.length === 0) {
   // examples/ AND the fixture goldens. examples/ alone was the original scope,
