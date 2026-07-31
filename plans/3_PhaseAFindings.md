@@ -613,3 +613,52 @@ does not change *what* is extracted: same `@if`, same click handler, same interp
 `templateFile` and `templateInline` the only permitted differences. `fixtures/template-missing`
 asserts the gap is reported. Both were written from the declaration's semantics, not from what the
 extractor happened to produce.
+
+---
+
+## F14. Is the design still aligned with "requirement.md is a deterministic render"?
+
+Asked directly, and worth answering with evidence rather than by restating invariant #3.
+
+**Direction: yes.** `analysis.json` stores *finished sentences* (`purpose.statement`,
+`behavioralInvariants[].whyItMatters`), structured `given`/`when`/`then` arrays, and `evidence`
+ids. Nothing about the prose resists mechanical assembly, which is what D2a concluded by writing
+`requirement.md` first and decomposing it. Storing sentences rather than notes was the right call
+and still is.
+
+*(A first pass at measuring this compared prose lines against JSON string values and reported 25%
+traceable. That number was wrong — a crude prefix match missing content that is present but
+structured, e.g. an acceptance criterion held as `scenario` + `given[]` + `when[]` + `then[]`
+rather than as the sentence it renders to. Recorded because it is the second time in this session
+a confident finding came from a shallow check of output rather than reading the artifact.)*
+
+**Implementation: three gaps, and D2a already named two of them.** Its conclusion was "viable, but
+the schema is not ready to render `requirement.md` faithfully," with three prescriptions. Phase 0
+shipped one.
+
+| D2a prescription | Status |
+|---|---|
+| Add the seven fields the decomposition had to invent | done (F5a) |
+| Convert `validationRules` to a structured controls array | **not done** — `stateModel.form` is still a flat generic `claim` array |
+| Add `notes`/`context` per section so orientation prose and absence-explanations survive | **not done** — no section has one |
+
+The third gap was found while verifying the other two: **`$defs.claim` is
+`additionalProperties: true`**, and most of `analysis.json` is built from it. A deterministic
+renderer must know field names in order to emit them. Against an open object it can only hardcode
+assumptions the schema does not enforce — which is drift with extra steps, and it is the same
+closed-versus-free question that F12 answered for the `ast` tiers, arriving one level up where the
+consequences are larger.
+
+Restating D2a's own measurement, since it is the sharpest statement of the gap: rendering *that*
+`requirement.md` from *this* schema would lose the field table, five explanatory passages, and
+every "notably absent" remark. `propsAndEvents: []` renders as nothing, silently dropping *"None.
+Its input arrives through routing instead."*
+
+**Sequencing.** These belong before **Phase 4**, not at Phase 5 where the renderer is built. The
+Explainer and Synthesizer write *into* these shapes, so prompts tuned against a shape that later
+changes have to be retuned. The work is cheapest now, while nothing generates them yet — and
+`stateModel.form` in particular is largely a projection of what `functions.json` already extracts,
+not new extraction.
+
+**Effect on Phase 1 work:** none. The extractors feed the `ast` tiers, which are not implicated —
+this is a `doc`-tier shape question. Phases 1 and 2 continue as planned.
