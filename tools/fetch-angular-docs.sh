@@ -76,10 +76,9 @@ BASE="https://raw.githubusercontent.com/angular/angular/$TAG/adev/src/content"
 
 FILES=(
   "guide/templates/control-flow.md"
+  "guide/defer.md"
   "guide/templates/binding.md"
-  "guide/templates/event-listeners.md"
   "guide/signals/overview.md"
-  "guide/signals/linked-signal.md"
   "guide/components/lifecycle.md"
   "guide/components/inputs.md"
   "guide/components/outputs.md"

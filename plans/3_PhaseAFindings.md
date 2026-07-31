@@ -216,3 +216,90 @@ the Resolver fixes, and (b) everything that lives outside one folder, which it d
 
 Acted on in **D11**: the skills-versus-tooling comparison moves to Phase 2, and the metric
 carrying it becomes the count of unresolved blocking questions.
+
+---
+
+## F8. Audit: what else is invented, and what has no rule
+
+Prompted by D12a. If stream ids were invented, the question is what else is. Three distinct
+problems turned up, and they need different answers.
+
+### F8a — `tpl:` ids are the same problem, and worse
+
+The corpus contains **23 template node ids, every one an invented semantic name**:
+`tpl:if-success`, `tpl:btn-save`, `tpl:option-blog-empty`. A parser returns a node at a
+position; it does not return a name. No extractor reproduces these.
+
+**D2 already specified the answer and practice ignored it.** Its example ids are
+`method:save`, **`tpl:12`**, `dep:fooService` — numeric for template nodes. Phase A and the
+schema probe both used semantic names instead, and nothing caught the drift.
+
+Unlike streams, "no id" is not available here. `uiRequirements` cite template nodes as
+evidence, and invariant #2 requires evidence to resolve, so template nodes must be citable.
+D12a's principle — *the id space mirrors what the language names* — gives no answer, because
+the language names nothing in a template.
+
+So this needs a **rule**, and the honest options all churn:
+
+| rule | stable under | churns on |
+|---|---|---|
+| document-order index (`tpl:12`, per D2) | renaming, reformatting | any node inserted earlier |
+| structural path (`tpl:0/1/3`) | edits elsewhere in the file | sibling insertion |
+| semantic name (current practice) | nothing — not reproducible at all |
+
+**The part that matters is not the churn, it is who is holding the reference.** A human approves
+`requirement.md`; later the template changes; `ui:3`'s evidence `tpl:12` now points at a
+different node, and nothing detects it because the id still resolves. That is a silent
+mis-citation, which is worse than a dangling one — the integrity checker catches dangling.
+
+Unresolved. It blocks nothing today because `template.json` has no extractor yet, and it blocks
+`template.json` entirely once there is one.
+
+### F8b — three derived numbers have no definition
+
+`publicApiSurface`, `maxTemplateNestingDepth` and `cyclomaticComplexity` appear in the templates
+and schemas with **zero definition comments** between them. This is not hypothetical: the
+baseline and the extractor already disagree on `publicApiSurface`, 2 against 0, because the
+baseline counted two public signal fields as the de facto external surface and the extractor
+counted inputs plus outputs plus public methods. Neither is wrong; there is nothing to be wrong
+against.
+
+A number in an `ast` tier reads as measured. Any of these three can differ between two correct
+implementations, which makes them useless as a Phase 1 recall signal until defined.
+
+### F8c — reproducible is not the same as correct
+
+Three fields the extractor emits into `ast` are heuristics, not extraction:
+
+- `injectedDependencies[].origin` — a hardcoded list of Angular token names; anything unmatched
+  is classified `internal`
+- `lifecycle.cleanupStrategy` — regular expressions over the class body text
+- `stateOutline.fields[].roleHints.rxjsKind` / `formKind` — substring matching on type text
+
+These are deterministic, so they satisfy the letter of the `ast` contract: same input, same
+output, byte-reproducible. They do not satisfy its intent. `ast` content is meant to be *fact
+read from syntax*, and a guess that is reproducibly wrong is more dangerous than an absent
+value, because the `doc` stages elaborate on it in good faith — which is exactly the failure
+mode D3 gives for choosing the compiler over grep, reappearing inside the compiler-based
+extractor.
+
+Worth marking these as inferred rather than extracted, so a consumer can tell the difference.
+
+### F8d — what checked out clean
+
+`unit.id`'s path segment **is** defined — "relative to the Angular source root", stated in both
+`templates/signature.json` and `common.schema.json` — and the baseline and probe agree. The
+earlier disagreement was my own `--unit-path` argument, not a missing rule.
+
+### F8e — two construct gaps, found from the docs in one pass
+
+- **Deferred blocks are missing.** `templates/template.json`'s `construct` vocabulary is
+  `@if | @else-if | @else | @for | @empty | @switch | @case | *ngIf | *ngFor | ngSwitch`. Angular
+  17 also has `@defer`, `@placeholder`, `@loading` and `@error`, which change *when* content
+  renders — squarely the kind of behavior this project exists to preserve.
+- **Two lifecycle callbacks are missing.** The extractor knows eight `ngOn*`/`ngAfter*` hooks;
+  the lifecycle guide also documents `afterRender` and `afterNextRender`, which
+  `analysis.lifecycleBehavior.orderingConstraints` would want.
+
+Both were found by reading fetched documentation against our own vocabulary, which argues for
+doing that deliberately rather than incidentally.
