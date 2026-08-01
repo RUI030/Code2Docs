@@ -216,6 +216,23 @@
         "mayDiffer": [],
         "reason": "Single-member: the point is that one syntax is read correctly, not that two syntaxes agree. hint is the load-bearing case -- it is the control that text matching got wrong in two fields at once."
       }
+    },
+    {
+      "id": "outputs-rxjs-interop",
+      "pair": [
+        "outputs-rxjs-interop"
+      ],
+      "isolates": "outputFromObservable -- an output driven by a stream rather than emitted from code.",
+      "mustExtract": [
+        "one output named tick with declarationStyle 'outputFromObservable'",
+        "emittedFrom names stream:ticks$, linking the public contract to the stream that drives it",
+        "stream:ticks$ resolves -- it is declared in stateOutline.streamIds, so the link is not dangling",
+        "the output is NOT recorded as output-fn or subject: the mechanism differs and so does its teardown story"
+      ],
+      "equivalence": {
+        "mayDiffer": [],
+        "reason": "Single-member: outputFromObservable has no equivalent in the decorator or output() styles -- an output fed by a stream is a different mechanism, not different syntax for the same one. That is why it needed its own declarationStyle rather than being folded into an existing value."
+      }
     }
   ],
   "notCoveredYet": {

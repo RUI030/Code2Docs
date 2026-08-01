@@ -1,0 +1,118 @@
+{
+  "schemaVersion": "0.4.0",
+  "unit": {
+    "id": "component:fixtures/outputs-rxjs-interop:TickerComponent",
+    "kind": "component",
+    "className": "TickerComponent",
+    "selector": "x-ticker",
+    "path": "fixtures/outputs-rxjs-interop",
+    "standalone": true,
+    "declaredInModule": null,
+    "isDefaultExport": false,
+    "files": {
+      "typescript": "ticker.component.ts",
+      "template": "ticker.component.ts",
+      "templateInline": true,
+      "styles": [],
+      "specs": []
+    }
+  },
+  "manifest": {
+    "dependencies": "./dependencies.json",
+    "functions": "./functions.json",
+    "template": null,
+    "analysis": null,
+    "requirement": null,
+    "migrationNotes": null,
+    "repoIndex": null
+  },
+  "publicApi": {
+    "inputs": [],
+    "outputs": [
+      {
+        "id": "output:tick",
+        "name": "tick",
+        "alias": null,
+        "payloadType": "unknown",
+        "declarationStyle": "outputFromObservable",
+        "emittedFrom": [
+          "stream:ticks$"
+        ],
+        "loc": {
+          "file": "ticker.component.ts",
+          "line": 21,
+          "endLine": 21
+        }
+      }
+    ],
+    "twoWayBindings": [],
+    "publicMethods": [],
+    "templateReachableMembers": []
+  },
+  "injectedDependencies": [],
+  "lifecycle": {
+    "implementedHooks": [],
+    "declaredInterfaces": [],
+    "constructorDoesWork": false,
+    "fieldInitializerDoesWork": false,
+    "cleanupStrategy": "none"
+  },
+  "stateOutline": {
+    "fields": [
+      {
+        "id": "field:ticks$",
+        "name": "ticks$",
+        "type": "unknown",
+        "visibility": "private",
+        "readonly": false,
+        "initializerExpression": "new Subject<number>()",
+        "roleHints": {
+          "isSignal": false,
+          "signalKind": null,
+          "isRxjs": true,
+          "rxjsKind": "Subject",
+          "isFormEntity": false,
+          "formKind": null,
+          "isConstant": false
+        },
+        "loc": {
+          "file": "ticker.component.ts",
+          "line": 19,
+          "endLine": 19
+        }
+      }
+    ],
+    "methodIds": [],
+    "accessorIds": [],
+    "formIds": [],
+    "streamIds": [
+      "stream:ticks$"
+    ]
+  },
+  "decorator": {
+    "changeDetection": null,
+    "encapsulation": null,
+    "providers": [],
+    "imports": [],
+    "hostDirectives": [],
+    "animations": []
+  },
+  "metrics": {
+    "tsLineCount": 22,
+    "templateLineCount": 0,
+    "methodCount": 0,
+    "publicApiSurface": 1,
+    "injectedDependencyCount": 0,
+    "maxCyclomaticComplexity": 0,
+    "maxTemplateNestingDepth": null
+  },
+  "provenance": {
+    "source": "ast",
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "sourceRevision": null,
+    "inputHash": "e7293d3adfb4f8fd",
+    "parseStatus": "ok",
+    "warnings": []
+  }
+}

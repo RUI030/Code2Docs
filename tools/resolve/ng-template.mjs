@@ -83,6 +83,9 @@ function ctxVarNames(cv) {
   return list.map((v) => v?.name).filter(Boolean);
 }
 
+/** Major version from a range like "^17.3.9" or "~17.0.0". */
+const major = (v) => (String(v).match(/(\d+)/) ?? [])[1] ?? null;
+
 const has = (n, k) => n && Object.prototype.hasOwnProperty.call(n, k);
 const startOf = (n) => n?.sourceSpan?.start?.offset ?? n?.sourceSpan?.start ?? 0;
 /**
@@ -205,10 +208,24 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
     "uiRequirements is empty by design: it is doc content, written by the Synthesizer, not extracted.");
   // Relativised: an absolute path here pins the golden to the machine that wrote it.
   w.warn("parser-selected", `parsed with @angular/compiler from ${w.relativise(compilerPath)}`);
+  // Severity rests on EVIDENCE, not on which code path was taken. Falling back is
+  // only a hazard if the versions actually differ -- and every fixture vendors
+  // nothing and never will, so warning on the path alone left four fixtures
+  // permanently `partial`. A warning that is always on stops being read.
   if (!opts.vendored) {
-    w.warn("compiler-version-fallback",
-      "the analyzed source tree vendors no @angular/compiler, so this Resolver's own pinned copy "
-      + "was used. Its version may differ from the version the repo builds with.");
+    const ours = opts.compilerVersion ?? null;
+    const theirs = opts.repoAngularVersion ?? null;
+    if (theirs && ours && major(theirs) === major(ours)) {
+      w.warn("parser-selected",
+        `fallback parser used, but versions agree: the analyzed tree expects Angular ${theirs} `
+        + `and this Resolver pins ${ours}.`);
+    } else {
+      w.warn("compiler-version-fallback",
+        "the analyzed source tree vendors no @angular/compiler, so this Resolver's own pinned copy "
+        + `was used${theirs ? ` (tree expects ${theirs}, we pin ${ours ?? "unknown"})` : ""}. `
+        + (theirs ? "The majors differ, so newer syntax may parse wrong or not at all."
+                  : "The tree's expected version could not be determined, so a mismatch cannot be ruled out."));
+    }
   }
   for (const e of parsed.errors ?? []) {
     w.warn("template-parse-errors", String(e), { file: templateFile, line: e.span?.start?.line ?? 0 });

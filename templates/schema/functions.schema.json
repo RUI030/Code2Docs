@@ -391,8 +391,10 @@
                       "enum": [
                         "control",
                         "group",
-                        "array"
-                      ]
+                        "array",
+                        "record"
+                      ],
+                      "$comment": "AUTHORITATIVE for what kind of control this is: functions.json owns the control tree, so this is the vocabulary other tiers follow. 'record' added because FormRecord exists in 17.3.9 and was representable in signature's roleHints.formKind but not here -- one concept spelled two ways, which is how a fact ends up recordable in one tier and not the other (F10e)."
                     },
                     "valueType": {
                       "type": "string"

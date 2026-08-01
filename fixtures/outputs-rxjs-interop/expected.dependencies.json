@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "0.5.0",
+  "unitId": "component:fixtures/outputs-rxjs-interop:TickerComponent",
+  "callGraph": {
+    "nodes": [],
+    "edges": [],
+    "calls": {},
+    "calledBy": {},
+    "entryPoints": [],
+    "executionOrder": [],
+    "depthFromEntry": {},
+    "cycles": [],
+    "unreachableMethods": [],
+    "leafMethods": []
+  },
+  "fieldAccess": {
+    "reads": {
+      "field-initializer:tick": [
+        "field:ticks$"
+      ]
+    },
+    "writes": {},
+    "readBy": {
+      "field:ticks$": [
+        "field-initializer:tick"
+      ]
+    },
+    "writtenBy": {},
+    "derivedFrom": {},
+    "signalDependencies": {}
+  },
+  "dependencyUsage": [],
+  "outboundUnitEdges": [],
+  "inboundUnitEdges": [],
+  "httpInteractions": [],
+  "routing": {
+    "isRoutedComponent": false,
+    "routePaths": [],
+    "routeParamsConsumed": [],
+    "queryParamsConsumed": [],
+    "routeDataConsumed": [],
+    "navigations": [],
+    "guards": [],
+    "resolvers": []
+  },
+  "imports": {
+    "angular": [
+      {
+        "module": "@angular/core",
+        "symbols": [
+          "Component"
+        ]
+      },
+      {
+        "module": "@angular/core/rxjs-interop",
+        "symbols": [
+          "outputFromObservable"
+        ]
+      }
+    ],
+    "rxjs": [
+      {
+        "module": "rxjs",
+        "symbols": [
+          "Subject"
+        ]
+      }
+    ],
+    "thirdParty": [],
+    "internal": [],
+    "unresolved": []
+  },
+  "dataTypes": [],
+  "streams": [
+    {
+      "id": "stream:ticks$",
+      "consumedBy": [],
+      "consumption": "none",
+      "unsubscribeStrategy": "none"
+    }
+  ],
+  "provenance": {
+    "source": "ast",
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "inputHash": "e7293d3adfb4f8fd",
+    "parseStatus": "partial",
+    "warnings": [
+      {
+        "code": "empty-by-design",
+        "severity": "info",
+        "message": "outboundUnitEdges and inboundUnitEdges are empty: cross-unit resolution needs the repo index (Phase 2)."
+      },
+      {
+        "code": "upper-bound-only",
+        "severity": "warning",
+        "message": "unreachableMethods OVER-REPORTS: no template was parsed, so methods called only from a template binding or host listener look uncalled. Treat it as an upper bound until template.json exists."
+      }
+    ]
+  }
+}

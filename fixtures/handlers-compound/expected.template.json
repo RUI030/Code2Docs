@@ -198,9 +198,9 @@
         "message": "parsed with @angular/compiler from node_modules/@angular/compiler/fesm2022/compiler.mjs"
       },
       {
-        "code": "compiler-version-fallback",
-        "severity": "warning",
-        "message": "the analyzed source tree vendors no @angular/compiler, so this Resolver's own pinned copy was used. Its version may differ from the version the repo builds with."
+        "code": "parser-selected",
+        "severity": "info",
+        "message": "fallback parser used, but versions agree: the analyzed tree expects Angular ^17.3.9 and this Resolver pins ^17.3.9."
       },
       {
         "code": "unhandled-declaration",

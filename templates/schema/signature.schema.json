@@ -229,8 +229,10 @@
                 "enum": [
                   "eventemitter",
                   "output-fn",
-                  "subject"
-                ]
+                  "subject",
+                  "outputFromObservable"
+                ],
+                "$comment": "'outputFromObservable' (from @angular/core/rxjs-interop) is an output DRIVEN BY A STREAM, so it is simultaneously a public-contract entry and a teardown concern -- the subscription is managed by the framework, which is exactly the kind of thing a naive rewrite reimplements by hand and leaks. emittedFrom names the stream it wraps when that stream is a named field."
               },
               "emittedFrom": {
                 "type": "array",
@@ -537,7 +539,8 @@
                       "FormArray",
                       "FormRecord",
                       null
-                    ]
+                    ],
+                    "$comment": "A role HINT about the TYPE a field holds, which is a different question from what kind of control a node in the form tree is -- functions.json#/forms/groups/controls/type is authoritative for that. Both list FormRecord/record; neither is derived from the other, so the relationship is stated here rather than left for a reader to infer (F10e)."
                   },
                   "isConstant": {
                     "type": "boolean"

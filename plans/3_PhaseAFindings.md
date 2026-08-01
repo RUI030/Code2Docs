@@ -886,3 +886,42 @@ regression would otherwise pass silently.
 sharing the mechanism it checks would be worth nothing (F15). Two `getText()` calls in
 `ts-signature` also stay — they *record* a node's text rather than matching a pattern against it,
 which is what the rule is about.
+
+---
+
+## F18. The three small gaps closed
+
+**`outputFromObservable` has a declaration style** (F10b's surviving piece). It matched none of
+`eventemitter | output-fn | subject` and was recorded as no output at all. It is an output *driven
+by a stream*, so it is simultaneously a public-contract entry and a teardown concern — the
+framework owns the subscription, which is exactly what a naive rewrite reimplements by hand and
+then leaks. `emittedFrom` now names the stream it wraps (`stream:ticks$`), so the contract links to
+the thing that drives it instead of standing alone; that id resolves through `stateOutline.streamIds`,
+checked rather than assumed.
+
+**`FormRecord` is representable in both tiers, and one of them is now authoritative** (F10e). The
+two vocabularies were not actually redundant, which is why this is a reconciliation rather than a
+merge: `functions.json#/forms/groups/controls/type` answers *what kind of node this is in the form
+tree*, while `signature`'s `roleHints.formKind` answers *what type this field holds*. Different
+questions. `functions` owns the control tree, so it is declared authoritative and gained `record`;
+both now carry a `$comment` stating the relationship, so a reader does not have to infer which one
+to trust.
+
+**The fallback-parser warning now rests on evidence** (task #11). It fired whenever the fallback
+path was taken, which meant all four template fixtures sat at `parseStatus: partial` permanently —
+they vendor no `node_modules` and never will. A warning that is always on stops being read.
+
+It now compares the version the analyzed tree *declares* against the one this Resolver pins:
+majors agree → `parser-selected` (info); majors differ or the version cannot be determined →
+`compiler-version-fallback` (warning), naming both versions.
+
+The subtlety worth recording: this lookup deliberately does **not** exclude our own
+`package.json`, though the `vendored` check does. The two ask different questions — `vendored` asks
+whose `node_modules` supplied the parser, where ours must not be mistaken for theirs; this asks
+what version the source is *written against*, and for a fixture inside this repo our
+`package.json` is exactly that declaration. Conflating them is what left the fixtures permanently
+warning.
+
+Verified in all three directions rather than only the quiet one: a tree declaring Angular 20 still
+warns and names both versions, a tree with no `package.json` warns that a mismatch cannot be ruled
+out, and the fixtures went silent because their versions genuinely agree.

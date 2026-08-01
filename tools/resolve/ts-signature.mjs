@@ -296,6 +296,22 @@ export function extractSignature(filePath, sourceText, opts = {}) {
         });
         continue;
       }
+      // outputFromObservable(source$) -- an output fed by a stream. The stream is
+      // named here when it is a field, so the public contract links to the thing
+      // that drives it instead of standing alone.
+      if (sig && sig.name === "outputFromObservable") {
+        const a0 = sig.call.arguments?.[0];
+        const srcField = a0 && ts.isPropertyAccessExpression(a0)
+          && a0.expression.kind === ts.SyntaxKind.ThisKeyword ? a0.name.text : null;
+        outputs.push({
+          id: `output:${name}`, name, alias: null,
+          payloadType: firstTypeArg(sig.call, src) ?? "unknown",
+          declarationStyle: "outputFromObservable",
+          emittedFrom: srcField ? [`stream:${srcField}`] : [],
+          loc: loc(m, src, file),
+        });
+        continue;
+      }
       if (sig && sig.name === "model") {
         twoWay.push({
           id: `model:${name}`, name,

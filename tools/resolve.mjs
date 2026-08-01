@@ -25,6 +25,41 @@ const ROOT_DIR = resolvePath(dirname(fileURLToPath(import.meta.url)), "..");
 /** Absolute paths must not reach recorded output: they pin a golden to one machine. */
 const relativePath = (p) => relative(ROOT_DIR, p) || p;
 
+/** Angular version this Resolver pins, read from our own package.json. */
+const OUR_ANGULAR_VERSION = (() => {
+  try {
+    const pkg = JSON.parse(readFileSync(join(ROOT_DIR, "package.json"), "utf8"));
+    return pkg.devDependencies?.["@angular/compiler"] ?? null;
+  } catch { return null; }
+})();
+
+/**
+ * The Angular version the ANALYZED tree declares, from the nearest package.json.
+ *
+ * This deliberately does NOT exclude our own package.json, unlike the `vendored`
+ * check. The two ask different questions: `vendored` asks whose node_modules
+ * supplied the parser, where ours must not be mistaken for theirs; this asks what
+ * version the source is WRITTEN AGAINST, and for a fixture inside this repo our
+ * package.json is exactly that declaration.
+ */
+function nearestAngularVersion(startDir) {
+  let dir = resolvePath(startDir);
+  for (;;) {
+    const p = join(dir, "package.json");
+    if (existsSync(p)) {
+      try {
+        const pkg = JSON.parse(readFileSync(p, "utf8"));
+        const v = pkg.dependencies?.["@angular/core"] ?? pkg.devDependencies?.["@angular/core"]
+          ?? pkg.dependencies?.["@angular/compiler"] ?? pkg.devDependencies?.["@angular/compiler"];
+        if (v) return v;
+      } catch { /* unreadable package.json is not a version claim */ }
+    }
+    const parent = dirname(dir);
+    if (parent === dir) return null;
+    dir = parent;
+  }
+}
+
 /**
  * Which flags consume the next argument. Declared, because the previous parser
  * inferred it -- it treated any argument preceded by a `--something` as that
@@ -169,8 +204,12 @@ for (const f of files) {
         "template.json was not produced: no @angular/compiler was available to parse it.");
     } else {
       const compiler = await import(pathToFileURL(found.path).href);
+      // What the ANALYZED tree expects, so a fallback parse can say whether the
+      // versions actually differ rather than only that a fallback happened.
+      const repoAngularVersion = nearestAngularVersion(dir);
       const parsed = extractTemplate(templateFile, templateText, sig, found.path,
-        { ...shared, compiler, vendored: found.vendored, lineOffset: templateLineOffset, warn: tplWarn });
+        { ...shared, compiler, vendored: found.vendored, lineOffset: templateLineOffset, warn: tplWarn,
+          repoAngularVersion, compilerVersion: OUR_ANGULAR_VERSION });
       tpl = parsed.tier;
       sig.metrics.maxTemplateNestingDepth = parsed.metrics.maxTemplateNestingDepth;
       sig.manifest.template = "./template.json";

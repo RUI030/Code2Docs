@@ -206,13 +206,15 @@ function controlKind(init, src) {
   if (ts.isNewExpression(init) && ts.isIdentifier(init.expression)) {
     const n = init.expression.text;
     if (n === "FormArray") return "array";
-    if (n === "FormGroup" || n === "FormRecord") return "group";
+    if (n === "FormRecord") return "record";
+    if (n === "FormGroup") return "group";
     if (n === "FormControl") return "control";
   }
   if (ts.isCallExpression(init) && ts.isPropertyAccessExpression(init.expression)) {
     const m = init.expression.name.text;
     if (m === "array") return "array";
-    if (m === "group" || m === "record") return "group";
+    if (m === "record") return "record";
+    if (m === "group") return "group";
     if (m === "control") return "control";
   }
   // `['', Validators.required]` and a bare literal are both plain controls.
