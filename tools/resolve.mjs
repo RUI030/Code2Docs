@@ -24,14 +24,31 @@ const ROOT_DIR = resolvePath(dirname(fileURLToPath(import.meta.url)), "..");
 /** Absolute paths must not reach recorded output: they pin a golden to one machine. */
 const relativePath = (p) => relative(ROOT_DIR, p) || p;
 
-const args = process.argv.slice(2);
-const flag = (name, fallback = null) => {
-  const i = args.indexOf(name);
-  return i >= 0 && args[i + 1] ? args[i + 1] : fallback;
-};
-const has = (name) => args.includes(name);
+/**
+ * Which flags consume the next argument. Declared, because the previous parser
+ * inferred it -- it treated any argument preceded by a `--something` as that
+ * flag's value, which broke two ways: `--stamp file.ts` swallowed the file (that
+ * flag takes no value), and a file whose name equalled a flag value was matched
+ * by indexOf against the FIRST occurrence and counted twice.
+ */
+const VALUE_FLAGS = new Set(["--out", "--unit-path", "--tier"]);
+const BOOL_FLAGS = new Set(["--stamp", "--source-excerpt"]);
 
-const files = args.filter((a) => !a.startsWith("--") && args[args.indexOf(a) - 1]?.startsWith("--") !== true);
+const argv = process.argv.slice(2);
+const opts = new Map();
+const files = [];
+for (let i = 0; i < argv.length; i++) {
+  const a = argv[i];
+  if (VALUE_FLAGS.has(a)) { opts.set(a, argv[++i] ?? null); continue; }
+  if (BOOL_FLAGS.has(a)) { opts.set(a, true); continue; }
+  if (a.startsWith("--")) {
+    console.error(`unknown flag ${a}`);
+    process.exit(2);
+  }
+  files.push(a);   // positional, decided by POSITION rather than by value
+}
+const flag = (name, fallback = null) => opts.get(name) ?? fallback;
+const has = (name) => opts.get(name) === true;
 if (files.length === 0) {
   console.error("usage: npm run resolve -- <component.ts> [--out <dir>] [--unit-path <path>]");
   process.exit(2);
@@ -126,38 +143,52 @@ for (const f of files) {
     inputHash: createHash("sha256").update(sourceText).update(templateText)
       .update(RESOLVER_VERSION).digest("hex").slice(0, 16),
   };
-  const deps = extractDependencies(path, sourceText, sig, shared);
-
-  // Template parsing uses the ANALYZED repo's compiler so the parser matches the
-  // syntax the repo can actually use. Missing is reported, never silently skipped.
+  // Template BEFORE dependencies. It used to run after, which forced
+  // extractDependencies to be called a second time and Object.assign'd over the
+  // first -- two full graph extractions where the only difference was that the
+  // second knew about template handlers. Stale keys from the first survived if
+  // the second ever returned a narrower object, and the two agreeing at all was
+  // coincidence. Ordering it correctly removes the need for the second call
+  // rather than tidying it up.
   let tpl = null;
+  let templateContext = {};
   if (templateText) {
     const found = findAngularCompiler(dir, ROOT_DIR);
     if (!found) {
-      console.error(`  no @angular/compiler found above ${dir} or in this tool: template not parsed`);
+      tplWarn.warn("compiler-not-found",
+        `no @angular/compiler above ${relativePath(dir)} or in this tool: template not parsed. `
+        + "All UI facts are missing for this unit, not merely incomplete.");
+      sigWarn.warn("compiler-not-found",
+        "template.json was not produced: no @angular/compiler was available to parse it.");
     } else {
       const compiler = await import(pathToFileURL(found.path).href);
-      tpl = extractTemplate(templateFile, templateText, sig, found.path,
+      const parsed = extractTemplate(templateFile, templateText, sig, found.path,
         { ...shared, compiler, vendored: found.vendored, lineOffset: templateLineOffset, warn: tplWarn });
-      sig.metrics.maxTemplateNestingDepth = tpl.maxTemplateNestingDepth;
-      delete tpl.maxTemplateNestingDepth;
+      tpl = parsed.tier;
+      sig.metrics.maxTemplateNestingDepth = parsed.metrics.maxTemplateNestingDepth;
       sig.manifest.template = "./template.json";
+
       const handlers = tpl.ast.eventBindings.map((e) => e.handlerMethod).filter(Boolean);
-      const templateCallers = tpl.ast.eventBindings
-        .filter((e) => e.handlerMethod)
-        .map((e) => ({ node: e.id, member: e.handlerMethod }));
-      const templateReaders = [...tpl.ast.propertyBindings, ...tpl.ast.interpolations,
-                               ...tpl.ast.controlFlow]
-        .flatMap((b) => (b.dependsOn ?? []).map((f) => ({ node: b.id, field: f })));
       const reachable = new Set([...handlers,
         ...tpl.ast.propertyBindings.flatMap((b) => b.dependsOn),
         ...tpl.ast.interpolations.flatMap((b) => b.dependsOn),
         ...tpl.ast.controlFlow.flatMap((b) => b.dependsOn)]);
       sig.publicApi.templateReachableMembers = [...reachable].sort();
-      Object.assign(deps, extractDependencies(path, sourceText, sig,
-        { ...shared, templateHandlers: handlers, templateCallers, templateReaders }));
+
+      templateContext = {
+        templateHandlers: handlers,
+        templateCallers: tpl.ast.eventBindings
+          .filter((e) => e.handlerMethod)
+          .map((e) => ({ node: e.id, member: e.handlerMethod })),
+        templateReaders: [...tpl.ast.propertyBindings, ...tpl.ast.interpolations,
+                          ...tpl.ast.controlFlow]
+          .flatMap((b) => (b.dependsOn ?? []).map((f) => ({ node: b.id, field: f }))),
+      };
     }
   }
+
+  // One call, with the template context when there is one.
+  const deps = extractDependencies(path, sourceText, sig, { ...shared, ...templateContext });
 
   const specPath = specs.length ? join(dir, specs[0]) : null;
   const specText = specPath ? readFileSync(specPath, "utf8") : null;

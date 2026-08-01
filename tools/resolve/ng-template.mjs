@@ -467,7 +467,7 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
   const citedByRequirements = new Set();  // extractor emits no uiRequirements; the Synthesizer fills these
   const recordedIds = [...new Set(emitted.map((e) => idOf.get(e.node)).filter(Boolean))];
   const nodesTotal = recordedIds.length;
-  return {
+  const tier = {
     schemaVersion: "0.4.0",
     unitId: signature.unit.id,
     templateFile,
@@ -504,8 +504,13 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
       parseStatus: w.parseStatus(),
       warnings: w.list(),
     },
-    maxTemplateNestingDepth: maxDepth,
   };
+
+  // Returned ALONGSIDE the tier, not on it. It belongs to signature.metrics, and
+  // hanging it on the tier object meant the caller had to delete the field again
+  // -- the return value used as a side channel, with cleanup left to whoever
+  // remembered. An explicit second value cannot be forgotten.
+  return { tier, metrics: { maxTemplateNestingDepth: maxDepth } };
 }
 
 function collectPipeNames(ast, C, pipes, owner) {
