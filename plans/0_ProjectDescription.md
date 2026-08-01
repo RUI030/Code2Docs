@@ -14,7 +14,7 @@ This is an agentic AI project that aims to read the Angular code base and extrac
 
 #### **How the outputs relate**
 
-There is **one logical dataset with one id space and no fact stored twice**, projected into five physical files split by access pattern — because the purpose is an IDE-like interface for agents and humans, and what makes an IDE fast is random access to just the slice you need. Two files that both assert a component's inputs would eventually disagree, and then neither could be trusted.
+There is **one logical dataset with one id space and no fact stored twice**, projected into five physical files split by access pattern — because the purpose is an IDE-like interface for agents and humans, and what makes an IDE fast is random access to just the slice you need. Two files that both assert a component's inputs would eventually disagree, and then neither could be trusted. *(The split is built and delivers the random-access benefit for direct reads and per-tier caching. A query surface over it — `tools/query.mjs` — exists but is deliberately unscheduled: no phase lifts it into agent tool definitions. See `2_ImplementationPlan.md` §1.)*
 
 * `signature.json` — "what is this": identity, public API, injected dependencies, lifecycle, state outline. The hot tier, always read first, deliberately kept small. Supersedes the Resolver's `ast_signatures.json`.
 * `dependencies.json` — "what connects to what": the in-file function call graph (including same-file calls), field read/write sets, leaf-first execution order, and cross-unit edges.

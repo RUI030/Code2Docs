@@ -40,7 +40,7 @@ method call edges nobody enumerated by hand, which is what makes reachability ve
 than searched. The comparison's real yield was two extractor defects, one of which the agent had
 gotten right.
 
-All findings are in `plans/3_PhaseAFindings.md` (F1–F16).
+All findings are in `plans/3_PhaseAFindings.md` (F1–F18).
 
 **Known and recorded, not fixed** — each carries a warning in the output rather than passing
 silently:
@@ -89,6 +89,10 @@ relevant skills load automatically.
 npm run resolve -- <component.ts> --out <dir> [--unit-path <path>]
 npm run q -- <unit-dir> refs method:save      # query without loading whole files
 ```
+
+`npm run q` is a **developer CLI, and deliberately unscheduled**: no phase lifts its verbs into
+agent tool definitions or evaluates them, so agents currently read the tier files directly. See
+`plans/2_ImplementationPlan.md` §1 for why that is a stated choice rather than an oversight.
 
 The Resolver never throws on bad input: a file it cannot read or classify is recorded and the run
 continues. Everything it could not determine is a structured warning in `provenance.warnings`,
@@ -158,7 +162,7 @@ See **`ARCHITECTURE.md`** for the pipeline, dataflow, and what each file is resp
   code2docs-analyze/       the workflow entry point
 plans/
   0_ProjectDescription.md  intent, scope, artifact model
-  1_Decisions.md           D1-D10, append-only decision records
+  1_Decisions.md           D1-D15, append-only decision records
   2_ImplementationPlan.md  phases, risks, next steps
 templates/               the two rendered Markdown views (requirement, migration_notes)
   schema/                  one JSON Schema per tier -- SOLE authority on shape, field
@@ -167,6 +171,8 @@ fixtures/                hand-written Angular files, one construct each — extr
   fixtures.json            what each fixture MUST extract, written before the extractor
 tools/                   resolve (the Resolver) + validate / check-integrity / golden / query
   resolve/                 the four extractors, the warning channel, ng-scan
+    ts-source.mjs          one parse configuration + the node helpers all four share (D15)
+  tiers.mjs                the tier lists and shared paths, defined once (D15)
 examples/                promoted runs — reference output and the Phase A baseline, hand-curated
 benchmarks/              cost per phase, and the Phase 1 omission measurement (F16)
 angular-docs/            pinned Angular 17.3.9 typings + guides (gitignored, regenerable)
@@ -199,7 +205,7 @@ Angular is being read. `code2docs-analyze` is a workflow, so it is written to wo
 
 ## Design invariants
 
-Four rules the whole design rests on. Full reasoning in `plans/1_Decisions.md`.
+Five rules the whole design rests on. Full reasoning in `plans/1_Decisions.md`.
 
 1. **No fact is stored twice.** The JSON tiers are one dataset with one id space, split by
    access pattern for cheap random access. Two files asserting the same thing would eventually
@@ -213,6 +219,12 @@ Four rules the whole design rests on. Full reasoning in `plans/1_Decisions.md`.
 4. **Nothing describes the target framework.** `requirement.md` stays valid if the migration
    target changes, and readable by domain experts who do not know it. Target material lives in
    `migration_notes.md`.
+5. **One implementation per fact, and the compiler before text** (D15, D3). How a file is
+   parsed, what the tier list is, how complexity is counted — each defined once and imported.
+   Here duplication is not a maintenance cost but a *correctness* one: this project emits
+   metrics, so two copies that drift produce a defect in the output, indistinguishable from the
+   extraction bugs we are hunting. Regex is a legitimate fallback where the parse tree cannot
+   reach, never a quiet substitute for it.
 
 ## Roadmap
 

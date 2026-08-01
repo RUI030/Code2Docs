@@ -145,8 +145,9 @@ reaches the artifacts unmodified.
 ### D4 — Resolver ships as a Node CLI invoked via Bash, not an MCP server
 
 The description says "a JavaScript tool registered with Claude Code." The simplest form
-that satisfies it: `tools/ng-ast/` as a Node CLI that takes a path and prints JSON to
-stdout. It is runnable and testable outside any agent, trivially allowlisted for the
+that satisfies it: a Node CLI that takes a path and prints JSON to stdout — written here as
+`tools/ng-ast/`, built as `tools/resolve.mjs` with the extractors under `tools/resolve/`.
+It is runnable and testable outside any agent, trivially allowlisted for the
 `resolver` subagent, and has no protocol handshake to debug. Promote it to an MCP server
 only if per-call process startup becomes a measured bottleneck.
 
@@ -481,3 +482,53 @@ narrower and more visible dependency than "whatever the extractor currently clas
 buckets hold facts about one node — an element that is both an i18n host and an accessibility
 subject. The id names the node, not the record. Anything keyed on ids must treat them as node
 identity rather than record identity.
+
+### D15 — One implementation per fact: no two pieces of code doing the same thing
+
+*(There is no D14. One was raised against F10b and dissolved when that finding was corrected;
+the id is left vacant so the F10b reference stays legible.)*
+
+Until now this was an unwritten working rule, which is exactly the problem: it governed several
+refactors and was recoverable only from commit messages. Stated so it survives the session.
+
+**The rule.** A fact about how this project works — how a TypeScript file is parsed, what the
+tier list is, how cyclomatic complexity is counted, which lifecycle hooks are interface methods —
+has exactly one definition, and every consumer imports it. Prefer extending an existing module
+over adding a parallel one. Prefer a shared helper over a second copy that "happens to agree."
+
+**Why it matters more here than in most projects.** This one emits *metrics*, and F8b's
+definition of a bad metric is one that two correct-looking implementations disagree on. The
+duplication that actually bit us was never the wasted lines:
+
+- `complexityOf` existed twice. Both agreed. Only one carried the note that `DefaultClause` is
+  deliberately not counted — so the copy without the reasoning was one plausible edit away from
+  disagreeing, and the resulting numbers would have differed with nothing to say which was right.
+- `TIERS` was written out four times in **two different versions** — three listed five tiers,
+  golden listed four. Golden's shorter list was *correct* for what it does, but nothing said so,
+  so it read as one of the four having fallen behind.
+- The component `.ts` was parsed four times per unit, each call site choosing `ScriptTarget` and
+  `setParentNodes` independently and identically only by coincidence. `setParentNodes: true` is
+  load-bearing — several extractors walk upward via `node.parent`, and a call site that omitted
+  it would fail in a way that looks like a missing construct rather than a parse-configuration
+  mistake. That is precisely the silent wrongness this project exists to eliminate.
+
+So the cost of duplication here is not maintenance. It is that a divergence presents as a *data*
+defect, in the output, indistinguishable from the extraction bugs we are hunting.
+
+**Corollaries.**
+
+- **Schemas are the sole authority on shape.** The hand-written `templates/<tier>.json` were a
+  second description of the same structure; their 39 `$comment`s were merged into the schemas and
+  the files deleted. Worked examples are the fixture goldens — real, validated output rather than
+  placeholders that can rot.
+- **Two things that look alike but differ must say so.** `AST_TIERS` and `ALL_TIERS` are named
+  separately in `tools/tiers.mjs` so the difference reads as a stated distinction rather than an
+  apparent inconsistency. Deduplicating them would have been the *wrong* fix.
+- **AST first, text search as a fallback with a declared role.** Restates D3/D3a as a coding
+  rule: use the compiler API wherever a construct is in the parse tree; regex is legitimate where
+  it is not, or as a deliberate cross-check (`ng-scan`), never as a quiet substitute. F17
+  converted the remaining regexes over parse trees.
+
+**Limit.** This is not an argument for premature abstraction. The trigger is a *second* call site
+that needs the same answer, not the anticipation of one — and never at the cost of collapsing two
+things that are genuinely different, per the second corollary.

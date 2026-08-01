@@ -115,7 +115,7 @@ fact.
 | `validate.mjs` | "Is each file well-formed against its schema?" | Reads one file at a time |
 | `check-integrity.mjs` | "Does every id referenced in one tier exist in the tier that owns it?" | A dangling id is perfectly well-formed on its own |
 | `golden.mjs` | "Did behavior change unnoticed?" plus pair equivalence | Goldens are written from the extractor's own output, so they prove *stability*, never *correctness* — the pairs and `mustExtract` assertions carry that |
-| `query.mjs` | "What calls `save()`?" without loading 16 KB to get a 4-byte answer | Context budget is the cost being managed |
+| `query.mjs` | "What calls `save()`?" without loading 16 KB to get a 4-byte answer | Context budget is the cost being managed. **Unscheduled** — no phase owns it; see `plans/2_ImplementationPlan.md` §1 |
 
 ### Contracts and inputs
 

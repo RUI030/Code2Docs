@@ -2,7 +2,7 @@
 
 Build order and phase-by-phase tasks. Scope, artifact model, and success criteria live in
 `0_ProjectDescription.md`; the decisions this plan rests on are recorded in `1_Decisions.md`
-and referenced here by id (**D1**–**D8**).
+and referenced here by id (**D1**–**D15**).
 
 Two stages: a skills-only proof of concept (**Phase A**) validates the deliverable at
 component level with no tooling, then the production pipeline is built around what it
@@ -14,9 +14,17 @@ learned. See **D7** and **D8**.
 
 ```
 Code2Docs/
-  tools/ng-ast/            # Resolver CLI (Node + TypeScript Compiler API)
-  tools/ng-scan/           # text-search capability: discovery, non-TS reach,
-                           #   degraded fallback, and recall audit (D3a)
+  tools/resolve.mjs        # Resolver CLI (Node + TypeScript Compiler API)
+  tools/resolve/           # the four extractors, the warning channel, ng-scan
+    ts-source.mjs          #   one parse configuration + shared node helpers
+    ts-signature.mjs ts-dependencies.mjs ts-functions.mjs ng-template.mjs
+    warnings.mjs           #   closed code vocabulary; parseStatus derived from it
+    ng-scan.mjs            #   text-search capability: recall audit (D3a), and the
+                           #   Phase 2 repo sweep. A module, not a separate CLI --
+                           #   its only caller is the Resolver
+  tools/tiers.mjs          # the tier lists and shared paths, defined once
+  tools/validate.mjs tools/check-integrity.mjs tools/golden.mjs   # verification
+  tools/query.mjs          # random access into emitted tiers (see note below)
   templates/
     requirement.md         # rendered behavioral spec             [written]
     migration_notes.md     # rendered target-framework hazards    [written]
@@ -49,6 +57,16 @@ Code2Docs/
 
 `OUTPUT/` mirrors the input tree so output location is derivable from source location in
 both directions.
+
+**`tools/query.mjs` is unscheduled, and that is a stated choice rather than an omission.**
+`0_ProjectDescription.md` and **D2** both motivate the tier split by an IDE-like interface for
+agents — random access, reverse indexes, answering "what calls `save()`?" without loading the
+tier. The query layer was built mid-Phase-1 to serve that, and it works (verbs: `refs`, `calls`,
+`reads`, `symbol`, `node`, `outline`, `where`). But **no phase owns it**: nothing lifts its verbs
+into agent tool definitions, tests it, or evaluates whether an agent answers questions faster
+through it than by reading files. It stays a developer-facing CLI for now. Reopening it means
+adding a phase; until then, agents read tier files directly and the split still pays off, since
+the files are small and separately cacheable.
 
 ---
 
@@ -104,7 +122,7 @@ better guide to what belongs in it than intuition is.
 `explaining-functions` is deliberately *not* written yet — it belongs with Phase 4's
 comparison (**D8**).
 
-- Configure one agent with Read/Grep/Glob plus those skills. No `ng-ast`, no MCP, no
+- Configure one agent with Read/Grep/Glob plus those skills. No Resolver, no MCP, no
   schema validation.
 - Select 2–3 components of deliberately varying complexity from `INPUT/`, **including at
   least one deliberately large one** — the Explainer's eventual justification may be context
@@ -182,8 +200,8 @@ skills before building any tooling — that is the entire point of running this 
 
 ### Phase 1 — Resolver: deterministic extraction
 
-*Goal:* `ng-ast <unit-dir>` emits schema-valid `ast` content for `signature.json`,
-`dependencies.json`, and `template.json`.
+*Goal:* `node tools/resolve.mjs <unit-dir>` emits schema-valid `ast` content for
+`signature.json`, `dependencies.json`, `functions.json` and `template.json`.
 
 Build extractors in dependency order, each with fixture tests:
 
@@ -206,14 +224,16 @@ Build extractors in dependency order, each with fixture tests:
 *Cross-cutting:* never throw on unparseable input — degrade, set `parseStatus`, record a
 warning. A pipeline that dies on one malformed file cannot process a real repo.
 
-*Text-search capability (D3a):* ship `ng-scan` alongside, and wire the **recall audit** in
+*Text-search capability (D3a):* ship `resolve/ng-scan.mjs` alongside, and wire the **recall audit** in
 this phase rather than later — compare compiler counts against text-search counts for the
 constructs where a raw count is meaningful (`@Input`, `@Output`, `inject(`, `.subscribe(`,
 lifecycle hooks) and emit any gap as a `warnings` entry. It is a few lines of work and it
 catches the failure mode this phase is most exposed to: an extractor that returns seven of
 nine and reports success. Enforce the boundary in code — `ng-scan` results must not be
 writable into `ast` fields, or the determinism invariant and the omission metric both die
-quietly.
+quietly. *(Built: enforced structurally rather than by discipline — every function in
+`ng-scan.mjs` returns numbers only, so there is no code path by which it can produce anything
+shaped like `ast` content. F15.)*
 
 *Exit:* every fixture produces schema-valid, golden-matched `ast` output;
 `executionOrder` is correct on a fixture with nested and cyclic calls. Diff the extractor's
@@ -222,7 +242,7 @@ number that justifies the extractor's existence.
 
 ### Phase 2 — Repo inventory and cross-unit graph
 
-*Goal:* `ng-ast index <src-root>` emits `index.json`.
+*Goal:* `node tools/resolve.mjs index <src-root>` emits `index.json`.
 
 - Walk the source root; classify units; skip `node_modules`, build output, generated dirs.
 - Resolve internal imports and template selectors to unit ids (a selector index built from
@@ -244,8 +264,8 @@ number that justifies the extractor's existence.
 *Goal:* the orchestration skeleton works with deliberately shallow prompts.
 
 - Define the three subagents with least-privilege tools: `resolver` (Bash-limited to
-  `ng-ast`, Read, Write), `explainer` (Read only — no filesystem writes), `synthesizer`
-  (Read, Write).
+  `tools/resolve.mjs`, Read, Write), `explainer` (Read only — no filesystem writes),
+  `synthesizer` (Read, Write).
 - Orchestrator: read `index.json` → for each unit, invoke the three stages → assemble
   the five JSON tiers → validate schemas and referential integrity → render
   `requirement.md` and `migration_notes.md`.
@@ -330,9 +350,25 @@ ids resolve.
   corpus is untouched by design work: every extractor was built and tested against synthetic
   fixtures, so the fixture repo still genuinely tests generality.
 - Rubric per unit: factual accuracy, completeness against the `ast` tiers, framework-neutrality,
-  actionability, risk-flagging recall.
+  actionability, risk-flagging recall, and **intent capture** — see below.
+- **Intent capture is scored separately, because every other criterion is blind to it.**
+  The stated goal is a document capturing *semantic, intent and purpose*, but completeness is
+  measured against the `ast` tiers, and the tiers hold what the code *is*, never what it is
+  *for*. A document can therefore be factually accurate and 100% complete and still fail its
+  reader. **F2 is the worked example**: domain terms in the Phase A output drifted from both
+  the code identifiers and the UI labels. Nothing in the list above sees that — the facts were
+  all present and all correct.
+  - Mechanical floor, from F2: do the document's domain nouns appear in the unit's identifiers
+    or its template's user-visible text? A term grounded in neither is invented, and that is
+    checkable without a model.
+  - Human criterion, which the mechanical floor does not replace: can a reader say *why this
+    unit exists and what would break if it were deleted* after reading only `requirement.md`?
+    Purpose is a judgement about the whole, so the reviewer judges it; the floor only catches
+    the vocabulary failure that recurred.
 - Cheap automated proxies: coverage ratios, evidence-resolution rate, count of members with
-  no explanation, count of template nodes with no corresponding UI requirement.
+  no explanation, count of template nodes with no corresponding UI requirement. **Read these
+  as a floor, not a score** — each is a *coverage* number, so a document maximizing all of them
+  can still be one that describes every fact and explains no purpose.
 - Adversarial check: does a requirement claim behavior contradicted by the spec files?
 - Review loop: reviewer edits `requirement.md`, sets `review.status`, resolves blocking
   questions. Re-runs must never clobber human edits — diff and prompt, or write alongside.
