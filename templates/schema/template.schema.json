@@ -155,6 +155,48 @@
         "i18n": {
           "$ref": "#/$defs/nodeList"
         },
+        "staticText": {
+          "$comment": "The words the screen actually shows: text nodes, plus attribute values a person reads (placeholder, title, alt, aria-label, and value on an input). This is the tier's record of the product's OWN VOCABULARY, and it exists because naming is checkable only against something recorded -- F19. A requirement document is expected to call a field what the screen calls it; when it does not, that is a defect no coverage metric can see (F2), and it is detectable only if the label was extracted. Whitespace-only text is structure, not content, and is not recorded. Text under i18n is still recorded here: the literal is the default rendering, and the i18n bucket holds the key separately.",
+          "type": "array",
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/node"
+              },
+              {
+                "type": "object",
+                "required": [
+                  "text"
+                ],
+                "properties": {
+                  "text": {
+                    "$comment": "Whitespace-collapsed and trimmed. Verbatim otherwise -- this is what the person reads.",
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "host": {
+                    "$comment": "Tag of the element the text sits in or on. `label` versus `p` is the difference between a field name and prose.",
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "attribute": {
+                    "$comment": "null for a text node; otherwise the attribute the text came from.",
+                    "enum": [
+                      null,
+                      "placeholder",
+                      "title",
+                      "alt",
+                      "aria-label",
+                      "value"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
         "rawHtmlSinks": {
           "$ref": "#/$defs/nodeList"
         },

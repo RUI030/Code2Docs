@@ -138,6 +138,30 @@
     "hostListeners": [],
     "accessibility": [],
     "i18n": [],
+    "staticText": [
+      {
+        "id": "tpl:8",
+        "text": "Email is required",
+        "host": "small",
+        "attribute": null,
+        "loc": {
+          "file": "signup.component.html",
+          "line": 4,
+          "endLine": 4
+        }
+      },
+      {
+        "id": "tpl:12",
+        "text": "Save",
+        "host": "button",
+        "attribute": null,
+        "loc": {
+          "file": "signup.component.html",
+          "line": 6,
+          "endLine": 6
+        }
+      }
+    ],
     "rawHtmlSinks": [],
     "directivesUsed": [
       {
@@ -165,7 +189,7 @@
   "uiRequirements": [],
   "coverage": {
     "$comment": "nodesTotal counts nodes this tier RECORDS. parse.nodesParsed counts everything the compiler produced -- ids are numbered over that larger set (D13a), so recorded ids are sparse. uncoveredNodeIds lists recorded nodes no uiRequirement cites, never unrecorded ones: citing those was the original dangling bug.",
-    "nodesTotal": 8,
+    "nodesTotal": 10,
     "nodesCoveredByRequirements": 0,
     "uncoveredNodeIds": [
       "tpl:0",
@@ -174,8 +198,10 @@
       "tpl:3",
       "tpl:6",
       "tpl:7",
+      "tpl:8",
       "tpl:9",
-      "tpl:11"
+      "tpl:11",
+      "tpl:12"
     ]
   },
   "provenance": {

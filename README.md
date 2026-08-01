@@ -40,7 +40,7 @@ method call edges nobody enumerated by hand, which is what makes reachability ve
 than searched. The comparison's real yield was two extractor defects, one of which the agent had
 gotten right.
 
-All findings are in `plans/3_PhaseAFindings.md` (F1–F18).
+All findings are in `plans/3_PhaseAFindings.md` (F1–F19).
 
 **Known and recorded, not fixed** — each carries a warning in the output rather than passing
 silently:
@@ -72,7 +72,7 @@ This reads the component's `.ts`, `.html`, styles, and `.spec.ts` files and writ
 | `signature.json` | What the component is: public interface, dependencies, state outline. |
 | `dependencies.json` | How it connects: call graph, field access, routing, imports. |
 | `functions.json` | Per-symbol detail: complexity, side-effect hints, forms, signals, streams, spec cases. |
-| `template.json` | What it renders: control flow, bindings, events, accessibility, i18n. |
+| `template.json` | What it renders: control flow, bindings, events, accessibility, i18n, and the static text the screen shows — the product's own vocabulary (F19). |
 
 `OUTPUT/` is gitignored scratch space. A run worth keeping — in particular the hand-derived
 `signature.json` and `callGraph`, which are the baseline Phase 1's extractor was measured

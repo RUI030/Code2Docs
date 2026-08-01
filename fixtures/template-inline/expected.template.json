@@ -95,6 +95,19 @@
     "hostListeners": [],
     "accessibility": [],
     "i18n": [],
+    "staticText": [
+      {
+        "id": "tpl:6",
+        "text": "close",
+        "host": "button",
+        "attribute": null,
+        "loc": {
+          "file": "panel.component.ts",
+          "line": 16,
+          "endLine": 16
+        }
+      }
+    ],
     "rawHtmlSinks": [],
     "directivesUsed": [],
     "pipesUsed": [],
@@ -112,14 +125,15 @@
   "uiRequirements": [],
   "coverage": {
     "$comment": "nodesTotal counts nodes this tier RECORDS. parse.nodesParsed counts everything the compiler produced -- ids are numbered over that larger set (D13a), so recorded ids are sparse. uncoveredNodeIds lists recorded nodes no uiRequirement cites, never unrecorded ones: citing those was the original dangling bug.",
-    "nodesTotal": 5,
+    "nodesTotal": 6,
     "nodesCoveredByRequirements": 0,
     "uncoveredNodeIds": [
       "tpl:0",
       "tpl:1",
       "tpl:3",
       "tpl:4",
-      "tpl:5"
+      "tpl:5",
+      "tpl:6"
     ]
   },
   "provenance": {

@@ -104,7 +104,7 @@ fact.
 | `resolve.mjs` | Orchestration: find the unit's files, run the four extractors in order, write the tiers | Never throws on bad input — records and continues to the next file |
 | `resolve/ts-signature.mjs` | `signature.json` — class, public API, DI, lifecycle, state outline | Runs first; everything downstream needs its symbol table |
 | `resolve/ts-dependencies.mjs` | `dependencies.json` — call graph, field access, HTTP, routing, imports | Emits reverse indexes (`calledBy`, `readBy`) alongside forward ones |
-| `resolve/ng-template.mjs` | `template.json` — control flow, bindings, events, a11y, i18n | Parses with the **analysed repo's** `@angular/compiler`, not ours, since template syntax is version-sensitive |
+| `resolve/ng-template.mjs` | `template.json` — control flow, bindings, events, a11y, i18n, static text | Parses with the **analysed repo's** `@angular/compiler`, not ours, since template syntax is version-sensitive. `staticText` records the words on the screen, which is what lets naming be checked rather than trusted (F19) |
 | `resolve/ts-functions.mjs` | `functions.json` — per-symbol detail, forms, signals, streams, spec cases | Emits `ast` only; the `doc` half belongs to the Explainer |
 | `resolve/warnings.mjs` | The warning channel and `parseStatus` | Closed code vocabulary; an unlisted code throws |
 

@@ -179,8 +179,15 @@ const REACHED_VIA_PARENT = new Set([
   "TmplAstDeferredBlockError",      // all three via TmplAstDeferredBlock
   "TmplAstVariable",                // via the block or template that declares it
   "TmplAstTextAttribute",           // via TmplAstElement.attributes
-  "TmplAstText",                    // static text carries no behavior
 ]);
+
+/**
+ * Attributes whose VALUE is read by the person using the screen.
+ *
+ * Distinct from every other attribute, which addresses the browser or the
+ * framework. `placeholder` is a label; `formControlName` is a wiring detail.
+ */
+const VISIBLE_ATTRS = new Set(["placeholder", "title", "alt", "aria-label", "value"]);
 
 /**
  * constructor -> the name @angular/compiler exports it under.
@@ -300,7 +307,7 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
     elements: [], controlFlow: [], propertyBindings: [], eventBindings: [], twoWayBindings: [],
     interpolations: [], childComponents: [], templateRefs: [], ngTemplates: [],
     contentProjection: [], hostBindings: [], hostListeners: [], accessibility: [],
-    i18n: [], rawHtmlSinks: [], directivesUsed: [], pipesUsed: [], viewQueries: [],
+    i18n: [], staticText: [], rawHtmlSinks: [], directivesUsed: [], pipesUsed: [], viewQueries: [],
   };
   const directives = new Map(), pipes = new Map();
   // measured over elements and control-flow blocks only -- see collect()
@@ -442,6 +449,25 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
         pipes: collectPipeNames(ast, C, pipes, n),
         dependsOn: dependsOn(n.value), loc: loc(n),
       });
+    } else if (n instanceof C.TmplAstText) {
+      // The words on the screen.
+      //
+      // Previously skipped as "static text carries no behavior", which is true and
+      // was the wrong test: this tier records what the UI DOES, and the label on a
+      // field is what tells a person what the field IS. F19 found the consequence --
+      // `Content` is the visible label for the `content` control, the requirement
+      // document called it "body" six times, and nothing could contradict it because
+      // no tier held the word. Extraction anchors naming (F2's stated fix), and it
+      // can only anchor vocabulary it actually records.
+      //
+      // Whitespace-only nodes are structure, not content. `preserveWhitespaces:
+      // false` removes most; the guard covers the rest.
+      const text = (n.value ?? "").replace(/\s+/g, " ").trim();
+      if (text) {
+        emit("staticText", n, {
+          id: null, text, host: parent?.name ?? null, attribute: null, loc: loc(n),
+        });
+      }
     } else if (n instanceof C.TmplAstReference) {
       emit("templateRefs", n, { id: null, name: n.name, onElement: parent?.name ?? "", referencedBy: [] });
     } else if (n instanceof C.TmplAstContent) {
@@ -465,6 +491,19 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
       const attrs = {};
       for (const a of n.attributes ?? []) {
         if (/^(role|aria-|alt$|tabindex$)/.test(a.name)) attrs[a.name] = a.value;
+        // A visible attribute value is a label too -- `placeholder="Search posts"`
+        // names the field exactly as a <label> would. Recorded in the same bucket
+        // so a consumer asking "what words does this screen show?" has one answer.
+        // `value` only counts on inputs, where it is prefilled content a person
+        // reads; elsewhere it is a wiring detail.
+        if (VISIBLE_ATTRS.has(a.name) && (a.name !== "value" || n.name === "input")) {
+          const text = (a.value ?? "").replace(/\s+/g, " ").trim();
+          if (text) {
+            emit("staticText", a, {
+              id: null, text, host: n.name, attribute: a.name, loc: loc(a),
+            });
+          }
+        }
         const translateMechanism = TRANSLATE_DIRECTIVES.get(a.name)
           ?? (a.name === "i18n" || a.name.startsWith("i18n-") ? "i18n-attr" : null);
         if (translateMechanism) {

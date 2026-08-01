@@ -925,3 +925,85 @@ warning.
 Verified in all three directions rather than only the quiet one: a tree declaring Angular 20 still
 warns and names both versions, a tree with no `package.json` warns that a mismatch cannot be ruled
 out, and the fixtures went silent because their versions genuinely agree.
+
+---
+
+## F19. The intent floor, run early — the check as specified did not work
+
+Phase 7 gained an *intent capture* criterion because every other rubric item is blind to F2:
+completeness is measured against the `ast` tiers, and the tiers hold what the code **is**, never
+what it is **for**. The criterion was written with a mechanical floor: *do the document's domain
+nouns appear in the unit's identifiers or its user-visible template text?*
+
+Run against the two Phase A baselines, where F2's defect is known to be present, **it failed** —
+in the way F15's audit was built to catch and F14's prefix matcher failed before it: a shallow
+check that looks reasonable and answers a different question than the one asked.
+
+**Forward direction, measured.** On `post/update`: 232 document terms used three or more times,
+**102 ungrounded**. `body` — the actual defect — ranked 25th at 6 uses, below `nothing`, `rather`,
+`begin`, `hand` and `covered`. Precision ≈1%. As a gate it is noise, and a gate nobody can read
+is one nobody runs.
+
+**Why, and this is the part worth keeping.** Two causes, and the second is not fixable by tuning:
+
+1. The stopword list is unwinnable. Separating domain nouns from the requirements register means
+   enumerating English.
+2. **It tests the wrong proposition.** `body` is not a defect because it is ungrounded —
+   `redemption` and `address` are equally ungrounded on `activate` and are perfectly good
+   paraphrase. `body` is a defect because **`content` exists and names the same thing**. The
+   forward check cannot see a synonym it was never given, so it was never able to find F2 at all.
+   It found 102 terms and the right answer was not among them for a structural reason.
+
+**Inverted, it works.** Ask instead: *for each term the screen uses to name something, does the
+document name it at all?*
+
+```
+post/update:      4 naming terms on screen, 1 never named  ->  content
+account/activate: 2 naming terms on screen, 0 never named  ->  (clean)
+```
+
+One flag, one true positive, no false positives. Confirmed directly: `content` appears **zero**
+times in that `requirement.md`; `body` appears six, including §8 *Domain Terminology*, the section
+written for SME review. The candidate set is small because it is bounded by the screen rather than
+by the prose — which is also why it stays small on a large document.
+
+**The direction of error is the reason to prefer it.** The forward check asks the document to
+justify its whole vocabulary, which is unbounded. The inverted check asks whether a *specific,
+enumerable* set of grounded names was used, and silence about one of them is the defect. Same
+relationship as D3a's: state the bound you are measuring, then only report violations of it.
+
+### The prerequisite this exposed: templates carried no visible text
+
+The criterion said "identifiers **or user-visible template text**." `template.json` did not record
+user-visible text. `Content` is a text node inside `<label>`; the tier held the element and the
+i18n key, not the word. The probe only worked at all because this repo is internationalized and
+the label leaked in through the key `jhipsterNg17FixtureApp.post.content` — **on a non-i18n
+template there would have been no grounded label source, and the floor would have passed
+everything silently.** A check that cannot fail is worse than no check.
+
+`TmplAstText` had been listed in `REACHED_VIA_PARENT` as "static text carries no behavior". True,
+and the wrong test: this tier records what the UI *does*, and the label on a field is what tells a
+person what the field *is*. F2's stated fix was that extraction anchors naming — and extraction
+can only anchor vocabulary it records.
+
+**Fixed.** `template.json` gains `ast.staticText`: text nodes plus attribute values a person reads
+(`placeholder`, `title`, `alt`, `aria-label`, and `value` on an `input`), whitespace-collapsed,
+each with the host tag — `label` versus `p` is the difference between a field name and prose.
+`post/update` yields 14 records, `activate` 7. The floor now runs off the tier and no longer
+depends on the analysed repo being internationalized.
+
+**D13a demonstrated again, unprompted.** Adding a recorded bucket changed `nodesTotal` and shifted
+positions inside `coverage.uncoveredNodeIds`, and **renumbered nothing**: `tpl:9` is still `tpl:9`.
+That is exactly the property D13a was corrected into place to guarantee — ids number the parsed
+set, so what the extractor chooses to record cannot re-point ids in artifacts already written.
+Under the pre-D13a rule this change would have silently invalidated every existing template id.
+
+**Also found, not fixed:** `control:` ids are empty for `post/update` — the form is built in
+`post-form.service.ts`, a separate unit under D1 — so form-control names, the other obvious source
+of grounded field vocabulary, are unavailable until the cross-unit graph exists (Phase 2).
+
+**Standing lesson, third instance.** F14's prefix matcher, F15's golden-blind recall gap, and now
+this: *a check is not evidence until it has been run against a case whose answer is known
+independently.* All three were written to be obviously correct and all three answered a different
+question than intended. The cost of finding out here was one afternoon; the cost of finding out in
+Phase 7 would have been a rubric five phases of work were tuned against.

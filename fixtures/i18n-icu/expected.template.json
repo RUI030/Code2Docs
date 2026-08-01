@@ -62,6 +62,7 @@
     "hostListeners": [],
     "accessibility": [],
     "i18n": [],
+    "staticText": [],
     "rawHtmlSinks": [],
     "directivesUsed": [],
     "pipesUsed": [],

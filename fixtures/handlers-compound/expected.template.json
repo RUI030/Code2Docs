@@ -147,6 +147,63 @@
     "hostListeners": [],
     "accessibility": [],
     "i18n": [],
+    "staticText": [
+      {
+        "id": "tpl:2",
+        "text": "plain",
+        "host": "button",
+        "attribute": null,
+        "loc": {
+          "file": "toolbar.component.html",
+          "line": 1,
+          "endLine": 1
+        }
+      },
+      {
+        "id": "tpl:5",
+        "text": "guarded by an expression",
+        "host": "button",
+        "attribute": null,
+        "loc": {
+          "file": "toolbar.component.html",
+          "line": 2,
+          "endLine": 2
+        }
+      },
+      {
+        "id": "tpl:8",
+        "text": "preceded by another call",
+        "host": "button",
+        "attribute": null,
+        "loc": {
+          "file": "toolbar.component.html",
+          "line": 3,
+          "endLine": 3
+        }
+      },
+      {
+        "id": "tpl:11",
+        "text": "two component calls",
+        "host": "button",
+        "attribute": null,
+        "loc": {
+          "file": "toolbar.component.html",
+          "line": 4,
+          "endLine": 4
+        }
+      },
+      {
+        "id": "tpl:14",
+        "text": "a string argument, not a call",
+        "host": "button",
+        "attribute": null,
+        "loc": {
+          "file": "toolbar.component.html",
+          "line": 5,
+          "endLine": 5
+        }
+      }
+    ],
     "rawHtmlSinks": [],
     "directivesUsed": [],
     "pipesUsed": [],
@@ -164,19 +221,24 @@
   "uiRequirements": [],
   "coverage": {
     "$comment": "nodesTotal counts nodes this tier RECORDS. parse.nodesParsed counts everything the compiler produced -- ids are numbered over that larger set (D13a), so recorded ids are sparse. uncoveredNodeIds lists recorded nodes no uiRequirement cites, never unrecorded ones: citing those was the original dangling bug.",
-    "nodesTotal": 10,
+    "nodesTotal": 15,
     "nodesCoveredByRequirements": 0,
     "uncoveredNodeIds": [
       "tpl:0",
       "tpl:1",
+      "tpl:2",
       "tpl:3",
       "tpl:4",
+      "tpl:5",
       "tpl:6",
       "tpl:7",
+      "tpl:8",
       "tpl:9",
       "tpl:10",
+      "tpl:11",
       "tpl:12",
-      "tpl:13"
+      "tpl:13",
+      "tpl:14"
     ]
   },
   "provenance": {

@@ -358,9 +358,15 @@ ids resolve.
   reader. **F2 is the worked example**: domain terms in the Phase A output drifted from both
   the code identifiers and the UI labels. Nothing in the list above sees that — the facts were
   all present and all correct.
-  - Mechanical floor, from F2: do the document's domain nouns appear in the unit's identifiers
-    or its template's user-visible text? A term grounded in neither is invented, and that is
-    checkable without a model.
+  - Mechanical floor, from F2 — **stated in the inverted direction, which is the only one that
+    works**: for each term the screen uses to *name* something (`ast.staticText` on a `label`,
+    heading, or `placeholder`), does the document name it at all? A grounded name the document
+    never uses means it is calling that thing something else.
+  - *The obvious forward form — "are the document's nouns grounded in identifiers or template
+    text?" — was tried first and fails. It flagged 102 terms on one Phase A baseline and ranked
+    the real defect 25th, because `body` is wrong not for being ungrounded but because `content`
+    exists and means the same thing; a forward check cannot see a synonym it was never given.
+    Measured in **F19** — do not re-derive it.*
   - Human criterion, which the mechanical floor does not replace: can a reader say *why this
     unit exists and what would break if it were deleted* after reading only `requirement.md`?
     Purpose is a judgement about the whole, so the reviewer judges it; the floor only catches

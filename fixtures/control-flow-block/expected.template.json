@@ -194,6 +194,41 @@
     "hostListeners": [],
     "accessibility": [],
     "i18n": [],
+    "staticText": [
+      {
+        "id": "tpl:7",
+        "text": "Loading…",
+        "host": "span",
+        "attribute": null,
+        "loc": {
+          "file": "list.component.html",
+          "line": 6,
+          "endLine": 6
+        }
+      },
+      {
+        "id": "tpl:11",
+        "text": "Editing",
+        "host": "p",
+        "attribute": null,
+        "loc": {
+          "file": "list.component.html",
+          "line": 10,
+          "endLine": 10
+        }
+      },
+      {
+        "id": "tpl:14",
+        "text": "Viewing",
+        "host": "p",
+        "attribute": null,
+        "loc": {
+          "file": "list.component.html",
+          "line": 11,
+          "endLine": 11
+        }
+      }
+    ],
     "rawHtmlSinks": [],
     "directivesUsed": [],
     "pipesUsed": [
@@ -221,7 +256,7 @@
   "uiRequirements": [],
   "coverage": {
     "$comment": "nodesTotal counts nodes this tier RECORDS. parse.nodesParsed counts everything the compiler produced -- ids are numbered over that larger set (D13a), so recorded ids are sparse. uncoveredNodeIds lists recorded nodes no uiRequirement cites, never unrecorded ones: citing those was the original dangling bug.",
-    "nodesTotal": 11,
+    "nodesTotal": 14,
     "nodesCoveredByRequirements": 0,
     "uncoveredNodeIds": [
       "tpl:1",
@@ -230,11 +265,14 @@
       "tpl:4",
       "tpl:5",
       "tpl:6",
+      "tpl:7",
       "tpl:8",
       "tpl:9",
       "tpl:10",
+      "tpl:11",
       "tpl:12",
-      "tpl:13"
+      "tpl:13",
+      "tpl:14"
     ]
   },
   "provenance": {

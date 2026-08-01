@@ -152,7 +152,8 @@
         "the inline member's locs resolve into the .ts and are offset by the template literal's own line -- not line 1",
         "the external member resolves ./panel-markup.html from the DECORATOR, not from the .ts stem",
         "unit.files.templateInline distinguishes them and is the only field that may differ besides file names and line numbers",
-        "neither member raises template-not-found"
+        "neither member raises template-not-found",
+        "both members record the same ast.staticText -- the words on the screen do not depend on where the template is stored (F19)"
       ],
       "equivalence": {
         "mayDiffer": [
