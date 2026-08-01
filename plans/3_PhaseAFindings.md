@@ -675,7 +675,26 @@ control had to cite the whole group.
 **`notes` exists on all nine sections.** Evidence-backed like any other claim, so it is a voice for
 absence rather than a free-text escape hatch.
 
+**Unit-level `notes` closes the last two.** D2a's friction list had five entries; the section-level
+`notes` above answers "empty arrays cannot explain themselves", but two others —
+*"unit-level findings have no home"* and *"scoping remarks have no home"* — are about prose that
+belongs to no section at all. A top-level `notes` array is their home, and it doubles as the only
+place a remark about `workflows` can live, since that section is an array and cannot carry
+properties of its own.
+
 `analysis.schema.json` goes to 0.4.0.
+
+**Verified against D2a's own list rather than declared done.** A probe instance was written
+carrying all five things D2a said a render would lose — the field table, an explained absence, a
+unit-level finding, a scoping remark, and section context — and validated clean:
+
+| D2a said a render would lose | now carried by |
+|---|---|
+| the six-row field table | `stateModel.form[].controls`, citing `control:` ids |
+| "None. Its input arrives through routing instead." | `stateModel.notes` |
+| why the dead trio exists | top-level `notes` |
+| "the post is handed to the screen already loaded" | top-level `notes` |
+| section-level orientation | `<section>.notes` |
 
 **Sequencing.** These belong before **Phase 4**, not at Phase 5 where the renderer is built. The
 Explainer and Synthesizer write *into* these shapes, so prompts tuned against a shape that later

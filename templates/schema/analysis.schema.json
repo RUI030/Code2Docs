@@ -1788,6 +1788,38 @@
           "minLength": 1
         }
       }
+    },
+    "notes": {
+      "$comment": "UNIT-level prose that belongs to no section and no member. D2a named two cases it had nowhere to put: the paragraph explaining why a dead trio of methods exists (about the unit, not any one method), and scoping orientation like 'the post is handed to this screen already loaded; it fetches the option lists itself'. Also the only home for a remark about `workflows`, which is an array and cannot carry section notes. Evidence-backed like any other claim -- a voice for what the structure cannot say, not a free-text escape hatch.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "patternProperties": {
+          "^\\$comment": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "statement"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "common.schema.json#/$defs/synthesizedId"
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence": {
+            "$ref": "common.schema.json#/$defs/evidenceList"
+          },
+          "confidence": {
+            "$ref": "common.schema.json#/$defs/confidence"
+          }
+        }
+      }
     }
   }
 }
