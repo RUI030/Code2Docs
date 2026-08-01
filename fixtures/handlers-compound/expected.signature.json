@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "0.4.0",
+  "unit": {
+    "id": "component:fixtures/handlers-compound:ToolbarComponent",
+    "kind": "component",
+    "className": "ToolbarComponent",
+    "selector": "x-toolbar",
+    "path": "fixtures/handlers-compound",
+    "standalone": true,
+    "declaredInModule": null,
+    "isDefaultExport": false,
+    "files": {
+      "typescript": "toolbar.component.ts",
+      "template": "toolbar.component.html",
+      "templateInline": false,
+      "styles": [],
+      "specs": []
+    }
+  },
+  "manifest": {
+    "dependencies": "./dependencies.json",
+    "functions": "./functions.json",
+    "template": "./template.json",
+    "analysis": null,
+    "requirement": null,
+    "migrationNotes": null,
+    "repoIndex": null
+  },
+  "publicApi": {
+    "inputs": [],
+    "outputs": [],
+    "twoWayBindings": [],
+    "publicMethods": [
+      "method:save",
+      "method:close",
+      "method:reset"
+    ],
+    "templateReachableMembers": [
+      "method:close",
+      "method:reset",
+      "method:save"
+    ]
+  },
+  "injectedDependencies": [],
+  "lifecycle": {
+    "implementedHooks": [],
+    "declaredInterfaces": [],
+    "constructorDoesWork": false,
+    "fieldInitializerDoesWork": false,
+    "cleanupStrategy": "none"
+  },
+  "stateOutline": {
+    "fields": [
+      {
+        "id": "field:items",
+        "name": "items",
+        "type": "string[]",
+        "visibility": "public",
+        "readonly": false,
+        "initializerExpression": "[]",
+        "roleHints": {
+          "isSignal": false,
+          "signalKind": null,
+          "isRxjs": false,
+          "rxjsKind": null,
+          "isFormEntity": false,
+          "formKind": null,
+          "isConstant": false
+        },
+        "loc": {
+          "file": "toolbar.component.ts",
+          "line": 15,
+          "endLine": 15
+        }
+      }
+    ],
+    "methodIds": [
+      "method:save",
+      "method:close",
+      "method:reset"
+    ],
+    "accessorIds": [],
+    "formIds": [],
+    "streamIds": []
+  },
+  "decorator": {
+    "changeDetection": null,
+    "encapsulation": null,
+    "providers": [],
+    "imports": [],
+    "hostDirectives": [],
+    "animations": []
+  },
+  "metrics": {
+    "tsLineCount": 20,
+    "templateLineCount": 5,
+    "methodCount": 3,
+    "publicApiSurface": 3,
+    "injectedDependencyCount": 0,
+    "maxCyclomaticComplexity": 1,
+    "maxTemplateNestingDepth": 0
+  },
+  "provenance": {
+    "source": "ast",
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "sourceRevision": null,
+    "inputHash": "6c324ad67ee9dd32",
+    "parseStatus": "ok",
+    "warnings": []
+  }
+}

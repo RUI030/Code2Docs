@@ -1,0 +1,5 @@
+<button (click)="save()">plain</button>
+<button (click)="items.length && save()">guarded by an expression</button>
+<button (click)="$event.stopPropagation(); close()">preceded by another call</button>
+<button (click)="reset(); save()">two component calls</button>
+<button (click)="items.join('save')">a string argument, not a call</button>

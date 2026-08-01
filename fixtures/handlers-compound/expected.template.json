@@ -1,0 +1,217 @@
+{
+  "schemaVersion": "0.4.0",
+  "unitId": "component:fixtures/handlers-compound:ToolbarComponent",
+  "templateFile": "toolbar.component.html",
+  "parse": {
+    "status": "partial",
+    "parser": "@angular/compiler",
+    "angularVersion": null,
+    "diagnostics": [],
+    "nodesParsed": 15,
+    "nodesUnrecognized": 0
+  },
+  "ast": {
+    "elements": [
+      {
+        "id": "tpl:0",
+        "tag": "button",
+        "attributes": [],
+        "depth": 0,
+        "loc": {
+          "file": "toolbar.component.html",
+          "line": 1,
+          "endLine": 1
+        }
+      },
+      {
+        "id": "tpl:3",
+        "tag": "button",
+        "attributes": [],
+        "depth": 0,
+        "loc": {
+          "file": "toolbar.component.html",
+          "line": 2,
+          "endLine": 2
+        }
+      },
+      {
+        "id": "tpl:6",
+        "tag": "button",
+        "attributes": [],
+        "depth": 0,
+        "loc": {
+          "file": "toolbar.component.html",
+          "line": 3,
+          "endLine": 3
+        }
+      },
+      {
+        "id": "tpl:9",
+        "tag": "button",
+        "attributes": [],
+        "depth": 0,
+        "loc": {
+          "file": "toolbar.component.html",
+          "line": 4,
+          "endLine": 4
+        }
+      },
+      {
+        "id": "tpl:12",
+        "tag": "button",
+        "attributes": [],
+        "depth": 0,
+        "loc": {
+          "file": "toolbar.component.html",
+          "line": 5,
+          "endLine": 5
+        }
+      }
+    ],
+    "controlFlow": [],
+    "propertyBindings": [],
+    "eventBindings": [
+      {
+        "id": "tpl:1",
+        "target": "button",
+        "event": "click",
+        "handlerExpression": "save()",
+        "handlerMethod": "method:save",
+        "passesEvent": false,
+        "loc": {
+          "file": "toolbar.component.html",
+          "line": 1,
+          "endLine": 1
+        }
+      },
+      {
+        "id": "tpl:4",
+        "target": "button",
+        "event": "click",
+        "handlerExpression": "items.length && save()",
+        "handlerMethod": "method:save",
+        "passesEvent": false,
+        "loc": {
+          "file": "toolbar.component.html",
+          "line": 2,
+          "endLine": 2
+        }
+      },
+      {
+        "id": "tpl:7",
+        "target": "button",
+        "event": "click",
+        "handlerExpression": "$event.stopPropagation(); close()",
+        "handlerMethod": "method:close",
+        "passesEvent": true,
+        "loc": {
+          "file": "toolbar.component.html",
+          "line": 3,
+          "endLine": 3
+        }
+      },
+      {
+        "id": "tpl:10",
+        "target": "button",
+        "event": "click",
+        "handlerExpression": "reset(); save()",
+        "handlerMethod": "method:reset",
+        "passesEvent": false,
+        "loc": {
+          "file": "toolbar.component.html",
+          "line": 4,
+          "endLine": 4
+        }
+      },
+      {
+        "id": "tpl:13",
+        "target": "button",
+        "event": "click",
+        "handlerExpression": "items.join('save')",
+        "handlerMethod": null,
+        "passesEvent": false,
+        "loc": {
+          "file": "toolbar.component.html",
+          "line": 5,
+          "endLine": 5
+        }
+      }
+    ],
+    "twoWayBindings": [],
+    "interpolations": [],
+    "childComponents": [],
+    "templateRefs": [],
+    "ngTemplates": [],
+    "contentProjection": [],
+    "hostBindings": [],
+    "hostListeners": [],
+    "accessibility": [],
+    "i18n": [],
+    "rawHtmlSinks": [],
+    "directivesUsed": [],
+    "pipesUsed": [],
+    "viewQueries": [],
+    "styles": {
+      "files": [],
+      "encapsulation": null,
+      "usesEncapsulationEscapes": false,
+      "escapeSelectors": [],
+      "usesHostSelectors": false,
+      "importsGlobalStyles": [],
+      "classesToggledFromTs": []
+    }
+  },
+  "uiRequirements": [],
+  "coverage": {
+    "$comment": "nodesTotal counts nodes this tier RECORDS. parse.nodesParsed counts everything the compiler produced -- ids are numbered over that larger set (D13a), so recorded ids are sparse. uncoveredNodeIds lists recorded nodes no uiRequirement cites, never unrecorded ones: citing those was the original dangling bug.",
+    "nodesTotal": 10,
+    "nodesCoveredByRequirements": 0,
+    "uncoveredNodeIds": [
+      "tpl:0",
+      "tpl:1",
+      "tpl:3",
+      "tpl:4",
+      "tpl:6",
+      "tpl:7",
+      "tpl:9",
+      "tpl:10",
+      "tpl:12",
+      "tpl:13"
+    ]
+  },
+  "provenance": {
+    "source": "ast",
+    "astInputHash": "6c324ad67ee9dd32",
+    "docInputHash": null,
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "parseStatus": "partial",
+    "warnings": [
+      {
+        "code": "empty-by-design",
+        "severity": "info",
+        "message": "uiRequirements is empty by design: it is doc content, written by the Synthesizer, not extracted."
+      },
+      {
+        "code": "parser-selected",
+        "severity": "info",
+        "message": "parsed with @angular/compiler from node_modules/@angular/compiler/fesm2022/compiler.mjs"
+      },
+      {
+        "code": "compiler-version-fallback",
+        "severity": "warning",
+        "message": "the analyzed source tree vendors no @angular/compiler, so this Resolver's own pinned copy was used. Its version may differ from the version the repo builds with."
+      },
+      {
+        "code": "unhandled-declaration",
+        "severity": "warning",
+        "message": "handler \"reset(); save()\" calls 2 component methods (reset, save) but handlerMethod records one. The rest are in the call graph via templateCallers; this field is the primary handler only.",
+        "loc": {
+          "file": "toolbar.component.html",
+          "line": 4,
+          "endLine": 4
+        }
+      }
+    ]
+  }
+}

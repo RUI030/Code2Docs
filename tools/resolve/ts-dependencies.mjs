@@ -231,13 +231,35 @@ export function extractDependencies(filePath, sourceText, signature, opts = {}) 
     if (reads[a]?.length) derivedFrom[a] = [...reads[a]];
   }
   // --- computed(() => this.x()) depends on the signals it reads
-  for (const f of signature.stateOutline.fields) {
-    if (f.roleHints?.signalKind === "computed" && f.initializerExpression) {
-      const deps = [...f.initializerExpression.matchAll(/this\.([A-Za-z_$][\w$]*)\(\)/g)]
-        .map((m) => `field:${m[1]}`)
-        .filter((id) => signalFields.has(id.slice(6)));
-      if (deps.length) signalDependencies[f.id] = [...new Set(deps)];
+  //
+  // Walked, not matched against signature's stored initializerExpression string.
+  // That regex counted `this.x()` written inside a string literal, and missed the
+  // optional call `this.x?.()`. A wrong dependency edge here misorders the
+  // Explainer, which consumes signalDependencies to decide what to explain first.
+  const initializerByField = new Map();
+  for (const m of cls.members) {
+    if (ts.isPropertyDeclaration(m) && m.initializer) {
+      initializerByField.set(m.name.getText(src), m.initializer);
     }
+  }
+  for (const f of signature.stateOutline.fields) {
+    if (f.roleHints?.signalKind !== "computed") continue;
+    const init = initializerByField.get(f.name);
+    if (!init) continue;
+    const deps = [];
+    const walk = (n) => {
+      if (ts.isCallExpression(n)) {
+        // `this.x()` and `this.x?.()` both read the signal x
+        const callee = ts.isNonNullExpression(n.expression) ? n.expression.expression : n.expression;
+        const name = thisProp(callee);
+        if (name && signalFields.has(name) && !deps.includes(`field:${name}`)) {
+          deps.push(`field:${name}`);
+        }
+      }
+      ts.forEachChild(n, walk);
+    };
+    walk(init);
+    if (deps.length) signalDependencies[f.id] = deps;
   }
 
   // httpInteractions records DIRECT HttpClient calls. A component whose requests go

@@ -117,6 +117,40 @@ function readsOf(ast, C) {
 }
 
 /**
+ * Method names a handler expression CALLS on the component.
+ *
+ * Walks the parsed expression instead of matching `/^(\w+)\s*\(/` against its
+ * source, which only saw a bare call at position 0. Everything else went
+ * unrecorded and therefore uncalled: `(click)="items.length && save()"`,
+ * `(click)="save(); close()"`, `(click)="$event.stopPropagation(); save()"`.
+ * A missed handler is a missed call-graph edge, which becomes a method wrongly
+ * reported as unreachable -- the failure F16 had already been bitten by once.
+ */
+function callsOf(ast, C) {
+  const found = [];
+  const walk = (n) => {
+    if (!n || typeof n !== "object") return;
+    if (n instanceof C.Call || n instanceof C.SafeCall) {
+      const r = n.receiver;
+      // only calls on the component itself: `save()` / `this.save()`, not `x.trim()`
+      if (r instanceof C.PropertyRead || r instanceof C.SafePropertyRead) {
+        const root = r.receiver;
+        if (root && root.constructor && /ImplicitReceiver|ThisReceiver/.test(root.constructor.name)) {
+          if (!found.includes(r.name)) found.push(r.name);
+        }
+      }
+    }
+    for (const k of Object.keys(n)) {
+      const v = n[k];
+      if (Array.isArray(v)) v.forEach(walk);
+      else if (v && typeof v === "object" && k !== "sourceSpan" && k !== "span") walk(v);
+    }
+  };
+  walk(ast instanceof C.ASTWithSource ? ast.ast : ast);
+  return found;
+}
+
+/**
  * Node classes that legitimately have no branch of their own because a parent's
  * branch already consumes them -- `@if` reads its own branches, an element reads
  * its own attributes. Matched by NAME, not identity: a class absent from an older
@@ -371,11 +405,17 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
       if (n.name === "innerHTML") emit("rawHtmlSinks", n.value ?? n, { id: null, property: "innerHTML", expression: rec.expression, sanitizerBypassed: false });
     } else if (n instanceof C.TmplAstBoundEvent) {
       const handler = n.handler?.source ?? "";
-      const m = /^([A-Za-z_$][\w$]*)\s*\(/.exec(handler);
+      const called = callsOf(n.handler, C).filter((name) => methodNames.has(name));
+      if (called.length > 1) {
+        w.warn("unhandled-declaration",
+          `handler "${handler}" calls ${called.length} component methods `
+          + `(${called.join(", ")}) but handlerMethod records one. The rest are in the call `
+          + "graph via templateCallers; this field is the primary handler only.", loc(n));
+      }
       emit("eventBindings", n, {
         id: null, target: parent?.name ?? "", event: n.name,
         handlerExpression: handler,
-        handlerMethod: m && methodNames.has(m[1]) ? `method:${m[1]}` : null,
+        handlerMethod: called.length ? `method:${called[0]}` : null,
         passesEvent: /\$event/.test(handler), loc: loc(n),
       });
     } else if (n instanceof C.TmplAstBoundText) {

@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "0.5.0",
+  "unitId": "component:fixtures/handlers-compound:ToolbarComponent",
+  "callGraph": {
+    "nodes": [
+      "method:save",
+      "method:close",
+      "method:reset"
+    ],
+    "edges": [
+      {
+        "from": "tpl:1",
+        "to": "method:save",
+        "callCount": 1,
+        "conditional": false
+      },
+      {
+        "from": "tpl:4",
+        "to": "method:save",
+        "callCount": 1,
+        "conditional": false
+      },
+      {
+        "from": "tpl:7",
+        "to": "method:close",
+        "callCount": 1,
+        "conditional": false
+      },
+      {
+        "from": "tpl:10",
+        "to": "method:reset",
+        "callCount": 1,
+        "conditional": false
+      }
+    ],
+    "calls": {},
+    "calledBy": {
+      "method:save": [
+        "tpl:1",
+        "tpl:4"
+      ],
+      "method:close": [
+        "tpl:7"
+      ],
+      "method:reset": [
+        "tpl:10"
+      ]
+    },
+    "entryPoints": [
+      "method:save",
+      "method:close",
+      "method:reset"
+    ],
+    "executionOrder": [
+      "method:save",
+      "method:close",
+      "method:reset"
+    ],
+    "depthFromEntry": {
+      "method:save": 0,
+      "method:close": 0,
+      "method:reset": 0
+    },
+    "cycles": [],
+    "unreachableMethods": [],
+    "leafMethods": [
+      "method:save",
+      "method:close",
+      "method:reset"
+    ]
+  },
+  "fieldAccess": {
+    "reads": {},
+    "writes": {},
+    "readBy": {},
+    "writtenBy": {},
+    "derivedFrom": {},
+    "signalDependencies": {}
+  },
+  "dependencyUsage": [],
+  "outboundUnitEdges": [],
+  "inboundUnitEdges": [],
+  "httpInteractions": [],
+  "routing": {
+    "isRoutedComponent": false,
+    "routePaths": [],
+    "routeParamsConsumed": [],
+    "queryParamsConsumed": [],
+    "routeDataConsumed": [],
+    "navigations": [],
+    "guards": [],
+    "resolvers": []
+  },
+  "imports": {
+    "angular": [
+      {
+        "module": "@angular/core",
+        "symbols": [
+          "Component"
+        ]
+      }
+    ],
+    "rxjs": [],
+    "thirdParty": [],
+    "internal": [],
+    "unresolved": []
+  },
+  "dataTypes": [],
+  "streams": [],
+  "provenance": {
+    "source": "ast",
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "inputHash": "6c324ad67ee9dd32",
+    "parseStatus": "ok",
+    "warnings": [
+      {
+        "code": "empty-by-design",
+        "severity": "info",
+        "message": "outboundUnitEdges and inboundUnitEdges are empty: cross-unit resolution needs the repo index (Phase 2)."
+      }
+    ]
+  }
+}

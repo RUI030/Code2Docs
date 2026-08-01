@@ -178,6 +178,44 @@
         "mayDiffer": [],
         "reason": "Single-member: 'declared but missing' has no equivalent second syntax. It earns its place as a regression test for the distinction between a missing template and an absent one."
       }
+    },
+    {
+      "id": "handlers-compound",
+      "pair": [
+        "handlers-compound"
+      ],
+      "isolates": "Event handlers that are not a bare call at position 0 -- guarded by an expression, preceded by another call, or two calls chained.",
+      "mustExtract": [
+        "five event bindings, one per button",
+        "`items.length && save()` records handlerMethod method:save -- an expression guard does not hide the call",
+        "`$event.stopPropagation(); close()` records method:close -- a preceding call on something else does not hide it",
+        "`reset(); save()` records method:reset as the primary handler and warns that a second component method is called",
+        "`items.join('save')` records handlerMethod null -- a string argument that happens to name a method is NOT a call",
+        "every recorded handlerMethod appears as a template caller in the call graph, so none of save/close/reset is reported unreachable"
+      ],
+      "equivalence": {
+        "mayDiffer": [],
+        "reason": "Single-member: these are five variants of one construct rather than two syntaxes for one semantic, so there is nothing to pair against. It earns its place because each variant was a distinct silent miss."
+      }
+    },
+    {
+      "id": "forms-control-shapes",
+      "pair": [
+        "forms-control-shapes"
+      ],
+      "isolates": "Reactive control shapes whose meaning text matching read wrongly: a computed `disabled`, an `updateOn` option, a builder-made array, and a string literal that names both.",
+      "mustExtract": [
+        "five controls: title, note, slow, tags, hint",
+        "note.disabledExpression is the EXPRESSION `this.locked`, not a boolean and not null -- a computed disabled state is still a disabled state",
+        "slow.updateOn is 'blur' -- read from the options object rather than hardcoded null",
+        "tags.type is 'array', from fb.array(...) rather than from the substring FormArray",
+        "hint is type 'control' with disabledExpression null -- the string mentioning 'disabled: true and FormArray' must contribute NOTHING",
+        "title records exactly the validators required and maxLength"
+      ],
+      "equivalence": {
+        "mayDiffer": [],
+        "reason": "Single-member: the point is that one syntax is read correctly, not that two syntaxes agree. hint is the load-bearing case -- it is the control that text matching got wrong in two fields at once."
+      }
     }
   ],
   "notCoveredYet": {
@@ -189,7 +227,8 @@
       "computed() and linkedSignal() dependency chains",
       "inherited members from a base class -- the extensionPoints case (F5a)",
       "cross-component shared mutable service state, which is the highest-severity migration risk and not observable from one unit (F3)",
-      "ICU expressions themselves -- fixtures/i18n-icu asserts the gap is REPORTED, not that it is extracted"
+      "ICU expressions themselves -- fixtures/i18n-icu asserts the gap is REPORTED, not that it is extracted",
+      "async validators, and cross-field (group-level) validators -- neither fixture exercises them"
     ]
   }
 }

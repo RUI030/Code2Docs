@@ -18,17 +18,52 @@ import { createWarnings } from "./warnings.mjs";
 
 
 
-/** What the original developer wrote. Never mixed with generated prose. */
+/**
+ * What the original developer wrote. Never mixed with generated prose.
+ *
+ * Comments come from the compiler's own trivia scanner rather than a `//` regex
+ * over the body text. The regex matched inside string literals, so
+ * `const url = "https://x/y"` contributed `/x/y` as a developer comment -- and a
+ * fabricated comment is worse than a missing one, because it reads as intent.
+ */
 function existingComments(node, sourceText) {
   const jsDocNodes = node.jsDoc ?? [];
   const jsDoc = jsDocNodes.length
     ? jsDocNodes.map((d) => d.comment ?? "").filter(Boolean).join("\n") || null
     : null;
+
   const inline = [];
-  const body = sourceText.slice(node.getStart(), node.getEnd());
-  for (const m of body.matchAll(/(^|\s)\/\/\s?(.+)$/gm)) inline.push(m[2].trim());
-  return { jsDoc, inline };
+  const seen = new Set();
+  const take = (ranges) => {
+    for (const r of ranges ?? []) {
+      if (r.kind !== ts.SyntaxKind.SingleLineCommentTrivia) continue;   // jsDoc handled above
+      if (seen.has(r.pos)) continue;
+      seen.add(r.pos);
+      inline.push(sourceText.slice(r.pos, r.end).replace(/^\/\/\s?/, "").trim());
+    }
+  };
+  const visit = (n) => {
+    take(ts.getLeadingCommentRanges(sourceText, n.getFullStart()));
+    take(ts.getTrailingCommentRanges(sourceText, n.getEnd()));
+    ts.forEachChild(n, visit);
+  };
+  visit(node);
+  return { jsDoc, inline: inline.filter(Boolean) };
 }
+
+/** The identifier a call chain starts from: `window.x.y()` -> "window". */
+function rootIdentifier(expr) {
+  let n = expr;
+  while (ts.isPropertyAccessExpression(n) || ts.isCallExpression(n) || ts.isElementAccessExpression(n)) {
+    n = n.expression;
+  }
+  return ts.isIdentifier(n) ? n.text : null;
+}
+
+const TIMER_FNS = new Set(["setTimeout", "setInterval", "requestAnimationFrame"]);
+const STORAGE_ROOTS = new Set(["localStorage", "sessionStorage"]);
+const DOM_ROOTS = new Set(["document", "window"]);
+const NAV_METHODS = new Set(["navigate", "navigateByUrl"]);
 
 function sideEffectHints(node, src, depNames) {
   const h = {
@@ -38,12 +73,22 @@ function sideEffectHints(node, src, depNames) {
   };
   const walk = (n) => {
     if (ts.isCallExpression(n)) {
-      const txt = n.expression.getText(src);
-      if (/^(document|window)\./.test(txt)) { h.touchesDom = true; if (!h.domApis.includes(txt)) h.domApis.push(txt); }
-      if (/\.subscribe$/.test(txt)) h.subscribes = true;
-      if (/^(setTimeout|setInterval|requestAnimationFrame)$/.test(txt)) h.usesTimers = true;
-      if (/(localStorage|sessionStorage)\./.test(txt)) h.usesLocalOrSessionStorage = true;
-      if (/\.(navigate|navigateByUrl)$/.test(txt)) h.navigates = true;
+      // Matched on tree shape, not on the printed text of the callee. `/^document\./`
+      // also matched `documentService.load()`, and `/\.subscribe$/` matched any
+      // member named subscribe on anything.
+      const callee = n.expression;
+      const root = rootIdentifier(callee);
+      if (DOM_ROOTS.has(root)) {
+        h.touchesDom = true;
+        const api = callee.getText(src);
+        if (!h.domApis.includes(api)) h.domApis.push(api);
+      }
+      if (STORAGE_ROOTS.has(root)) h.usesLocalOrSessionStorage = true;
+      if (ts.isIdentifier(callee) && TIMER_FNS.has(callee.text)) h.usesTimers = true;
+      if (ts.isPropertyAccessExpression(callee)) {
+        if (callee.name.text === "subscribe") h.subscribes = true;
+        if (NAV_METHODS.has(callee.name.text)) h.navigates = true;
+      }
     }
     if (ts.isThrowStatement(n)) h.throws = true;
     if (ts.isTryStatement(n)) h.hasTryCatch = true;
@@ -100,47 +145,136 @@ function subscriptionsIn(node, src, file, cleanupStrategy) {
   return out;
 }
 
-/** Reactive form groups built with FormBuilder or `new FormGroup`. */
-function extractForms(cls, src, file) {
+/**
+ * Reactive form groups, read from the AST rather than from source text.
+ *
+ * Every decision here used to be a regex over `node.getText()`: `/FormArray/`
+ * matched the substring anywhere in a control's text including inside a comment
+ * or a string, `/disabled\s*:\s*true/` missed `disabled: isLocked` entirely, and
+ * `/Validators\.(\w+)/` could not see a validator imported directly. Text matching
+ * is a fallback for when no tree is available; here one is.
+ *
+ * Where the tree cannot settle a question, the field is null and a warning is
+ * raised -- never a guess. A half-matched heuristic writes a confident wrong
+ * value, and nothing downstream can tell that from a right one.
+ */
+const FORM_CTORS = new Set(["FormGroup", "FormControl", "FormArray", "FormRecord"]);
+
+/** `Validators.required` / `Validators.compose([...])` -> the names used, from the tree. */
+function validatorsIn(node, src) {
+  const names = [];
+  const walk = (n) => {
+    if (ts.isPropertyAccessExpression(n) && ts.isIdentifier(n.expression)
+        && n.expression.text === "Validators") {
+      names.push(n.name.text);
+    }
+    ts.forEachChild(n, walk);
+  };
+  walk(node);
+  return names;
+}
+
+/** The property named `key` in an object literal, or null. */
+function propNamed(node, key, src) {
+  if (!node || !ts.isObjectLiteralExpression(node)) return null;
+  for (const p of node.properties) {
+    if (ts.isPropertyAssignment(p) && p.name.getText(src) === key) return p.initializer;
+  }
+  return null;
+}
+
+/** `fb.group(...)`, `fb.nonNullable.group(...)`, `new FormGroup(...)` -> how it was built. */
+function formConstruction(init, src) {
+  if (ts.isNewExpression(init)) {
+    const name = ts.isIdentifier(init.expression) ? init.expression.text : null;
+    if (name && FORM_CTORS.has(name)) {
+      return { builtWith: name === "FormGroup" ? "new FormGroup" : null, ctor: name, args: init.arguments };
+    }
+    return null;
+  }
+  if (ts.isCallExpression(init) && ts.isPropertyAccessExpression(init.expression)) {
+    const method = init.expression.name.text;          // group / array / control / record
+    if (method === "group" || method === "record") {
+      return { builtWith: "FormBuilder", ctor: null, args: init.arguments, builderMethod: method };
+    }
+  }
+  return null;
+}
+
+/** What kind of control an initializer expression creates, from the tree. */
+function controlKind(init, src) {
+  if (ts.isNewExpression(init) && ts.isIdentifier(init.expression)) {
+    const n = init.expression.text;
+    if (n === "FormArray") return "array";
+    if (n === "FormGroup" || n === "FormRecord") return "group";
+    if (n === "FormControl") return "control";
+  }
+  if (ts.isCallExpression(init) && ts.isPropertyAccessExpression(init.expression)) {
+    const m = init.expression.name.text;
+    if (m === "array") return "array";
+    if (m === "group" || m === "record") return "group";
+    if (m === "control") return "control";
+  }
+  // `['', Validators.required]` and a bare literal are both plain controls.
+  return "control";
+}
+
+function extractForms(cls, src, file, w) {
   const groups = [];
   let approach = "none";
   for (const m of cls.members) {
     if (!ts.isPropertyDeclaration(m) || !m.initializer) continue;
-    const init = m.initializer;
-    const txt = init.getText(src);
-    const isFb = /\.(group|nonNullable\.group)\(/.test(txt);
-    const isNew = ts.isNewExpression(init) && /FormGroup/.test(init.expression.getText(src));
-    if (!isFb && !isNew) continue;
+    const built = formConstruction(m.initializer, src);
+    if (!built) continue;
     approach = "reactive";
     const name = m.name.getText(src);
+
+    if (built.builtWith === null) {
+      w?.warn("unhandled-declaration",
+        `form '${name}' is built with new ${built.ctor}, which builtWith has no value for. `
+        + "Recorded as not-determined rather than guessed at.",
+        { file, line: loc(m, src, file).line });
+    }
+
     const controls = [];
-    const objLit = (isNew ? init.arguments?.[0] : init.arguments?.[0]);
+    const objLit = built.args?.[0];
     if (objLit && ts.isObjectLiteralExpression(objLit)) {
       for (const p of objLit.properties) {
         if (!ts.isPropertyAssignment(p)) continue;
-        const ctrlText = p.initializer.getText(src);
-        const validators = [...ctrlText.matchAll(/Validators\.(\w+)/g)].map((x) => x[1]);
         const path = p.name.getText(src);
+        const init = p.initializer;
+
+        // A control may be `x`, `[x, validators]`, or `{value, disabled}`.
+        const first = ts.isArrayLiteralExpression(init) ? (init.elements[0] ?? init) : init;
+        const disabledExpr = propNamed(first, "disabled", src);
+        const optionsObj = ts.isArrayLiteralExpression(init)
+          ? init.elements.find((e) => ts.isObjectLiteralExpression(e) && propNamed(e, "updateOn", src))
+          : null;
+        const updateOnNode = optionsObj ? propNamed(optionsObj, "updateOn", src) : null;
+
         controls.push({
           // Citable in its own right: a claim about the identifier field should not
           // have to cite the whole group and lose which control it meant.
           id: `control:${name}.${path}`,
           path,
-          type: /FormArray/.test(ctrlText) ? "array" : /FormGroup/.test(ctrlText) ? "group" : "control",
+          type: controlKind(ts.isArrayLiteralExpression(init) ? first : init, src),
           valueType: "unknown",
-          initialValueExpression: ctrlText,
-          syncValidators: validators,
+          initialValueExpression: init.getText(src),
+          syncValidators: validatorsIn(init, src),
           asyncValidators: [],
           // A disabled control does not participate in validation, so a required
-          // rule alongside `disabled: true` is inert -- recorded, not collapsed.
-          disabledExpression: /disabled\s*:\s*true/.test(ctrlText) ? "true" : null,
-          updateOn: null,
+          // rule alongside it is inert -- recorded, not collapsed. The EXPRESSION is
+          // kept, not a boolean: `disabled: isLocked` is a real case the old
+          // /disabled:\s*true/ match silently reported as not-disabled.
+          disabledExpression: disabledExpr ? disabledExpr.getText(src) : null,
+          updateOn: updateOnNode && ts.isStringLiteralLike(updateOnNode)
+            ? updateOnNode.text : null,
         });
       }
     }
     groups.push({
       id: `form:${name}`, name,
-      builtWith: isFb ? "FormBuilder" : "new FormGroup",
+      builtWith: built.builtWith,
       controls, crossFieldValidators: [], patchedBy: [], loc: loc(m, src, file),
     });
   }
@@ -247,7 +381,7 @@ export function extractFunctions(filePath, sourceText, signature, dependencies, 
   // TypeScript distinguishes a plain string field from one bound by ngModel.
   // The forms fixture pair asserts this, and without it the template-driven
   // member reported 'none' -- indistinguishable from a component with no form.
-  const forms = extractForms(cls, src, file);
+  const forms = extractForms(cls, src, file, w);
   const ngModelBindings = (opts.templateTwoWay ?? []).filter((b) => b.property === "ngModel");
   if (ngModelBindings.length) {
     forms.ngModelBindings = ngModelBindings.map((b) => b.id);

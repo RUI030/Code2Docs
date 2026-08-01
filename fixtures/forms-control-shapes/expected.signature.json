@@ -1,0 +1,145 @@
+{
+  "schemaVersion": "0.4.0",
+  "unit": {
+    "id": "component:fixtures/forms-control-shapes:ProfileComponent",
+    "kind": "component",
+    "className": "ProfileComponent",
+    "selector": "x-profile",
+    "path": "fixtures/forms-control-shapes",
+    "standalone": true,
+    "declaredInModule": null,
+    "isDefaultExport": false,
+    "files": {
+      "typescript": "profile.component.ts",
+      "template": "profile.component.ts",
+      "templateInline": true,
+      "styles": [],
+      "specs": []
+    }
+  },
+  "manifest": {
+    "dependencies": "./dependencies.json",
+    "functions": "./functions.json",
+    "template": null,
+    "analysis": null,
+    "requirement": null,
+    "migrationNotes": null,
+    "repoIndex": null
+  },
+  "publicApi": {
+    "inputs": [],
+    "outputs": [],
+    "twoWayBindings": [],
+    "publicMethods": [],
+    "templateReachableMembers": []
+  },
+  "injectedDependencies": [
+    {
+      "id": "dep:fb",
+      "propertyName": "fb",
+      "token": "FormBuilder",
+      "resolvedUnitId": null,
+      "origin": "angular",
+      "visibility": "private",
+      "injectionStyle": "inject-fn",
+      "modifiers": {
+        "optional": false,
+        "self": false,
+        "skipSelf": false,
+        "host": false
+      },
+      "loc": {
+        "file": "profile.component.ts",
+        "line": 16,
+        "endLine": 16
+      }
+    }
+  ],
+  "lifecycle": {
+    "implementedHooks": [],
+    "declaredInterfaces": [],
+    "constructorDoesWork": false,
+    "fieldInitializerDoesWork": true,
+    "cleanupStrategy": "none"
+  },
+  "stateOutline": {
+    "fields": [
+      {
+        "id": "field:locked",
+        "name": "locked",
+        "type": "boolean",
+        "visibility": "public",
+        "readonly": false,
+        "initializerExpression": "true",
+        "roleHints": {
+          "isSignal": false,
+          "signalKind": null,
+          "isRxjs": false,
+          "rxjsKind": null,
+          "isFormEntity": false,
+          "formKind": null,
+          "isConstant": false
+        },
+        "loc": {
+          "file": "profile.component.ts",
+          "line": 17,
+          "endLine": 17
+        }
+      },
+      {
+        "id": "field:form",
+        "name": "form",
+        "type": "unknown",
+        "visibility": "public",
+        "readonly": false,
+        "initializerExpression": "this.fb.group({\n    title: ['', [Validators.required, Validators.maxLength(10)]],\n    note: [{ value: '', disabled: this.locked }],\n    slow: ['', { updateOn: 'blur' }],\n    tags: this.fb.array([]),\n    hint: ['mentions disabled: true and FormArray inside a string'],\n  })",
+        "roleHints": {
+          "isSignal": false,
+          "signalKind": null,
+          "isRxjs": false,
+          "rxjsKind": null,
+          "isFormEntity": true,
+          "formKind": "FormArray",
+          "isConstant": false
+        },
+        "loc": {
+          "file": "profile.component.ts",
+          "line": 19,
+          "endLine": 25
+        }
+      }
+    ],
+    "methodIds": [],
+    "accessorIds": [],
+    "formIds": [
+      "form:form"
+    ],
+    "streamIds": []
+  },
+  "decorator": {
+    "changeDetection": null,
+    "encapsulation": null,
+    "providers": [],
+    "imports": [],
+    "hostDirectives": [],
+    "animations": []
+  },
+  "metrics": {
+    "tsLineCount": 26,
+    "templateLineCount": 0,
+    "methodCount": 0,
+    "publicApiSurface": 0,
+    "injectedDependencyCount": 1,
+    "maxCyclomaticComplexity": 0,
+    "maxTemplateNestingDepth": null
+  },
+  "provenance": {
+    "source": "ast",
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "sourceRevision": null,
+    "inputHash": "0eb91811868290a4",
+    "parseStatus": "ok",
+    "warnings": []
+  }
+}

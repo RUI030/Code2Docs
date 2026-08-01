@@ -807,3 +807,63 @@ either way is what stops "empty on both" from passing as agreement.
 Two components from one JHipster-generated repository. Generated code is markedly more regular
 than hand-written code, and `fixtures.json` says so as its reason for existing. The rate is a
 data point, not a measurement of the corpus.
+
+---
+
+## F17. Text matching replaced by AST queries, and what it had been getting wrong
+
+Standing rule: text search is a legitimate *fallback*, but where a parse tree exists it should be
+used. Five sites in the extractors matched regexes against `node.getText()` or against a string
+already stored in another tier. Each was measured before replacing, because "AST is cleaner" is
+not a reason — being *wrong* is.
+
+**Reactive form controls** (`ts-functions`). Four regexes decided a control's kind, validators and
+disabled state. Against a five-control fixture they produced **five wrong facts**:
+
+| control | old answer | truth |
+|---|---|---|
+| `note: [{value:'', disabled: this.locked}]` | not disabled | disabled by expression |
+| `slow: ['', {updateOn:'blur'}]` | `updateOn: null` | `'blur'` — the field was hardcoded null |
+| `tags: this.fb.array([])` | `type: control` | `array` — `/FormArray/` cannot see `fb.array` |
+| `hint: ['…disabled: true and FormArray…']` | `type: array`, disabled | plain control — **from a string literal** |
+
+`hint` is the case worth keeping: one string produced two confidently wrong facts, and nothing
+downstream could have distinguished them from right ones. `updateOn` is now read rather than
+always null, and `disabledExpression` records the *expression*, since `disabled: isLocked` is a
+real disabled state that `/disabled:\s*true/` reported as absent.
+
+**Template event handlers** (`ng-template`). `/^(\w+)\s*\(/` only ever saw a bare call at
+position 0. `items.length && save()` and `$event.stopPropagation(); close()` both recorded **no
+handler at all** — and a missed handler is a missed call-graph edge, which surfaces as a method
+wrongly reported unreachable. That is the failure F16 had already been bitten by once. Both are
+now found; `items.join('save')` correctly still records nothing, because a string argument that
+happens to name a method is not a call. A handler calling two component methods now warns rather
+than silently keeping the first.
+
+**Computed-signal dependencies** (`ts-dependencies`). This one matched against
+`signature.initializerExpression` — a string stored in *another tier* — so
+`` computed(() => `sum is ${this.a()}` + 'this.b()') `` reported a dependency on `b` that does not
+exist. A fabricated edge here misorders the Explainer, which consumes `signalDependencies` to
+decide what to explain first.
+
+**Side-effect hints** (`ts-functions`). Walked the tree, then regexed each callee's printed text:
+`/^document\./` also matched `documentService.load()`, and `/\.subscribe$/` matched any member
+named `subscribe` on anything. Now matched on tree shape.
+
+**Developer comments** (`ts-functions`). Scanned the body text for `//`, so
+`const url = "https://x/y"` contributed `/x/y` as a developer comment. Now taken from the
+compiler's trivia scanner. A fabricated comment is worse than a missing one, because it reads as
+intent.
+
+### Fixtures
+
+`handlers-compound` and `forms-control-shapes` lock these in, each asserting the specific shapes
+that were misread — including the two "must contribute nothing" cases, which are the ones a future
+regression would otherwise pass silently.
+
+### Where text matching remains, correctly
+
+`ng-scan` is entirely regex, by design: it is the independent second count, and a cross-check
+sharing the mechanism it checks would be worth nothing (F15). Two `getText()` calls in
+`ts-signature` also stay — they *record* a node's text rather than matching a pattern against it,
+which is what the rule is about.
