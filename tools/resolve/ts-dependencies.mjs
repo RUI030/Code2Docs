@@ -89,7 +89,17 @@ export function extractDependencies(filePath, sourceText, signature, opts = {}) 
   const methodNames = new Set(signature.stateOutline.methodIds.map((m) => m.slice(7)));
   const accessorNames = new Set(signature.stateOutline.accessorIds.map((a) => a.slice(9)));
 
-  const nodes = [...signature.stateOutline.methodIds, ...signature.stateOutline.accessorIds];
+  // Arrow-function properties are callable members and real call sites -- callSites()
+  // already walks their bodies -- but they were left out of `nodes`, so they could
+  // never appear in executionOrder and could never be reported unreachable. Found by
+  // diffing against the Phase A hand-filled baseline, which had them and we did not
+  // (F16). signature already flags them, because F5a added the field on the grounds
+  // that `this` is bound at construction and porting one to a method changes that.
+  const arrowFieldNodes = (signature.stateOutline.fields ?? [])
+    .filter((f) => f.isArrowFunctionProperty)
+    .map((f) => `field:${f.name}`);
+  const nodes = [...signature.stateOutline.methodIds, ...signature.stateOutline.accessorIds,
+                 ...arrowFieldNodes];
 
   const edges = [];
   const calls = {}, calledBy = {};
@@ -230,6 +240,18 @@ export function extractDependencies(filePath, sourceText, signature, opts = {}) 
     }
   }
 
+  // httpInteractions records DIRECT HttpClient calls. A component whose requests go
+  // through an injected service records nothing, which reads as "makes no requests"
+  // rather than "cannot tell from this file alone" -- the exact silent-omission
+  // shape this project exists to prevent. Resolving it needs the repo index.
+  if (httpInteractions.length === 0 && signature.injectedDependencies.length > 0) {
+    w.warn("lower-bound-only",
+      "httpInteractions is empty, but this unit injects "
+      + `${signature.injectedDependencies.length} dependenc(ies). Only DIRECT HttpClient calls are `
+      + "detected here; requests made through an injected service are invisible until the "
+      + "cross-unit graph exists (Phase 2). Empty does NOT mean this unit makes no requests.");
+  }
+
   // --- graph shape
   // An entry point is something OUTSIDE the class calls: a lifecycle hook, or a
   // template binding / host listener. "Has no in-file caller" is not the same
@@ -237,7 +259,14 @@ export function extractDependencies(filePath, sourceText, signature, opts = {}) 
   // point, which is precisely the reachability claim Phase 1 exists to verify (F4).
   const lifecycle = new Set(signature.lifecycle.implementedHooks.map((h) => `method:${h}`));
   const templateHandlers = new Set(opts.templateHandlers ?? []);
-  const entryPoints = nodes.filter((n) => lifecycle.has(n) || templateHandlers.has(n));
+  // A template REFERENCE reaches a member too, not just a template CALL.
+  // `[compareWith]="compareBlog"` hands the function to a child component, which
+  // calls it -- so the member is entered from outside the class even though no
+  // event binding names it. Counting only (event)="handler()" reported two
+  // template-bound comparators as dead code (F16).
+  const templateReferenced = new Set((opts.templateReaders ?? []).map((r) => r.field));
+  const entryPoints = nodes.filter(
+    (n) => lifecycle.has(n) || templateHandlers.has(n) || templateReferenced.has(n));
   const leafMethods = nodes.filter((n) => !(calls[n]?.length));
   const reachable = new Set();
   const depthFromEntry = {};

@@ -8,15 +8,17 @@
     "edges": [],
     "calls": {},
     "calledBy": {},
-    "entryPoints": [],
+    "entryPoints": [
+      "method:trackById"
+    ],
     "executionOrder": [
       "method:trackById"
     ],
-    "depthFromEntry": {},
+    "depthFromEntry": {
+      "method:trackById": 0
+    },
     "cycles": [],
-    "unreachableMethods": [
-      "method:trackById"
-    ],
+    "unreachableMethods": [],
     "leafMethods": [
       "method:trackById"
     ]

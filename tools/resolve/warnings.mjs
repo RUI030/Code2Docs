@@ -68,6 +68,9 @@ export const WARNING_CODES = Object.freeze({
   "recall-gap": { severity: "warning",
     why: "Text-search counted more occurrences of a construct than the compiler pass recorded (D3a). The extractor returned seven of nine and would otherwise have reported success." },
 
+  "lower-bound-only": { severity: "warning",
+    why: "A derived set UNDER-reports because the fact needs cross-unit resolution. httpInteractions is the case it was added for: it records DIRECT HttpClient calls, so a component whose HTTP goes through an injected service records an empty array -- indistinguishable from a component that makes no requests. Found by diffing against the Phase A baseline (F16)." },
+
   "upper-bound-only": { severity: "warning",
     why: "A derived set is an upper bound because one of its inputs was unavailable -- unreachableMethods without a parsed template, and in Phase 2 consumedBy without the repo index. The set is populated and wrong-in-a-known-direction, which reads as authoritative unless said." },
 

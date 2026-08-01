@@ -62,16 +62,18 @@
         "the else branch in both -- an ng-template reference in one, an @else block in the other",
         "the block member additionally declares an @empty branch, which has no structural-directive equivalent",
         "the uppercase pipe recorded once per member",
-        "construct is the only field that may differ"
+        "construct is the only field that may differ",
+        "the structural member reaches method:trackById from the template (trackBy binding) and reports it NOT unreachable; the block member reports it unreachable, because `track item.id` calls nothing"
       ],
       "equivalence": {
         "mayDiffer": [
           "controlFlowBranches",
           "loopTracking",
           "elementTags",
-          "publicMethods"
+          "publicMethods",
+          "unreachable"
         ],
-        "reason": "@else is a branch record while the structural form expresses it as a separate ng-template, and @empty has no structural equivalent -- so branch counts differ. trackBy: fn versus track item.id differ in kind. Structural directives need a host element, so ng-container appears where a block needs none. The primary constructs -- one conditional, one loop, one switch -- must match exactly."
+        "reason": "@else is a branch record while the structural form expresses it as a separate ng-template, and @empty has no structural equivalent -- so branch counts differ. trackBy: fn versus track item.id differ in kind. Structural directives need a host element, so ng-container appears where a block needs none. The primary constructs -- one conditional, one loop, one switch -- must match exactly. `unreachable` differs as a CONSEQUENCE of that trackBy difference, not independently: the structural member binds trackBy: trackById so the template reaches the method, while the block member's `track item.id` reaches nothing, leaving trackById genuinely uncalled there. Expect exactly one entry either way -- empty on both members would mean reachability stopped being computed, not that the two agree."
       }
     },
     {

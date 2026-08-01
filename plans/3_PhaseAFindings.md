@@ -740,3 +740,70 @@ failures: a gap a fixture exists to record is expected output, not a regression.
 Only constructs where a raw count is meaningful. `@if` blocks count; "bindings" do not, because one
 element carries several and no substring marks the boundary. A metric nobody can interpret produces
 warnings nobody acts on, so those were left out rather than guessed at.
+
+---
+
+## F16. The Phase 1 omission rate, and the two defects measuring it exposed
+
+Phase 1's exit criterion: *"diff the extractor's output against Phase A's hand-filled baselines
+and record the omission rate — this is the number that justifies the extractor's existence."*
+Numbers in `benchmarks/phase1-omission.json`.
+
+| | activate | post/update | total |
+|---|---|---|---|
+| facts the extractor emits | 7 | 53 | 60 |
+| the hand-fill missed | 0 | 2 | **2 (3.3%)** |
+| the extractor missed | 1 | 3 | **4 (6.7%)** |
+
+**The result inverts the assumption the criterion was written on.** It expected to quantify LLM
+recall against a reliable extractor. Instead the hand-filled baseline scored **zero omissions** on
+every declarative category in both components — inputs, outputs, injected dependencies, fields,
+methods, lifecycle hooks — and the *extractor* was the side with gaps. That is consistent with the
+plan's own Phase A discipline note: declarative facts are localized and syntactically obvious, so
+an agent gets them substantially right. This measures it rather than assuming it.
+
+What the extractor uniquely supplies is **derived and cross-cutting**: two call-graph edges
+(`tpl:7 -> method:save`, `tpl:153 -> method:previousState`) linking a template binding to the
+method it invokes. Nobody enumerated those by hand, and they are what makes reachability verified
+rather than searched (F4, F9).
+
+### The two defects it found — the actual yield
+
+**Arrow-function properties were missing from `callGraph.nodes`.** `compareBlog` and `compareTag`
+are callable members flagged `isArrowFunctionProperty: true` by our own signature extractor — a
+field F5a added precisely because `this` is bound at construction and porting one to a method
+changes that. But `nodes` was built from `methodIds + accessorIds`, so they could never appear in
+`executionOrder` and could never be reported unreachable. **The hand-filled baseline had them and
+the extractor did not.**
+
+**Fixing that produced a false positive, which the same baseline caught.** With the two now in
+`nodes`, both were reported *unreachable* — against F4's verified answer of exactly three dead
+methods. Cause: `entryPoints` counted only template *event handlers*, and
+`[compareWith]="compareBlog"` is a property binding that hands the function to a child component
+to call. A template REFERENCE reaches a member just as a template CALL does. Now fixed, and
+`unreachableMethods` matches F4 exactly.
+
+That second bug is the more useful of the two, because nothing else would have found it: a
+reachability claim that is wrong in the *unreachable* direction reads as a confident finding about
+dead code, and the whole point of F4 was that such a claim is this document's most consequential.
+
+**`httpInteractions` under-reports, and now says so.** It detects direct `HttpClient` calls; these
+components route HTTP through injected services, so it emitted `[]` — indistinguishable from "makes
+no requests." Resolving it needs the cross-unit graph, so per the standing rule it earns a flag
+rather than a patch: a new `lower-bound-only` warning fires when the array is empty on a unit that
+injects dependencies. All four remaining "extractor missed" entries are this one cause.
+
+### A fixture pair caught the fix's blast radius
+
+Making template references count as entry points flipped `control-flow-structural`: its
+`trackBy: trackById` now reaches the method. The pair went red because the block member's
+`track item.id` reaches nothing, leaving `trackById` genuinely dead there. That difference is real
+and inherent to Angular's two syntaxes, so it is declared — with the reason stating it is a
+*consequence* of the already-declared trackBy difference, and that expecting exactly one entry
+either way is what stops "empty on both" from passing as agreement.
+
+### What this does not establish
+
+Two components from one JHipster-generated repository. Generated code is markedly more regular
+than hand-written code, and `fixtures.json` says so as its reason for existing. The rate is a
+data point, not a measurement of the corpus.

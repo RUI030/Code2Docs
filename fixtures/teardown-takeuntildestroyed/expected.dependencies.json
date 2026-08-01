@@ -120,6 +120,11 @@
         "code": "upper-bound-only",
         "severity": "warning",
         "message": "unreachableMethods OVER-REPORTS: no template was parsed, so methods called only from a template binding or host listener look uncalled. Treat it as an upper bound until template.json exists."
+      },
+      {
+        "code": "lower-bound-only",
+        "severity": "warning",
+        "message": "httpInteractions is empty, but this unit injects 1 dependenc(ies). Only DIRECT HttpClient calls are detected here; requests made through an injected service are invisible until the cross-unit graph exists (Phase 2). Empty does NOT mean this unit makes no requests."
       }
     ]
   }

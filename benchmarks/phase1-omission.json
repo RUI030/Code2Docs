@@ -1,0 +1,49 @@
+{
+  "$comment": "Phase 1 exit criterion: diff extractor output against Phase A's hand-filled baselines and record the omission rate. Measured after the extractor fixes this comparison itself produced -- see F16 for why the raw first numbers are also recorded.",
+  "measuredAt": "2026-07-31",
+  "resolverRevision": "79de01d",
+  "method": "Set comparison per category, both directions, over the two components Phase A analysed. Only categories BOTH sides enumerate are counted: a field the baseline never had is not an omission of a fact.",
+  "units": {
+    "app/account/activate": {
+      "extractorFacts": 7,
+      "llmMissed": 0,
+      "extractorMissed": 1,
+      "extractorMissedDetail": [
+        "httpInteractions: GET via injected service (needs Phase 2)"
+      ]
+    },
+    "app/entities/post/update": {
+      "extractorFacts": 53,
+      "llmMissed": 2,
+      "extractorMissed": 3,
+      "llmMissedDetail": [
+        "callGraph edge tpl:7->method:save",
+        "callGraph edge tpl:153->method:previousState"
+      ],
+      "extractorMissedDetail": [
+        "httpInteractions: PUT/POST via postService, GET via blog/tagService (needs Phase 2)"
+      ]
+    }
+  },
+  "totals": {
+    "extractorFacts": 60,
+    "llmMissed": 2,
+    "extractorMissed": 4,
+    "llmOmissionRate": "2/60 = 3.3%",
+    "extractorOmissionRate": "4/60 = 6.7%"
+  },
+  "beforeTheFixesThisComparisonFound": {
+    "$comment": "The first run, kept because the exit criterion's value was finding these, not the ratio.",
+    "extractorMissed": 6,
+    "detail": [
+      "callGraph.nodes omitted arrow-function properties (field:compareBlog, field:compareTag) -- FIXED",
+      "httpInteractions empty with no explanation -- now raises lower-bound-only"
+    ]
+  },
+  "interpretation": "The hand-filled baseline was NOT the weaker side on declarative facts: 0 omissions across inputs, outputs, injected dependencies, fields, methods and lifecycle hooks in both components. What the extractor uniquely supplies is DERIVED and cross-cutting -- template-to-method call edges no reader enumerated by hand. What it still misses is cross-unit, which Phase 2 owns. The comparison's real yield was two extractor defects, one of which the LLM had gotten right.",
+  "caveats": [
+    "Two components, one repository, JHipster-generated -- generated code is more regular than hand-written code.",
+    "The baseline predates D12/D12a/D13 and is at schemaVersion 0.2.0; only categories present on both sides were compared.",
+    "'LLM missed' counts facts the extractor found and the hand-fill did not. It is not a measure of requirement.md quality, which F1 scored separately."
+  ]
+}

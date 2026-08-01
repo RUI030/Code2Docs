@@ -176,6 +176,7 @@
             "unknown-block",
             "unhandled-declaration",
             "recall-gap",
+            "lower-bound-only",
             "upper-bound-only",
             "empty-by-design",
             "parser-selected"
