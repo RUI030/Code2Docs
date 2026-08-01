@@ -1,0 +1,125 @@
+{
+  "schemaVersion": "0.4.0",
+  "unit": {
+    "id": "component:fixtures/streams-async-pipe:FeedComponent",
+    "kind": "component",
+    "className": "FeedComponent",
+    "selector": "x-feed",
+    "path": "fixtures/streams-async-pipe",
+    "standalone": true,
+    "declaredInModule": null,
+    "isDefaultExport": false,
+    "files": {
+      "typescript": "feed.component.ts",
+      "template": "feed.component.ts",
+      "templateInline": true,
+      "styles": [],
+      "specs": []
+    }
+  },
+  "manifest": {
+    "dependencies": "./dependencies.json",
+    "functions": "./functions.json",
+    "template": "./template.json",
+    "analysis": null,
+    "requirement": null,
+    "migrationNotes": null,
+    "repoIndex": null
+  },
+  "publicApi": {
+    "inputs": [],
+    "outputs": [],
+    "twoWayBindings": [],
+    "publicMethods": [],
+    "templateReachableMembers": [
+      "field:items$"
+    ]
+  },
+  "injectedDependencies": [
+    {
+      "id": "dep:feed",
+      "propertyName": "feed",
+      "token": "FeedService",
+      "resolvedUnitId": null,
+      "origin": "internal",
+      "visibility": "private",
+      "injectionStyle": "inject-fn",
+      "modifiers": {
+        "optional": false,
+        "self": false,
+        "skipSelf": false,
+        "host": false
+      },
+      "loc": {
+        "file": "feed.component.ts",
+        "line": 25,
+        "endLine": 25
+      }
+    }
+  ],
+  "lifecycle": {
+    "implementedHooks": [],
+    "declaredInterfaces": [],
+    "constructorDoesWork": false,
+    "fieldInitializerDoesWork": true,
+    "cleanupStrategy": "async-pipe-only"
+  },
+  "stateOutline": {
+    "fields": [
+      {
+        "id": "field:items$",
+        "name": "items$",
+        "type": "Observable<string[]>",
+        "visibility": "public",
+        "readonly": true,
+        "initializerExpression": "this.feed.items()",
+        "roleHints": {
+          "isSignal": false,
+          "signalKind": null,
+          "isRxjs": true,
+          "rxjsKind": "Observable",
+          "isFormEntity": false,
+          "formKind": null,
+          "isConstant": true
+        },
+        "loc": {
+          "file": "feed.component.ts",
+          "line": 26,
+          "endLine": 26
+        }
+      }
+    ],
+    "methodIds": [],
+    "accessorIds": [],
+    "formIds": [],
+    "streamIds": [
+      "stream:items$"
+    ]
+  },
+  "decorator": {
+    "changeDetection": null,
+    "encapsulation": null,
+    "providers": [],
+    "imports": [],
+    "hostDirectives": [],
+    "animations": []
+  },
+  "metrics": {
+    "tsLineCount": 27,
+    "templateLineCount": 5,
+    "methodCount": 0,
+    "publicApiSurface": 0,
+    "injectedDependencyCount": 1,
+    "maxCyclomaticComplexity": 0,
+    "maxTemplateNestingDepth": 1
+  },
+  "provenance": {
+    "source": "ast",
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "sourceRevision": null,
+    "inputHash": "fafa004cb9012286",
+    "parseStatus": "ok",
+    "warnings": []
+  }
+}

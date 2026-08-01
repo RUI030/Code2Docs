@@ -234,6 +234,30 @@
         "mayDiffer": [],
         "reason": "Single-member: outputFromObservable has no equivalent in the decorator or output() styles -- an output fed by a stream is a different mechanism, not different syntax for the same one. That is why it needed its own declarationStyle rather than being folded into an existing value."
       }
+    },
+    {
+      "id": "raw-html-sink",
+      "pair": [
+        "raw-html-sink"
+      ],
+      "isolates": "An [innerHTML] binding -- the one template construct that turns data into markup, so it cannot be translated mechanically by a rebuilder.",
+      "mustExtract": [
+        "ast.rawHtmlSinks records the innerHTML binding with a resolvable tpl: id -- F20 shipped these with no id at all, because the emit was keyed on the parsed expression rather than on the binding node",
+        "the sink shares its id with the propertyBindings record for the same binding: an id names the NODE, not the record (D13a)",
+        "[innerText] is NOT recorded as a raw HTML sink -- it assigns text, not markup"
+      ]
+    },
+    {
+      "id": "streams-async-pipe",
+      "pair": [
+        "streams-async-pipe"
+      ],
+      "isolates": "A stream consumed only through the async pipe: Angular ends the subscription, with no ngOnDestroy, takeUntilDestroyed or manual unsubscribe anywhere in the unit.",
+      "mustExtract": [
+        "signature lifecycle.cleanupStrategy is 'async-pipe-only' -- a UNIT-level value",
+        "dependencies streams[].unsubscribeStrategy is 'async-pipe' -- the PER-STREAM vocabulary, which is a different closed set that does not contain 'async-pipe-only'",
+        "the two vocabularies are never assigned across: F20 found the unit-level value written straight into the per-stream field, invalid against the schema and invisible to 59 fixtures because the enums overlap on three values"
+      ]
     }
   ],
   "notCoveredYet": {

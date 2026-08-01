@@ -1,0 +1,129 @@
+{
+  "schemaVersion": "0.4.0",
+  "unitId": "component:fixtures/streams-async-pipe:FeedComponent",
+  "templateFile": "feed.component.ts",
+  "parse": {
+    "status": "ok",
+    "parser": "@angular/compiler",
+    "angularVersion": null,
+    "diagnostics": [],
+    "nodesParsed": 3,
+    "nodesUnrecognized": 0
+  },
+  "ast": {
+    "elements": [
+      {
+        "id": "tpl:1",
+        "tag": "li",
+        "attributes": [],
+        "depth": 1,
+        "loc": {
+          "file": "feed.component.ts",
+          "line": 20,
+          "endLine": 20
+        }
+      }
+    ],
+    "controlFlow": [
+      {
+        "id": "tpl:0",
+        "construct": "@for",
+        "expression": "items$ | async",
+        "itemAlias": "item",
+        "trackBy": "item",
+        "aliases": [
+          "$index",
+          "$first",
+          "$last",
+          "$even",
+          "$odd",
+          "$count"
+        ],
+        "dependsOn": [
+          "field:items$"
+        ],
+        "parent": null,
+        "depth": 0,
+        "loc": {
+          "file": "feed.component.ts",
+          "line": 19,
+          "endLine": 21
+        }
+      }
+    ],
+    "propertyBindings": [],
+    "eventBindings": [],
+    "twoWayBindings": [],
+    "interpolations": [
+      {
+        "id": "tpl:2",
+        "expression": "{{ item }}",
+        "pipes": [],
+        "dependsOn": [],
+        "loc": {
+          "file": "feed.component.ts",
+          "line": 20,
+          "endLine": 20
+        }
+      }
+    ],
+    "childComponents": [],
+    "templateRefs": [],
+    "ngTemplates": [],
+    "contentProjection": [],
+    "hostBindings": [],
+    "hostListeners": [],
+    "accessibility": [],
+    "i18n": [],
+    "staticText": [],
+    "rawHtmlSinks": [],
+    "directivesUsed": [],
+    "pipesUsed": [],
+    "viewQueries": [],
+    "styles": {
+      "files": [],
+      "encapsulation": null,
+      "usesEncapsulationEscapes": false,
+      "escapeSelectors": [],
+      "usesHostSelectors": false,
+      "importsGlobalStyles": [],
+      "classesToggledFromTs": []
+    }
+  },
+  "uiRequirements": [],
+  "coverage": {
+    "$comment": "nodesTotal counts nodes this tier RECORDS. parse.nodesParsed counts everything the compiler produced -- ids are numbered over that larger set (D13a), so recorded ids are sparse. uncoveredNodeIds lists recorded nodes no uiRequirement cites, never unrecorded ones: citing those was the original dangling bug.",
+    "nodesTotal": 3,
+    "nodesCoveredByRequirements": 0,
+    "uncoveredNodeIds": [
+      "tpl:0",
+      "tpl:1",
+      "tpl:2"
+    ]
+  },
+  "provenance": {
+    "source": "ast",
+    "astInputHash": "fafa004cb9012286",
+    "docInputHash": null,
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "parseStatus": "ok",
+    "warnings": [
+      {
+        "code": "empty-by-design",
+        "severity": "info",
+        "message": "uiRequirements is empty by design: it is doc content, written by the Synthesizer, not extracted."
+      },
+      {
+        "code": "parser-selected",
+        "severity": "info",
+        "message": "parsed with @angular/compiler from node_modules/@angular/compiler/fesm2022/compiler.mjs"
+      },
+      {
+        "code": "parser-selected",
+        "severity": "info",
+        "message": "fallback parser used, but versions agree: the analyzed tree expects Angular ^17.3.9 and this Resolver pins ^17.3.9."
+      }
+    ]
+  }
+}

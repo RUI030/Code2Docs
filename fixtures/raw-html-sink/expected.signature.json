@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "0.4.0",
+  "unit": {
+    "id": "component:fixtures/raw-html-sink:BannerComponent",
+    "kind": "component",
+    "className": "BannerComponent",
+    "selector": "x-banner",
+    "path": "fixtures/raw-html-sink",
+    "standalone": true,
+    "declaredInModule": null,
+    "isDefaultExport": false,
+    "files": {
+      "typescript": "banner.component.ts",
+      "template": "banner.component.ts",
+      "templateInline": true,
+      "styles": [],
+      "specs": []
+    }
+  },
+  "manifest": {
+    "dependencies": "./dependencies.json",
+    "functions": "./functions.json",
+    "template": "./template.json",
+    "analysis": null,
+    "requirement": null,
+    "migrationNotes": null,
+    "repoIndex": null
+  },
+  "publicApi": {
+    "inputs": [
+      {
+        "id": "input:message",
+        "name": "message",
+        "alias": null,
+        "type": "string",
+        "required": false,
+        "defaultExpression": "''",
+        "declarationStyle": "decorator",
+        "transform": null,
+        "loc": {
+          "file": "banner.component.ts",
+          "line": 20,
+          "endLine": 20
+        }
+      },
+      {
+        "id": "input:plain",
+        "name": "plain",
+        "alias": null,
+        "type": "string",
+        "required": false,
+        "defaultExpression": "''",
+        "declarationStyle": "decorator",
+        "transform": null,
+        "loc": {
+          "file": "banner.component.ts",
+          "line": 21,
+          "endLine": 21
+        }
+      }
+    ],
+    "outputs": [],
+    "twoWayBindings": [],
+    "publicMethods": [],
+    "templateReachableMembers": []
+  },
+  "injectedDependencies": [],
+  "lifecycle": {
+    "implementedHooks": [],
+    "declaredInterfaces": [],
+    "constructorDoesWork": false,
+    "fieldInitializerDoesWork": false,
+    "cleanupStrategy": "none"
+  },
+  "stateOutline": {
+    "fields": [],
+    "methodIds": [],
+    "accessorIds": [],
+    "formIds": [],
+    "streamIds": []
+  },
+  "decorator": {
+    "changeDetection": null,
+    "encapsulation": null,
+    "providers": [],
+    "imports": [],
+    "hostDirectives": [],
+    "animations": []
+  },
+  "metrics": {
+    "tsLineCount": 22,
+    "templateLineCount": 4,
+    "methodCount": 0,
+    "publicApiSurface": 2,
+    "injectedDependencyCount": 0,
+    "maxCyclomaticComplexity": 0,
+    "maxTemplateNestingDepth": 0
+  },
+  "provenance": {
+    "source": "ast",
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "sourceRevision": null,
+    "inputHash": "825e4a51b845a0c2",
+    "parseStatus": "ok",
+    "warnings": []
+  }
+}

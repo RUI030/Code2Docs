@@ -239,15 +239,8 @@
                       ]
                     },
                     "unsubscribeStrategy": {
-                      "type": "string",
-                      "enum": [
-                        "takeUntilDestroyed",
-                        "Subscription.unsubscribe",
-                        "take/first",
-                        "DestroyRef",
-                        "none"
-                      ]
-                    },
+            "$ref": "common.schema.json#/$defs/unsubscribeStrategy"
+          },
                     "loc": {
                       "$ref": "common.schema.json#/$defs/loc"
                     }

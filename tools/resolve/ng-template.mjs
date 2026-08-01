@@ -426,7 +426,18 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
       };
       if (n.name === "ngModel") emit("twoWayBindings", n, { ...rec, boundField: rec.dependsOn[0] ?? null });
       else emit("propertyBindings", n, rec);
-      if (n.name === "innerHTML") emit("rawHtmlSinks", n.value ?? n, { id: null, property: "innerHTML", expression: rec.expression, sanitizerBypassed: false });
+      // Emitted against the BINDING node, not against `n.value`: the value is a
+      // parsed expression, not a template node, so it is absent from the id map and
+      // the record shipped with `id: undefined` -- schema-invalid, and produced by
+      // no fixture because none binds innerHTML (F20). Sharing an id with the
+      // propertyBindings record is correct and intended: an id names the node, not
+      // the record (D13a).
+      if (n.name === "innerHTML") {
+        emit("rawHtmlSinks", n, {
+          id: null, property: "innerHTML", expression: rec.expression,
+          sanitizerBypassed: false, loc: loc(n),
+        });
+      }
     } else if (n instanceof C.TmplAstBoundEvent) {
       const handler = n.handler?.source ?? "";
       const called = callsOf(n.handler, C).filter((name) => methodNames.has(name));

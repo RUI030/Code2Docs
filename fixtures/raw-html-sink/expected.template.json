@@ -1,0 +1,144 @@
+{
+  "schemaVersion": "0.4.0",
+  "unitId": "component:fixtures/raw-html-sink:BannerComponent",
+  "templateFile": "banner.component.ts",
+  "parse": {
+    "status": "ok",
+    "parser": "@angular/compiler",
+    "angularVersion": null,
+    "diagnostics": [],
+    "nodesParsed": 5,
+    "nodesUnrecognized": 0
+  },
+  "ast": {
+    "elements": [
+      {
+        "id": "tpl:0",
+        "tag": "div",
+        "attributes": [
+          "class"
+        ],
+        "depth": 0,
+        "loc": {
+          "file": "banner.component.ts",
+          "line": 15,
+          "endLine": 15
+        }
+      },
+      {
+        "id": "tpl:3",
+        "tag": "p",
+        "attributes": [],
+        "depth": 0,
+        "loc": {
+          "file": "banner.component.ts",
+          "line": 16,
+          "endLine": 16
+        }
+      }
+    ],
+    "controlFlow": [],
+    "propertyBindings": [
+      {
+        "id": "tpl:2",
+        "target": "div",
+        "property": "innerHTML",
+        "bindingKind": "property",
+        "expression": "message",
+        "dependsOn": [],
+        "loc": {
+          "file": "banner.component.ts",
+          "line": 15,
+          "endLine": 15
+        }
+      },
+      {
+        "id": "tpl:4",
+        "target": "p",
+        "property": "innerText",
+        "bindingKind": "property",
+        "expression": "plain",
+        "dependsOn": [],
+        "loc": {
+          "file": "banner.component.ts",
+          "line": 16,
+          "endLine": 16
+        }
+      }
+    ],
+    "eventBindings": [],
+    "twoWayBindings": [],
+    "interpolations": [],
+    "childComponents": [],
+    "templateRefs": [],
+    "ngTemplates": [],
+    "contentProjection": [],
+    "hostBindings": [],
+    "hostListeners": [],
+    "accessibility": [],
+    "i18n": [],
+    "staticText": [],
+    "rawHtmlSinks": [
+      {
+        "id": "tpl:2",
+        "property": "innerHTML",
+        "expression": "message",
+        "sanitizerBypassed": false,
+        "loc": {
+          "file": "banner.component.ts",
+          "line": 15,
+          "endLine": 15
+        }
+      }
+    ],
+    "directivesUsed": [],
+    "pipesUsed": [],
+    "viewQueries": [],
+    "styles": {
+      "files": [],
+      "encapsulation": null,
+      "usesEncapsulationEscapes": false,
+      "escapeSelectors": [],
+      "usesHostSelectors": false,
+      "importsGlobalStyles": [],
+      "classesToggledFromTs": []
+    }
+  },
+  "uiRequirements": [],
+  "coverage": {
+    "$comment": "nodesTotal counts nodes this tier RECORDS. parse.nodesParsed counts everything the compiler produced -- ids are numbered over that larger set (D13a), so recorded ids are sparse. uncoveredNodeIds lists recorded nodes no uiRequirement cites, never unrecorded ones: citing those was the original dangling bug.",
+    "nodesTotal": 4,
+    "nodesCoveredByRequirements": 0,
+    "uncoveredNodeIds": [
+      "tpl:0",
+      "tpl:2",
+      "tpl:3",
+      "tpl:4"
+    ]
+  },
+  "provenance": {
+    "source": "ast",
+    "astInputHash": "825e4a51b845a0c2",
+    "docInputHash": null,
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "parseStatus": "ok",
+    "warnings": [
+      {
+        "code": "empty-by-design",
+        "severity": "info",
+        "message": "uiRequirements is empty by design: it is doc content, written by the Synthesizer, not extracted."
+      },
+      {
+        "code": "parser-selected",
+        "severity": "info",
+        "message": "parsed with @angular/compiler from node_modules/@angular/compiler/fesm2022/compiler.mjs"
+      },
+      {
+        "code": "parser-selected",
+        "severity": "info",
+        "message": "fallback parser used, but versions agree: the analyzed tree expects Angular ^17.3.9 and this Resolver pins ^17.3.9."
+      }
+    ]
+  }
+}

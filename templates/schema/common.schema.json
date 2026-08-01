@@ -264,6 +264,18 @@
       "$comment": "control:<group>.<path> -- a single form control. Added because a control could not previously be cited at all: evidence could name form:editForm but not the identifier field within it, so a claim about ONE control had to cite the whole group and lose its precision.",
       "type": "string",
       "pattern": "^control:[A-Za-z_$][A-Za-z0-9_$]*(\\.[A-Za-z_$][A-Za-z0-9_$]*)*$"
+    },
+    "unsubscribeStrategy": {
+      "$comment": "How ONE stream's subscription is ended. Deliberately NOT the same vocabulary as signature.json's lifecycle.cleanupStrategy, which answers a unit-level question ('how does this component clean up?') and has its own values. The two overlap on takeUntilDestroyed, DestroyRef and none, which is exactly why copying one into the other survived 59 fixtures and failed on the first real repo -- see F20. Defined here once because it was written out identically in two tier schemas (D15).",
+      "type": "string",
+      "enum": [
+        "takeUntilDestroyed",
+        "Subscription.unsubscribe",
+        "take/first",
+        "DestroyRef",
+        "async-pipe",
+        "none"
+      ]
     }
   }
 }

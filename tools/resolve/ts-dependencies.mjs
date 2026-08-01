@@ -385,11 +385,40 @@ export function extractDependencies(filePath, sourceText, signature, opts = {}) 
   }
 
   // --- source-named streams only (D12a)
+  //
+  // `cleanupStrategy` and `unsubscribeStrategy` are DIFFERENT closed vocabularies
+  // answering different questions -- "how does this component clean up?" versus
+  // "how does this one stream end?" -- and this line used to assign one straight
+  // into the other. They overlap on takeUntilDestroyed, DestroyRef and none, so
+  // every fixture happened to produce a value legal in both, and the conflation
+  // survived 59 goldens. The first real repo emitted `async-pipe-only`, a
+  // cleanupStrategy value with no meaning per-stream, and wrote it into a field
+  // that does not allow it (F20).
+  //
+  // Stated as an explicit total map so a new value on either side is a visible
+  // gap rather than a silent invalid write.
+  const PER_STREAM = {
+    "ngOnDestroy-unsubscribe": "Subscription.unsubscribe",
+    "takeUntilDestroyed": "takeUntilDestroyed",
+    "DestroyRef": "DestroyRef",
+    "async-pipe-only": "async-pipe",
+    "none": "none",
+  };
+  const cleanup = signature.lifecycle.cleanupStrategy;
+  const perStream = PER_STREAM[cleanup];
+  if (perStream === undefined) {
+    w.warn("unhandled-declaration",
+      `cleanupStrategy "${cleanup}" has no per-stream equivalent, so unsubscribeStrategy `
+      + "is reported as 'none' for every stream in this unit. That is a floor, not a fact.");
+  }
   const streams = signature.stateOutline.streamIds.map((id) => ({
     id,
     consumedBy: [],
     consumption: "none",
-    unsubscribeStrategy: signature.lifecycle.cleanupStrategy === "none" ? "none" : signature.lifecycle.cleanupStrategy,
+    // Unit-level cleanup is an UPPER bound on any single stream: it says what the
+    // component does, not that this stream participates. Recorded as the tier's
+    // best available answer, and `lower-bound-only` already marks the tier.
+    unsubscribeStrategy: perStream ?? "none",
   }));
 
   return {
