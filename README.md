@@ -113,8 +113,9 @@ plans/
   0_ProjectDescription.md  intent, scope, artifact model
   1_Decisions.md           D1-D10, append-only decision records
   2_ImplementationPlan.md  phases, risks, next steps
-templates/               output shapes (5 JSON tiers + 2 rendered Markdown views)
-  schema/                  one JSON Schema per tier; id conventions pinned as patterns
+templates/               the two rendered Markdown views (requirement, migration_notes)
+  schema/                  one JSON Schema per tier -- SOLE authority on shape, field
+                           semantics and tier purpose; id conventions pinned as patterns
 fixtures/                hand-written Angular files, one construct each — extractor unit tests
 tools/                   validate / check-integrity / golden runners; Resolver lands here (Phase 1)
 examples/                promoted runs — reference output and Phase 1 baseline, hand-curated

@@ -45,7 +45,9 @@ guess which component to analyze.
    - `migration_notes.md` from `templates/migration_notes.md`, following
      `migration-risk-flagging`
    - `signature.json` and the `callGraph` portion of `dependencies.json`, following
-     `templates/signature.json` and `templates/dependencies.json`
+     `templates/schema/signature.schema.json` and
+     `templates/schema/dependencies.schema.json`. The schemas carry both the shape and
+     the reasoning; for a worked example of any tier, read a golden under `fixtures/`.
 
 7. **Self-check before declaring done.** Non-negotiable:
    - Every item on the step-3 checklist appears somewhere in `requirement.md`, or is

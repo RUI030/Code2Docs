@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://code2docs/schema/dependencies.schema.json",
   "title": "dependencies.json -- graph tier",
-  "$comment": "Answers 'what connects to what?'. Reverse indexes are emitted alongside forward ones because they are nearly free here and expensive for an agent to derive by scanning. Deterministic: no LLM output.",
+  "$comment": "Answers 'what connects to what?'. Reverse indexes are emitted alongside forward ones because they are nearly free here and expensive for an agent to derive by scanning. Deterministic: no LLM output. [tier] GRAPH TIER \u2014 answers 'what connects to what?'. Covers both the in-file function call graph and cross-file edges. Reverse indexes (calledBy, readBy, consumedBy) are emitted alongside forward ones: they are nearly free here and expensive for an agent to derive by scanning, and they are what makes find-references feel instant. Strict JSON; annotations use $comment keys.",
   "type": "object",
   "required": [
     "schemaVersion",
@@ -184,7 +184,8 @@
         "leafMethods": {
           "$ref": "#/$defs/memberList"
         }
-      }
+      },
+      "$comment": "In-file dependency graph over methods and accessors \u2014 the same-file function call dependency. executionOrder is leaf-first and is the sequence the Explainer must follow."
     },
     "fieldAccess": {
       "type": "object",
@@ -213,7 +214,8 @@
         "signalDependencies": {
           "$ref": "#/$defs/memberKeyedIdMap"
         }
-      }
+      },
+      "$comment": "Data-flow side of the in-file graph. Both directions, for the same reason."
     },
     "dependencyUsage": {
       "type": "array",
@@ -289,7 +291,8 @@
             "$ref": "#/$defs/callSiteList"
           }
         }
-      }
+      },
+      "$comment": "How each injected dependency is actually exercised. Identity is in signature.json; this is the call detail."
     },
     "outboundUnitEdges": {
       "type": "array",
@@ -316,7 +319,8 @@
             "$ref": "#/$defs/idList"
           }
         }
-      }
+      },
+      "$comment": "Cross-unit edges, the basis for repo-level jump-to-definition. Mirrored as inboundUnitEdges by the repo indexer."
     },
     "inboundUnitEdges": {
       "$comment": "Mirrored by the repo indexer at Phase 2. Empty for a component-scoped run, which is honest degradation rather than a gap.",

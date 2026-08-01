@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://code2docs/schema/functions.schema.json",
   "title": "functions.json -- detail tier (TypeScript side)",
-  "$comment": "Validated against one hand-filled instance (examples/schema-probe/activate) rather than extractor output -- it needed no corrections, which is weaker evidence than it sounds: one small component with a single method exercises little of this tier. forms, batching and multi-symbol ordering remain untested. Keyed by symbol id rather than an array because random access is the point. Each entry splits `ast` (deterministic, cacheable, golden-testable) from `doc` (LLM-written, re-tunable) so the two invalidate independently.",
+  "$comment": "Validated against one hand-filled instance (examples/schema-probe/activate) rather than extractor output -- it needed no corrections, which is weaker evidence than it sounds: one small component with a single method exercises little of this tier. forms, batching and multi-symbol ordering remain untested. Keyed by symbol id rather than an array because random access is the point. Each entry splits `ast` (deterministic, cacheable, golden-testable) from `doc` (LLM-written, re-tunable) so the two invalidate independently. [tier] DETAIL TIER for the TypeScript side (your function_dict, with comments). Keyed by symbol id so an agent can jump straight to one function without reading the rest \u2014 this is the random-access property that makes the set feel IDE-like. Usually the largest file. Each entry splits `ast` (deterministic, from the Resolver) from `doc` (LLM-written); keeping them separate is what lets `ast` stay cacheable and golden-testable while `doc` is re-tunable. Also carries forms and stream detail, which are TS-side and too voluminous for the hot tier. Strict JSON; annotations use $comment keys.",
   "type": "object",
   "required": [
     "schemaVersion",
@@ -138,7 +138,7 @@
                 ]
               },
               "existingComments": {
-                "$comment": "What the original developer wrote. High-signal, and must never be confused with generated prose -- which is why it lives in ast, not doc.",
+                "$comment": "What the original developer wrote. High-signal, and must never be confused with generated prose -- which is why it lives in ast, not doc. Comments the original developer wrote. High-signal and must never be confused with generated prose.",
                 "type": "object",
                 "additionalProperties": false,
                 "patternProperties": {
@@ -197,7 +197,8 @@
                   "hasTryCatch": {
                     "type": "boolean"
                   }
-                }
+                },
+                "$comment": "Syntactic detection of constructs that commonly resist a naive framework migration."
               },
               "subscriptions": {
                 "$comment": "Streams built and subscribed inline within this symbol (D12a). No id: the source gives them no name, and an invented one is not reproducible by extraction. `index` orders them within this symbol only -- it is deliberately not citable as evidence, so renumbering it cannot dangle a reference.",
@@ -313,10 +314,12 @@
               "explainerVersion": {
                 "type": "string"
               }
-            }
+            },
+            "$comment": "Explainer output. Written in execution order (leaf-first) so callees are already explained."
           }
         }
-      }
+      },
+      "$comment": "Object keyed by symbol id, not an array \u2014 random access is the point."
     },
     "forms": {
       "type": "object",
@@ -567,7 +570,7 @@
       }
     },
     "tests": {
-      "$comment": "Behavioral ground truth -- the one place the codebase states intent rather than mechanism. This tier owns test:<n> ids, which is why analysis.json falls back to bare titles when functions.json was not produced.",
+      "$comment": "Behavioral ground truth -- the one place the codebase states intent rather than mechanism. This tier owns test:<n> ids, which is why analysis.json falls back to bare titles when functions.json was not produced. Behavioral ground truth. The one place the codebase states intent rather than mechanism, so it both grounds explanations and contradicts wrong ones.",
       "type": "object",
       "additionalProperties": false,
       "patternProperties": {
@@ -667,7 +670,7 @@
       }
     },
     "provenance": {
-      "$comment": "Two cache keys, because the halves invalidate independently: editing source invalidates ast, changing the prompt or model invalidates doc only.",
+      "$comment": "Two cache keys, because the halves invalidate independently: editing source invalidates ast, changing the prompt or model invalidates doc only. Two cache keys, because the tiers invalidate independently: editing source invalidates ast; changing the prompt or model invalidates doc only.",
       "type": "object",
       "required": [
         "generatedAt",

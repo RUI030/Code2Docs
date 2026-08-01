@@ -121,9 +121,9 @@ fact.
 
 | Path | Role |
 |---|---|
-| `templates/schema/*.schema.json` | One schema per tier; id conventions pinned as patterns |
-| `templates/*.json` | The shape of each tier, with field-level `$comment` reasoning |
-| `fixtures/` | Hand-written Angular, one construct each — what extractor tests run against |
+| `templates/schema/*.schema.json` | Sole authority per tier: shape, field semantics, tier purpose, id conventions. Validation is enforcement, not documentation |
+| `templates/requirement.md`, `migration_notes.md` | The two render targets |
+| `fixtures/` | Hand-written Angular, one construct each — what extractor tests run against. Its `expected.*.json` goldens double as the worked example of every tier: real, schema-validated output rather than placeholders |
 | `fixtures/fixtures.json` | What each fixture *must* extract. Written before the extractor, which makes it a specification |
 | `angular-docs/` | Pinned 17.3.9 typings + guides, gitignored. Authoritative when prose and typings disagree |
 | `INPUT/` | Held-out evaluation corpus — deliberately not consulted during design |

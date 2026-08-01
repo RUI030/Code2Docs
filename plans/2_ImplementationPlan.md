@@ -18,15 +18,14 @@ Code2Docs/
   tools/ng-scan/           # text-search capability: discovery, non-TS reach,
                            #   degraded fallback, and recall audit (D3a)
   templates/
-    signature.json         # hot tier: "what is this"            [written]
-    dependencies.json      # graph tier: call graph + edges       [written]
-    functions.json         # detail tier: per-symbol + comments   [written]
-    template.json          # UI tier: bindings + UI requirements  [written]
-    analysis.json          # inferred aggregate, backs the md     [written]
     requirement.md         # rendered behavioral spec             [written]
     migration_notes.md     # rendered target-framework hazards    [written]
-    schema/*.schema.json   # JSON Schema per tier                 [Phase 0]
-    index.json             # repo-level inventory template        [Phase 2]
+    schema/*.schema.json   # one per tier -- SOLE authority on shape,
+                           #   field semantics and tier purpose    [written]
+    schema/index.schema.json # repo-level inventory                [Phase 2]
+                           # (the hand-written templates/<tier>.json were merged
+                           #  into the schemas; worked examples are the fixture
+                           #  goldens, which are real and validated)
   .claude/skills/          # auto-discovered by location; no registration needed
     angular-semantics/     # Angular→framework-independent rules, shared by LLM stages
     requirements-writing/  # the "Requirements Skill File" of the description

@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://code2docs/schema/template.schema.json",
   "title": "template.json -- UI tier",
-  "$comment": "Validated against one hand-filled instance (examples/schema-probe/activate), which needed one correction: parse.parser had no value for a hand-derived instance. That component is passive -- no bindings, events, interpolations, loops or child components -- so eleven of the eighteen node kinds were empty and remain untested. Parsed template nodes and the framework-independent UI requirements derived from them, co-located so UI work is a single read.",
+  "$comment": "Validated against one hand-filled instance (examples/schema-probe/activate), which needed one correction: parse.parser had no value for a hand-derived instance. That component is passive -- no bindings, events, interpolations, loops or child components -- so eleven of the eighteen node kinds were empty and remain untested. Parsed template nodes and the framework-independent UI requirements derived from them, co-located so UI work is a single read. [tier] UI TIER \u2014 parsed template nodes AND the framework-independent UI requirements derived from them, co-located so UI work is a single read. Every node carries a stable tpl:<id> that uiRequirements cite as evidence. Read only when working on rendering; skipped entirely for services, pipes and guards. Strict JSON; annotations use $comment keys.",
   "type": "object",
   "required": [
     "schemaVersion",
@@ -64,7 +64,7 @@
       "$ref": "common.schema.json#/$defs/nullableString"
     },
     "parse": {
-      "$comment": "Template parsing is the weakest extractor and every UI requirement depends on it, so parse quality is reported rather than assumed. Never silently degrade -- D3 requires parseStatus be recorded honestly whichever parser is used.",
+      "$comment": "Template parsing is the weakest extractor and every UI requirement depends on it, so parse quality is reported rather than assumed. Never silently degrade -- D3 requires parseStatus be recorded honestly whichever parser is used. Template parsing is the weakest extractor and every UI requirement depends on it, so parse quality is reported rather than assumed. Never silently degrade.",
       "type": "object",
       "required": [
         "status"
@@ -256,7 +256,7 @@
           }
         },
         "viewQueries": {
-          "$comment": "Declared in TypeScript but only meaningful against the template, so kept with the UI tier rather than the hot tier.",
+          "$comment": "Declared in TypeScript but only meaningful against the template, so kept with the UI tier rather than the hot tier. Declared in TypeScript but only meaningful against the template, so kept with the UI tier.",
           "type": "array",
           "items": {
             "type": "object",
@@ -375,10 +375,11 @@
           "$comment": "Every element in the template, recorded as structure rather than as judgment. Without it, anything wanting to cite an element -- a directive's occurrences, an accessibility observation, a uiRequirement about layout -- can only cite nodes some heuristic decided were interesting, so the record set silently decides what is sayable. Same lesson as D13a one level up: keep the ast tier's contents independent of classifier opinion.",
           "$ref": "#/$defs/nodeList"
         }
-      }
+      },
+      "$comment": "Deterministic extraction from the template source."
     },
     "uiRequirements": {
-      "$comment": "Framework-independent statements of rendering behavior. Prose stored finished so requirement.md renders mechanically. Every entry must cite tpl ids that exist in ast above -- enforced by tools/check-integrity.mjs, not by this schema.",
+      "$comment": "Framework-independent statements of rendering behavior. Prose stored finished so requirement.md renders mechanically. Every entry must cite tpl ids that exist in ast above -- enforced by tools/check-integrity.mjs, not by this schema. Framework-independent statements of rendering behavior. Prose is stored finished so requirement.md renders mechanically. Every entry must cite tpl:<id> evidence that exists in ast above.",
       "type": "array",
       "items": {
         "type": "object",
@@ -431,7 +432,7 @@
       }
     },
     "coverage": {
-      "$comment": "Template nodes with no corresponding UI requirement are the primary eval signal for this tier -- the template-side analogue of an omission.",
+      "$comment": "Template nodes with no corresponding UI requirement are the primary eval signal for this tier -- the template-side analogue of an omission. Template nodes with no corresponding UI requirement are the primary eval signal for this tier.",
       "type": "object",
       "additionalProperties": false,
       "patternProperties": {

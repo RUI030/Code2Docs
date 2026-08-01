@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://code2docs/schema/analysis.schema.json",
   "title": "analysis.json -- inferred aggregate tier",
-  "$comment": "The Synthesizer's reduce output and the direct backing for requirement.md. All prose is stored FINISHED so rendering is deterministic assembly, which is what makes it impossible for the md to contradict the JSON. Every claim carries evidence ids; the schema pins their shape, and tools/check-integrity.mjs pins that they resolve.",
+  "$comment": "The Synthesizer's reduce output and the direct backing for requirement.md. All prose is stored FINISHED so rendering is deterministic assembly, which is what makes it impossible for the md to contradict the JSON. Every claim carries evidence ids; the schema pins their shape, and tools/check-integrity.mjs pins that they resolve. [tier] INFERRED AGGREGATE TIER \u2014 the Requirements Synthesizer's reduce output, and the direct backing for requirement.md. Two rules: (1) all prose is stored FINISHED, so rendering requirement.md is deterministic assembly rather than a second LLM pass \u2014 the md can then never contradict the JSON; (2) every entry cites `evidence` ids that must exist in signature/dependencies/functions/template.json, validated mechanically. Dangling evidence is a hard failure, not a warning. Strict JSON; annotations use $comment keys.",
   "type": "object",
   "required": [
     "schemaVersion",
@@ -45,7 +45,8 @@
         "migrationNotes": {
           "$ref": "common.schema.json#/$defs/nullableString"
         }
-      }
+      },
+      "$comment": "Section mapping consumed by the requirement.md renderer."
     },
     "purpose": {
       "type": "object",
@@ -129,7 +130,8 @@
             }
           }
         }
-      }
+      },
+      "$comment": "requirement.md \u00a71"
     },
     "stateModel": {
       "type": "object",
@@ -439,7 +441,8 @@
             }
           }
         }
-      }
+      },
+      "$comment": "requirement.md \u00a72"
     },
     "publicContract": {
       "type": "object",
@@ -646,7 +649,8 @@
             }
           }
         }
-      }
+      },
+      "$comment": "requirement.md \u00a74 \u2014 the ADT view. Consumer's point of view, restating signature.json.publicApi as intent."
     },
     "workflows": {
       "type": "array",
@@ -731,7 +735,8 @@
             "$ref": "#/$defs/ev"
           }
         }
-      }
+      },
+      "$comment": "requirement.md \u00a73/\u00a74 \u2014 behavior reconstructed from the ordered function explanations."
     },
     "lifecycleBehavior": {
       "type": "object",
@@ -803,7 +808,8 @@
             }
           }
         }
-      }
+      },
+      "$comment": "requirement.md \u00a72/\u00a73 \u2014 ordering matters and is a classic migration hazard."
     },
     "externalIntegrations": {
       "type": "object",
@@ -952,10 +958,11 @@
             }
           }
         }
-      }
+      },
+      "$comment": "requirement.md \u00a75"
     },
     "serviceLayer": {
-      "$comment": "requirement.md section 6. Not a duplicate of externalIntegrations: that inventories which services are used, this describes state outliving the component and the coupling it creates. otherConsumers needs the Phase 2 repo index, so a component-scoped run sets consumersKnown false and raises an open question rather than guessing.",
+      "$comment": "requirement.md section 6. Not a duplicate of externalIntegrations: that inventories which services are used, this describes state outliving the component and the coupling it creates. otherConsumers needs the Phase 2 repo index, so a component-scoped run sets consumersKnown false and raises an open question rather than guessing. requirement.md \u00a76 \u2014 the shared-state contract, NOT a duplicate of externalIntegrations (\u00a75). \u00a75 inventories which services are used; this describes state that outlives the component and the coupling it creates. Only partially derivable from one component: otherConsumers needs the repo-level index (D5), so component-scoped runs set consumersKnown false and raise an open question rather than guessing.",
       "type": "object",
       "additionalProperties": false,
       "patternProperties": {
@@ -1157,7 +1164,8 @@
             "$ref": "#/$defs/ev"
           }
         }
-      }
+      },
+      "$comment": "The migration's real acceptance bar: things that must remain true regardless of implementation."
     },
     "acceptanceCriteria": {
       "type": "array",
@@ -1226,10 +1234,11 @@
             "$ref": "#/$defs/ev"
           }
         }
-      }
+      },
+      "$comment": "requirement.md \u00a77 \u2014 stored structured, not only as prose, so a testing agent can consume it directly. Derived from workflows, invariants, and existing spec cases."
     },
     "domainRules": {
-      "$comment": "requirement.md section 8, for SME review. Most likely section to be human-edited, so the renderer treats it as human-owned once touched.",
+      "$comment": "requirement.md section 8, for SME review. Most likely section to be human-edited, so the renderer treats it as human-owned once touched. requirement.md \u00a78 \u2014 for SME review. This section is the most likely to be human-edited, so the renderer must treat it as human-owned once touched.",
       "type": "object",
       "additionalProperties": false,
       "patternProperties": {
@@ -1388,7 +1397,7 @@
       }
     },
     "migration": {
-      "$comment": "Renders to migration_notes.md, never requirement.md -- this is what keeps requirement.md framework-neutral and reviewable by SMEs who do not know the target.",
+      "$comment": "Renders to migration_notes.md, never requirement.md -- this is what keeps requirement.md framework-neutral and reviewable by SMEs who do not know the target. Renders to migration_notes.md, NOT requirement.md \u2014 this keeps requirement.md framework-neutral and reviewable by SMEs who do not know the target framework. Name the Angular assumption at risk; leave target-framework design to Stage 2.",
       "type": "object",
       "additionalProperties": false,
       "patternProperties": {
@@ -1589,7 +1598,7 @@
       }
     },
     "review": {
-      "$comment": "The human gate. Stage 2 must not begin while status is pending or any blocking question is open. Under D11 the count of blocking open questions is the metric carrying the skills-versus-tooling comparison.",
+      "$comment": "The human gate. Stage 2 must not begin while status is pending or any blocking question is open. Under D11 the count of blocking open questions is the metric carrying the skills-versus-tooling comparison. The human gate. Stage 2 must not begin while status is 'pending' or any blocking question is open.",
       "type": "object",
       "required": [
         "status"
@@ -1695,7 +1704,8 @@
                 "type": "string"
               }
             }
-          }
+          },
+          "$comment": "Populated by the renderer when it detects a human edit (section hash mismatch). Listed sections are never overwritten."
         },
         "reviewedBy": {
           "$ref": "common.schema.json#/$defs/nullableString"
