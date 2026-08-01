@@ -9,12 +9,8 @@
  * they are placeholder documents ("<ClassName>") and are documentation of
  * shape, not instances of it -- see plans/3_PhaseAFindings.md.
  */
-import { readFileSync, readdirSync, statSync } from "node:fs";
-import { join, basename, dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
-import Ajv2020 from "ajv/dist/2020.js";
+import { readFileSync, readdirSync, statSync } from "node:fs";import { join, basename, resolve } from "node:path";import Ajv2020 from "ajv/dist/2020.js";
 import { ROOT, SCHEMA_DIR, ALL_TIERS as TIERS } from "./tiers.mjs";
-
 
 
 function loadSchemas() {

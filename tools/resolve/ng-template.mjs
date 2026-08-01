@@ -15,11 +15,7 @@
  * uiRequirements are NOT emitted here. They are prose, hence `doc` content, and
  * this file contains only what the parser saw.
  */
-import { existsSync } from "node:fs";
-import { dirname, join, resolve, sep } from "node:path";
-import { pathToFileURL } from "node:url";
-import { createWarnings } from "./warnings.mjs";
-
+import { existsSync } from "node:fs";import { dirname, join, resolve, sep } from "node:path";import { createWarnings } from "./warnings.mjs";
 /**
  * The analyzed repo's own compiler, else ours.
  *

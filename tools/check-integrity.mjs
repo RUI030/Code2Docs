@@ -13,11 +13,7 @@
  * Dangling evidence is a hard failure, not a warning: a claim citing an id that
  * does not exist is indistinguishable from an invented one.
  */
-import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
-import { join, resolve, dirname, relative } from "node:path";
-import { fileURLToPath } from "node:url";
-import { ROOT, ALL_TIERS as TIERS } from "./tiers.mjs";
-
+import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";import { join, relative } from "node:path";import { ROOT, ALL_TIERS as TIERS } from "./tiers.mjs";
 
 /** Which tier owns which id prefix. An id may only be defined by its owner. */
 const OWNER = {

@@ -20,14 +20,8 @@
  *      are independent inputs -- it is what caught *ngIf extracting to nothing
  *      while @if extracted to seven constructs.
  */
-import { readFileSync, writeFileSync, readdirSync, existsSync, statSync, mkdtempSync, rmSync } from "node:fs";
-import { join, resolve, dirname } from "node:path";
-import { tmpdir } from "node:os";
-import { fileURLToPath } from "node:url";
-import { execFileSync } from "node:child_process";
-import Ajv2020 from "ajv/dist/2020.js";
+import { readFileSync, writeFileSync, readdirSync, existsSync, mkdtempSync, rmSync } from "node:fs";import { join, resolve } from "node:path";import { tmpdir } from "node:os";import { execFileSync } from "node:child_process";import Ajv2020 from "ajv/dist/2020.js";
 import { ROOT, SCHEMA_DIR, AST_TIERS as TIERS } from "./tiers.mjs";
-
 const FIX = join(ROOT, "fixtures");
 const UPDATE = process.argv.includes("--update");
 
