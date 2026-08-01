@@ -13,6 +13,7 @@ import { dirname, basename, join, resolve as resolvePath, relative } from "node:
 import { createHash } from "node:crypto";
 import { extractSignature, readComponentDeclaration } from "./resolve/ts-signature.mjs";
 import { createWarnings } from "./resolve/warnings.mjs";
+import { countConstructs, recallGaps } from "./resolve/ng-scan.mjs";
 import { extractDependencies } from "./resolve/ts-dependencies.mjs";
 import { extractTemplate, findAngularCompiler } from "./resolve/ng-template.mjs";
 import { extractFunctions } from "./resolve/ts-functions.mjs";
@@ -61,7 +62,12 @@ for (const f of files) {
 
   // Warnings raised here belong to signature, so the collector is made in the
   // orchestrator and handed down rather than created inside the extractor.
+  // One collector per tier: a gap in the template must be reported on template's
+  // record, not on signature's. Created here rather than inside each extractor so
+  // the recall audit -- which runs after all four -- can still reach them.
   const sigWarn = createWarnings({ root: ROOT_DIR });
+  const tplWarn = createWarnings({ root: ROOT_DIR });
+  const fnWarn = createWarnings({ root: ROOT_DIR });
 
   // The DECORATOR says where the template is. This used to guess `<stem>.html`,
   // which silently missed inline templates and any templateUrl not matching the
@@ -132,7 +138,7 @@ for (const f of files) {
     } else {
       const compiler = await import(pathToFileURL(found.path).href);
       tpl = extractTemplate(templateFile, templateText, sig, found.path,
-        { ...shared, compiler, vendored: found.vendored, lineOffset: templateLineOffset });
+        { ...shared, compiler, vendored: found.vendored, lineOffset: templateLineOffset, warn: tplWarn });
       sig.metrics.maxTemplateNestingDepth = tpl.maxTemplateNestingDepth;
       delete tpl.maxTemplateNestingDepth;
       sig.manifest.template = "./template.json";
@@ -156,7 +162,7 @@ for (const f of files) {
   const specPath = specs.length ? join(dir, specs[0]) : null;
   const specText = specPath ? readFileSync(specPath, "utf8") : null;
   const fns = extractFunctions(path, sourceText, sig, deps, {
-    ...shared, specFile: specs[0] ?? null, specText,
+    ...shared, warn: fnWarn, specFile: specs[0] ?? null, specText,
     sourceExcerpt: has("--source-excerpt"),
     templateTwoWay: tpl?.ast?.twoWayBindings ?? [],
     framework: specText ? (/\bjest\b/.test(specText) ? "jest"
@@ -164,6 +170,42 @@ for (const f of files) {
       : /\bvitest\b/.test(specText) ? "vitest" : "unknown") : "unknown",
   });
   if (fns) sig.manifest.functions = "./functions.json";
+
+  // --- D3a recall audit: count the same constructs a second way and compare.
+  // Text counting is an UPPER bound, so only scan > recorded is reported. The
+  // gap lands in the owning tier's warnings and NEVER in an ast field.
+  {
+    const scan = countConstructs(sourceText, templateText);
+    const cf = tpl?.ast?.controlFlow ?? null;
+    const cfCount = (c) => (cf === null ? undefined : cf.filter((x) => x.construct === c).length);
+    const recorded = {
+      decoratorInputs: sig.publicApi.inputs.filter((i) => i.declarationStyle === "decorator").length,
+      decoratorOutputs: sig.publicApi.outputs.filter((o) => o.declarationStyle === "eventemitter").length,
+      injectCalls: sig.injectedDependencies.filter((d) => d.injectionStyle === "inject-fn").length,
+      lifecycleHooks: (sig.lifecycle?.implementedHooks ?? []).length,
+      subscribeCalls: fns
+        ? Object.values(fns.symbols ?? {}).reduce((n, sym) => n + (sym.ast?.subscriptions?.length ?? 0), 0)
+        : undefined,
+      ifBlocks: cfCount("@if"), forBlocks: cfCount("@for"),
+      switchBlocks: cfCount("@switch"), deferBlocks: cfCount("@defer"),
+      ngIfUses: cfCount("*ngIf"), ngForUses: cfCount("*ngFor"),
+    };
+    const byTier = { signature: sigWarn, functions: fnWarn, template: tplWarn };
+    for (const g of recallGaps(scan, recorded)) {
+      const w = byTier[g.tier];
+      if (!w) continue;
+      w.warn("recall-gap",
+        `text search found ${g.scanned} occurrence(s) of ${g.key} but this tier recorded `
+        + `${g.recorded}. Text counting over-reports, so this is a signal to check the `
+        + `extractor, not proof of a miss.`);
+    }
+    // Warnings raised after a tier was assembled must be re-read into it.
+    sig.provenance.warnings = sigWarn.list();
+    sig.provenance.parseStatus = sigWarn.parseStatus();
+    if (fns) { fns.provenance.warnings = fnWarn.list(); fns.provenance.parseStatus = fnWarn.parseStatus(); }
+    if (tpl) { tpl.provenance.warnings = tplWarn.list(); tpl.provenance.parseStatus = tplWarn.parseStatus();
+               tpl.parse.status = tplWarn.parseStatus(); }
+  }
 
   const out = flag("--out");
   if (out) {

@@ -226,6 +226,39 @@ for (const f of manifest.fixtures) {
 
 if (unchecked) console.log(`
 ${unchecked} pair(s) not field-checked -- their assertions are human-verified only`);
+
+// ------------------------------------------------- 3. what the extractors admit
+//
+// Every recorded gap is surfaced here, because a warning that lives only inside a
+// JSON file nobody opens is barely better than no warning. recall-gap especially:
+// it is the ONE signal goldens structurally cannot produce, since a golden is
+// written from the output it judges -- an extractor that always missed a
+// construct has a stable, passing golden forever, and only the second count
+// notices.
+//
+// These are reported, never counted as problems. A gap that the fixtures are
+// meant to record (i18n-icu asserts an unhandled node) is expected output.
+{
+  const byCode = new Map();
+  for (const [member, tiers] of produced) {
+    for (const [tier, data] of Object.entries(tiers)) {
+      for (const w of data?.provenance?.warnings ?? []) {
+        if (w.severity === "info") continue;
+        const k = w.code;
+        if (!byCode.has(k)) byCode.set(k, []);
+        byCode.get(k).push(`${member}/${tier}`);
+      }
+    }
+  }
+  if (byCode.size) {
+    console.log("\nrecorded gaps (reported, not failures)\n");
+    for (const [code, where] of [...byCode].sort()) {
+      const flag = code === "recall-gap" ? "  <-- extractor recall; investigate" : "";
+      console.log(`  ${code.padEnd(26)} ${where.length} tier(s)${flag}`);
+      if (code === "recall-gap") for (const w of where) console.log(`      ${w}`);
+    }
+  }
+}
 console.log(`
 ${problems} problem(s)`);
 process.exit(problems > 0 ? 1 : 0);

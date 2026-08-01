@@ -685,3 +685,58 @@ not new extraction.
 
 **Effect on Phase 1 work:** none. The extractors feed the `ast` tiers, which are not implicated —
 this is a `doc`-tier shape question. Phases 1 and 2 continue as planned.
+
+---
+
+## F15. The recall audit (D3a), and proving it catches what goldens cannot
+
+Recall is the extractors' hardest property to verify and the one nothing checked. Goldens cannot:
+a golden is written from the output it judges, so an extractor that has **always** missed a
+construct produces a stable, passing golden forever. The fixture pairs catch a construct handled
+in one syntax and not the other, but not one missed in both.
+
+`tools/resolve/ng-scan.mjs` counts the same constructs a second way — crude text search over
+comment- and string-stripped source — and the orchestrator compares against what the tiers
+recorded. `@Input` seen nine times and reported seven is a `recall-gap` warning on the tier that
+owns the answer.
+
+**The D3a boundary is enforced structurally, not by discipline.** Every function in `ng-scan`
+returns numbers only; there is no code path by which it can produce a record, an id, or a name, so
+nothing shaped like `ast` content exists for a caller to mistakenly assign. `countConstructs`
+asserts it. This matters because quietly merging fuzzy matches into `ast` would corrupt the very
+omission metric the extractor exists to provide — a field half-filled by grep looks complete.
+
+**Direction of error is stated and acted on.** Text counting is an *upper* bound: it cannot tell
+that `@Input` sat in a comment it failed to strip. So `scan > recorded` warns, and
+`recorded >= scan` is silent and normal — the compiler legitimately sees declarations no substring
+reveals, such as inherited or aliased ones. The warning says so in its own text, so a reader does
+not mistake a signal for a proof.
+
+### Verified against the case goldens structurally cannot see
+
+Simulating "the extractor returned seven of nine" by making `ts-signature` drop one input:
+
+1. With goldens unchanged, the suite went red — 2 failures. That is the *easy* case, and it only
+   works because the goldens predate the bug.
+2. **Then the goldens were regenerated with the bug baked in**, which is the real scenario: an
+   extractor that shipped broken. `npm run golden` reported **`0 problems`** — the goldens now
+   agree with the buggy output, exactly as predicted.
+3. The `recall-gap` warning was still there, *inside the passing golden*, naming
+   `inputs-decorator/signature`.
+
+Step 3 is the whole justification for this work. Every other check in the suite agreed the
+extractor was correct.
+
+### Gaps are surfaced, not just recorded
+
+`golden.mjs` now prints a "recorded gaps" summary of every non-`info` warning across all goldens,
+with `recall-gap` called out for investigation. A warning that lives only inside a JSON file nobody
+opens is barely better than no warning — and the current run shows four codes standing, including
+the deliberate `unhandled-template-node` from `i18n-icu`. They are reported, never counted as
+failures: a gap a fixture exists to record is expected output, not a regression.
+
+### What it does not cover
+
+Only constructs where a raw count is meaningful. `@if` blocks count; "bindings" do not, because one
+element carries several and no substring marks the boundary. A metric nobody can interpret produces
+warnings nobody acts on, so those were left out rather than guessed at.
