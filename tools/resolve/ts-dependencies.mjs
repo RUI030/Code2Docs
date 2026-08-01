@@ -16,7 +16,7 @@
  */
 import ts from "typescript";
 import { basename } from "node:path";
-import { sourceOf } from "./ts-source.mjs";
+import { sourceOf, lineLocOf as locOf } from "./ts-source.mjs";
 import { createWarnings } from "./warnings.mjs";
 
 const SIGNAL_WRITERS = new Set(["set", "update", "mutate"]);
@@ -26,10 +26,7 @@ const NAV_APIS = new Set(["navigate", "navigateByUrl"]);
 const ANGULAR_MODULE = /^@angular\//;
 const RXJS_MODULE = /^rxjs(\/|$)/;
 
-function lineOf(node, src) {
-  return src.getLineAndCharacterOfPosition(node.getStart(src)).line + 1;
-}
-const locOf = (node, src, file) => ({ file, line: lineOf(node, src) });
+
 
 /** `this.foo` -> "foo"; anything else -> null. */
 function thisProp(node) {

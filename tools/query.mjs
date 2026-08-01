@@ -22,8 +22,8 @@
  */
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { ALL_TIERS as TIERS } from "./tiers.mjs";
 
-const TIERS = ["signature", "dependencies", "functions", "template", "analysis"];
 
 function load(dir) {
   const t = {};

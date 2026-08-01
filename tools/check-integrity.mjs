@@ -16,8 +16,8 @@
 import { readFileSync, readdirSync, existsSync, statSync } from "node:fs";
 import { join, resolve, dirname, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { ROOT, ALL_TIERS as TIERS } from "./tiers.mjs";
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Which tier owns which id prefix. An id may only be defined by its owner. */
 const OWNER = {
@@ -146,7 +146,6 @@ function references(tiers) {
 }
 
 function checkUnit(dir) {
-  const TIERS = ["signature", "dependencies", "functions", "template", "analysis"];
   const tiers = {};
   const present = [];
   for (const t of TIERS) {

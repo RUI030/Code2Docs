@@ -14,13 +14,9 @@
  */
 import ts from "typescript";
 import { basename } from "node:path";
-import { sourceOf } from "./ts-source.mjs";
+import { sourceOf, LIFECYCLE_HOOKS, visibilityOf, complexityOf, lineOf } from "./ts-source.mjs";
 import { createWarnings } from "./warnings.mjs";
 
-const LIFECYCLE_HOOKS = new Set([
-  "ngOnInit", "ngOnDestroy", "ngOnChanges", "ngDoCheck", "ngAfterContentInit",
-  "ngAfterContentChecked", "ngAfterViewInit", "ngAfterViewChecked",
-]);
 
 const SIGNAL_FACTORIES = { signal: "signal", computed: "computed", linkedSignal: "linkedSignal", toSignal: "toSignal" };
 const RXJS_TYPES = new Set(["Observable", "Subject", "BehaviorSubject", "ReplaySubject", "Subscription"]);
@@ -28,10 +24,6 @@ const FORM_TYPES = new Set(["FormGroup", "FormControl", "FormArray", "FormRecord
 
 const text = (n, src) => (n ? n.getText(src) : null);
 
-function lineOf(node, src) {
-  const { line } = src.getLineAndCharacterOfPosition(node.getStart(src));
-  return line + 1;
-}
 function endLineOf(node, src) {
   const { line } = src.getLineAndCharacterOfPosition(node.getEnd());
   return line + 1;
@@ -108,12 +100,6 @@ function paramModifiers(param) {
   return mods;
 }
 
-function visibilityOf(node) {
-  const m = ts.getCombinedModifierFlags(node);
-  if (m & ts.ModifierFlags.Private) return "private";
-  if (m & ts.ModifierFlags.Protected) return "protected";
-  return "public";
-}
 
 const originOf = (token) => {
   if (/^(HttpClient|HttpParams|HttpHeaders)$/.test(token)) return "angular";
@@ -471,28 +457,3 @@ function inferLiteralType(init) {
   return null;
 }
 
-function complexityOf(node) {
-  let n = 1;
-  const walk = (x) => {
-    switch (x.kind) {
-      case ts.SyntaxKind.IfStatement:
-      case ts.SyntaxKind.ConditionalExpression:
-      case ts.SyntaxKind.CaseClause:
-      case ts.SyntaxKind.ForStatement:
-      case ts.SyntaxKind.ForOfStatement:
-      case ts.SyntaxKind.ForInStatement:
-      case ts.SyntaxKind.WhileStatement:
-      case ts.SyntaxKind.DoStatement:
-      case ts.SyntaxKind.CatchClause:
-        n++;
-        break;
-      case ts.SyntaxKind.BinaryExpression:
-        if ([ts.SyntaxKind.AmpersandAmpersandToken, ts.SyntaxKind.BarBarToken, ts.SyntaxKind.QuestionQuestionToken]
-            .includes(x.operatorToken.kind)) n++;
-        break;
-    }
-    ts.forEachChild(x, walk);
-  };
-  ts.forEachChild(node, walk);
-  return n;
-}

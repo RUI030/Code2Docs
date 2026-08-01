@@ -11,57 +11,12 @@
  */
 import ts from "typescript";
 import { basename } from "node:path";
-import { sourceOf } from "./ts-source.mjs";
+import { sourceOf, LIFECYCLE_HOOKS, visibilityOf, complexityOf, locOf as loc } from "./ts-source.mjs";
 import { createWarnings } from "./warnings.mjs";
 
-const LIFECYCLE_HOOKS = new Set([
-  "ngOnInit", "ngOnDestroy", "ngOnChanges", "ngDoCheck", "ngAfterContentInit",
-  "ngAfterContentChecked", "ngAfterViewInit", "ngAfterViewChecked",
-]);
 
-const loc = (n, src, file) => ({
-  file,
-  line: src.getLineAndCharacterOfPosition(n.getStart(src)).line + 1,
-  endLine: src.getLineAndCharacterOfPosition(n.getEnd()).line + 1,
-});
 
-function visibilityOf(node) {
-  const m = ts.getCombinedModifierFlags(node);
-  if (m & ts.ModifierFlags.Private) return "private";
-  if (m & ts.ModifierFlags.Protected) return "protected";
-  return "public";
-}
 
-/**
- * 1 + one per branch point. The counted kinds are enumerated in
- * functions.schema.json and this must not drift from them: an undefined metric
- * is one two correct implementations disagree on, which is what F8b was about.
- */
-function complexityOf(node) {
-  let n = 1;
-  const walk = (x) => {
-    switch (x.kind) {
-      case ts.SyntaxKind.IfStatement:
-      case ts.SyntaxKind.ConditionalExpression:
-      case ts.SyntaxKind.CaseClause:            // DefaultClause deliberately not counted
-      case ts.SyntaxKind.ForStatement:
-      case ts.SyntaxKind.ForOfStatement:
-      case ts.SyntaxKind.ForInStatement:
-      case ts.SyntaxKind.WhileStatement:
-      case ts.SyntaxKind.DoStatement:
-      case ts.SyntaxKind.CatchClause:
-        n++;
-        break;
-      case ts.SyntaxKind.BinaryExpression:
-        if ([ts.SyntaxKind.AmpersandAmpersandToken, ts.SyntaxKind.BarBarToken,
-             ts.SyntaxKind.QuestionQuestionToken].includes(x.operatorToken.kind)) n++;
-        break;
-    }
-    ts.forEachChild(x, walk);
-  };
-  ts.forEachChild(node, walk);
-  return n;
-}
 
 /** What the original developer wrote. Never mixed with generated prose. */
 function existingComments(node, sourceText) {

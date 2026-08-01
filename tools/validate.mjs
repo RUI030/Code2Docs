@@ -13,11 +13,9 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, basename, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import Ajv2020 from "ajv/dist/2020.js";
+import { ROOT, SCHEMA_DIR, ALL_TIERS as TIERS } from "./tiers.mjs";
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const SCHEMA_DIR = join(ROOT, "templates", "schema");
 
-const TIERS = ["signature", "dependencies", "functions", "template", "analysis"];
 
 function loadSchemas() {
   const ajv = new Ajv2020({ allErrors: true, strict: true, allowUnionTypes: true });

@@ -104,7 +104,7 @@ export function countConstructs(sourceText, templateText = "") {
 }
 
 /** Which tier owns the authoritative answer for each counted construct. */
-export const OWNING_TIER = Object.freeze({
+const OWNING_TIER = Object.freeze({
   decoratorInputs: "signature", decoratorOutputs: "signature",
   injectCalls: "signature", lifecycleHooks: "signature",
   subscribeCalls: "functions",

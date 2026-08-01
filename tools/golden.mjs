@@ -26,11 +26,9 @@ import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import Ajv2020 from "ajv/dist/2020.js";
+import { ROOT, SCHEMA_DIR, AST_TIERS as TIERS } from "./tiers.mjs";
 
-const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const FIX = join(ROOT, "fixtures");
-const SCHEMA_DIR = join(ROOT, "templates", "schema");
-const TIERS = ["signature", "dependencies", "functions", "template"];
 const UPDATE = process.argv.includes("--update");
 
 const ajv = new Ajv2020({ allErrors: true, strict: true, allowUnionTypes: true });
