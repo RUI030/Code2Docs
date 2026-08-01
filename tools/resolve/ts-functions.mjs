@@ -11,6 +11,7 @@
  */
 import ts from "typescript";
 import { basename } from "node:path";
+import { sourceOf } from "./ts-source.mjs";
 import { createWarnings } from "./warnings.mjs";
 
 const LIFECYCLE_HOOKS = new Set([
@@ -232,7 +233,7 @@ export function extractFunctions(filePath, sourceText, signature, dependencies, 
     "doc is absent on every symbol: it is the Explainer's output, and a placeholder would put "
     + "model-shaped content in a tier that contains none.");
   const file = basename(filePath);
-  const src = ts.createSourceFile(file, sourceText, ts.ScriptTarget.Latest, true);
+  const src = sourceOf(opts, filePath, sourceText);
   const cls = src.statements.find((s) => ts.isClassDeclaration(s) && s.members?.length);
   if (!cls) return null;
 

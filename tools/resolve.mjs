@@ -13,6 +13,7 @@ import { dirname, basename, join, resolve as resolvePath, relative } from "node:
 import { createHash } from "node:crypto";
 import { extractSignature, readComponentDeclaration } from "./resolve/ts-signature.mjs";
 import { createWarnings } from "./resolve/warnings.mjs";
+import { parseSource } from "./resolve/ts-source.mjs";
 import { countConstructs, recallGaps } from "./resolve/ng-scan.mjs";
 import { extractDependencies } from "./resolve/ts-dependencies.mjs";
 import { extractTemplate, findAngularCompiler } from "./resolve/ng-template.mjs";
@@ -89,7 +90,11 @@ for (const f of files) {
   // The DECORATOR says where the template is. This used to guess `<stem>.html`,
   // which silently missed inline templates and any templateUrl not matching the
   // .ts filename -- and produced no message either way.
-  const { template: decl, hasInlineStyles } = readComponentDeclaration(path, sourceText);
+  // Parsed ONCE and threaded through all four extractors. Each still parses for
+  // itself when called without it, so they stay independently testable.
+  const src = parseSource(path, sourceText);
+
+  const { template: decl, hasInlineStyles } = readComponentDeclaration(path, sourceText, { src });
   let templateText = "", templateFile = null, templateLineOffset = 0;
   if (decl.kind === "inline") {
     templateText = decl.text;
@@ -115,6 +120,7 @@ for (const f of files) {
 
   const sig = extractSignature(path, sourceText, {
     root: ROOT_DIR,
+    src,
     warn: sigWarn,
     unitPath: flag("--unit-path", ""),
     specs,
@@ -138,6 +144,7 @@ for (const f of files) {
 
   const shared = {
     root: ROOT_DIR,
+    src,
     resolverVersion: RESOLVER_VERSION,
     generatedAt: has("--stamp") ? new Date().toISOString() : "1970-01-01T00:00:00.000Z",
     inputHash: createHash("sha256").update(sourceText).update(templateText)

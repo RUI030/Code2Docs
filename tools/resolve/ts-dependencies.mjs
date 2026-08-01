@@ -16,6 +16,7 @@
  */
 import ts from "typescript";
 import { basename } from "node:path";
+import { sourceOf } from "./ts-source.mjs";
 import { createWarnings } from "./warnings.mjs";
 
 const SIGNAL_WRITERS = new Set(["set", "update", "mutate"]);
@@ -79,7 +80,7 @@ export function extractDependencies(filePath, sourceText, signature, opts = {}) 
       "unreachableMethods OVER-REPORTS: no template was parsed, so methods called only from a "
       + "template binding or host listener look uncalled. Treat it as an upper bound until template.json exists.");
   }
-  const src = ts.createSourceFile(file, sourceText, ts.ScriptTarget.Latest, true);
+  const src = sourceOf(opts, filePath, sourceText);
   const cls = src.statements.find((s) => ts.isClassDeclaration(s) && s.members?.length);
   if (!cls || !signature) return null;
 

@@ -14,6 +14,7 @@
  */
 import ts from "typescript";
 import { basename } from "node:path";
+import { sourceOf } from "./ts-source.mjs";
 import { createWarnings } from "./warnings.mjs";
 
 const LIFECYCLE_HOOKS = new Set([
@@ -167,8 +168,8 @@ function firstTypeArg(call, src) {
  *                  "none"                          neither -- legitimate
  *                  "absent"                        no @Component at all
  */
-export function readComponentDeclaration(filePath, sourceText) {
-  const src = ts.createSourceFile(basename(filePath), sourceText, ts.ScriptTarget.Latest, true);
+export function readComponentDeclaration(filePath, sourceText, opts = {}) {
+  const src = sourceOf(opts, filePath, sourceText);
   const cls = src.statements.find((s) => ts.isClassDeclaration(s) && decoratorNamed(s, "Component"));
   if (!cls) return { template: { kind: "absent" }, hasInlineStyles: false };
   const meta = componentMeta(cls, src) ?? {};
@@ -193,7 +194,7 @@ export function readComponentDeclaration(filePath, sourceText) {
 
 export function extractSignature(filePath, sourceText, opts = {}) {
   const file = basename(filePath);
-  const src = ts.createSourceFile(file, sourceText, ts.ScriptTarget.Latest, true);
+  const src = sourceOf(opts, filePath, sourceText);
 
   const cls = src.statements.find((s) => ts.isClassDeclaration(s) && decoratorNamed(s, "Component"));
   if (!cls) return null;
