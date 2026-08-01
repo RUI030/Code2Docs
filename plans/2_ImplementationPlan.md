@@ -360,34 +360,62 @@ achievable on a representative sample.
 
 ## 4. Immediate next steps
 
-**Phase A is complete.** All five steps ran: the three skills were written, the POC agent
-configured, two components analyzed (`app/account/activate`, `app/entities/post/update`),
-their artifacts committed under `examples/baseline_skillsonly/`, and the review written up in
-`3_PhaseAFindings.md`. The producing state is tagged `phase-a-baseline`; cost and duration are
-in `benchmarks/phase-a.json`.
+**Phases A, 0 and 1 are complete.** Phase A's five steps ran (two components analyzed, artifacts
+under `examples/baseline_skillsonly/`, review in `3_PhaseAFindings.md`, state tagged
+`phase-a-baseline`). Phase 0 pinned the schemas, the integrity checker and the fixture corpus.
+Phase 1 extracts all four `ast` tiers and has met its exit criteria.
 
-Two results change what happens next:
+Two Phase A results shaped what followed, and both held:
 
-- **F5 — the templates need no revision.** All nine `requirement.md` sections were filled in
-  both documents, none padded, no missing slot identified. Phase 0's first bullet was
-  "revise the five templates against Phase A's findings"; the finding is that there is nothing
-  to revise, so Phase 0 begins at the JSON Schemas.
-- **F3 — the blocking gaps are cross-folder, not extraction.** Both blocking open questions
-  need repository-wide information that Phase 1 does not produce. **D11** acts on this: the
-  skills-versus-tooling comparison moves to Phase 2, and the metric carrying it becomes the
-  count of unresolved blocking questions rather than spec-title coverage, which Phase A already
-  saturated at 100%.
+- **F5 — the templates needed no revision.** All nine `requirement.md` sections were filled in
+  both documents, none padded. Phase 0 therefore began at the JSON Schemas. *(The JSON tiers
+  did need thirteen additions — F5a — found by validating rather than by reading.)*
+- **F3 — the blocking gaps are cross-folder, not extraction.** Both blocking open questions need
+  repository-wide information. **D11** moved the skills-versus-tooling comparison to Phase 2, with
+  unresolved blocking questions as the carrying metric, since spec-title coverage saturated at
+  100%.
 
-**Next: Phase 0**, starting at the schema work.
+### Phase 1 exit, measured
 
-1. One JSON Schema per tier under `templates/schema/`, wired to `ajv`.
-2. The cross-tier referential-integrity checker — the enforcement point for invariant #2.
-3. Id conventions pinned as schema patterns.
-4. `fixtures/`: small hand-written Angular files, one construct each.
+`benchmarks/phase1-omission.json`, written up as **F16**. Over 60 extracted facts across the two
+Phase A components: the hand-fill missed 2 (3.3%), the extractor missed 4 (6.7%).
 
-Not blocking: `explaining-functions` and the staged-versus-one-shot comparison wait for
-Phase 4 (**D8**). **D3** (compiler API before grep) is **accepted** — see `1_Decisions.md`.
+The measurement inverted its own premise. It was written to quantify LLM recall against a reliable
+extractor; instead the hand-filled baseline had **zero** omissions on every declarative category
+and the extractor was the weaker side. What the extractor uniquely supplies is derived —
+template-to-method call edges nobody enumerated by hand. Its real yield was two extractor defects,
+one of which the agent had gotten right.
+
+Also delivered beyond the phase's original list: a structured warning channel with a derived
+`parseStatus` (**F11**), the D3a recall audit verified against the case goldens structurally
+cannot catch (**F15**), and template resolution read from the decorator rather than guessed from
+the filename (**F13**).
+
+### Carried forward, deliberately
+
+Each of these is recorded in the output as a warning rather than passing silently, which is what
+makes deferring them safe:
+
+| Gap | Owner | Finding |
+|---|---|---|
+| HTTP through injected services invisible; `httpInteractions` under-reports | Phase 2 | F16 |
+| Cross-unit edges, `consumedBy`, selector resolution | Phase 2 | F3, D10 |
+| ICU expressions unhandled; `@defer` prefetch triggers dropped | Phase 1 follow-up | F10a, F10d |
+| `afterRender` / `afterNextRender` need a different detection path | Phase 1 follow-up | F10f |
+| `analysis.json` cannot yet be rendered faithfully | **before Phase 4** | F14 |
+| `FormRecord` representable in one tier, not the other | Phase 1 follow-up | F10e |
+
+**Next: Phase 2**, the repo inventory and cross-unit graph. It is where the two *blocking* open
+questions from Phase A get answered (F3), where `httpInteractions` stops under-reporting, and
+where D11's comparison finally runs.
+
+F14's schema work should land **before Phase 4** regardless of Phase 2's progress: the Explainer
+and Synthesizer write into those shapes, so tuning prompts against a shape about to change means
+retuning them.
+
+Not blocking: `explaining-functions` and the staged-versus-one-shot comparison wait for Phase 4
+(**D8**). **D3** (compiler API before grep) is **accepted**, and **D3a**'s audit role is now built.
 
 The Phase A baseline is re-run in fresh sessions immediately before the Phase 2 comparison, so
-both sides are measured by the same harness on the same day. The numbers currently in
-`benchmarks/phase-a.json` are marked provisional because both runs shared one session.
+both sides are measured by the same harness on the same day. The numbers in
+`benchmarks/phase-a.json` remain provisional because both runs shared one session.

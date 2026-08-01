@@ -164,13 +164,17 @@ only Phase 2 produces (F3).
 
 ```mermaid
 flowchart LR
-  PA["A ✅<br/>POC"] --> P0["0 ✅<br/>contracts"] --> P1["1 ◐<br/>Resolver"] --> P2["2<br/>repo index"] --> P3["3<br/>wiring"] --> P4["4<br/>Explainer?"] --> P5["5<br/>Synthesizer"] --> P6["6<br/>scale"] --> P7["7<br/>eval"]
+  PA["A ✅<br/>POC"] --> P0["0 ✅<br/>contracts"] --> P1["1 ✅<br/>Resolver"] --> P2["2 ◀<br/>repo index"] --> P3["3<br/>wiring"] --> P4["4<br/>Explainer?"] --> P5["5<br/>Synthesizer"] --> P6["6<br/>scale"] --> P7["7<br/>eval"]
   style PA fill:#e8f4ea,stroke:#3a7d44
   style P0 fill:#e8f4ea,stroke:#3a7d44
-  style P1 fill:#fdf3e3,stroke:#b07d2b
+  style P1 fill:#e8f4ea,stroke:#3a7d44
+  style P2 fill:#fdf3e3,stroke:#b07d2b
 ```
 
-Phase 1 is partial: all four extractors build and the warning channel is in, but `ng-scan` and
-the recall audit (D3a) are not written, and the omission rate against the Phase A baselines is
-not yet recorded. Phase 4 carries a question mark because **D8** requires proving the Explainer
-earns its place before building it.
+Phase 1 is complete: four extractors, a structured warning channel with a derived `parseStatus`,
+the D3a recall audit, and the exit measurement recorded in `benchmarks/phase1-omission.json`
+(F16). What it does not cover is cross-unit — HTTP routed through injected services, `consumedBy`,
+selector resolution — which is Phase 2's job and is flagged in the output rather than left silent.
+
+Phase 4 carries a question mark because **D8** requires proving the Explainer earns its place
+before building it. F14's `analysis.json` shape work should land before that phase either way.

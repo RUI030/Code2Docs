@@ -19,16 +19,38 @@ reviewer can confirm it before anyone rebuilds anything.
 
 ## Status
 
-**Phase A is complete; Phase 0 is underway.** The proof of concept ran one agent against two
-components with no AST tooling, to establish whether generated requirement documents are
-accurate and useful *before* investing in extraction infrastructure. Findings are in
-`plans/3_PhaseAFindings.md`; the producing state is tagged `phase-a-baseline`.
+**Phases A and 0 are complete. Phase 1 has met its exit criteria; Phase 2 is next.**
 
-The short version: the documents are accurate, and the failures are not where the plan assumed.
-Nothing was wrong with comprehension or with `requirement.md`'s structure. What failed was
-naming unanchored to real identifiers, everything living outside one component folder, and six
-evidence citations that resolve to nothing — the last found by a mechanical check after a close
-read had missed them.
+*Phase A* ran one agent against two components with no AST tooling, to establish whether
+generated requirement documents are accurate and useful *before* investing in extraction
+infrastructure. The documents were accurate, and the failures were not where the plan assumed:
+nothing was wrong with comprehension or with `requirement.md`'s structure. What failed was naming
+unanchored to real identifiers, everything living outside one component folder, and six evidence
+citations that resolve to nothing — the last found by a mechanical check after a close read had
+missed them. The producing state is tagged `phase-a-baseline`.
+
+*Phase 0* pinned every artifact shape as a JSON Schema, added the cross-tier integrity checker,
+and built the fixture corpus and golden runner.
+
+*Phase 1* extracts all four `ast` tiers deterministically. Its exit measurement is in
+`benchmarks/phase1-omission.json`, and it inverted the assumption it was written on: the
+hand-filled Phase A baseline had **zero** omissions on every declarative category, and the
+*extractor* was the weaker side. What the extractor uniquely supplies is derived — template-to-
+method call edges nobody enumerated by hand, which is what makes reachability verified rather
+than searched. The comparison's real yield was two extractor defects, one of which the agent had
+gotten right.
+
+All findings are in `plans/3_PhaseAFindings.md` (F1–F16).
+
+**Known and recorded, not fixed** — each carries a warning in the output rather than passing
+silently:
+
+| Gap | Owner |
+|---|---|
+| HTTP through injected services is invisible (`httpInteractions` under-reports) | Phase 2 |
+| Cross-unit edges, `consumedBy`, selector resolution | Phase 2 |
+| ICU expressions, `@defer` prefetch triggers, `afterRender`/`afterNextRender` | Phase 1 follow-up (F10) |
+| `analysis.json` shapes not yet renderable faithfully | before Phase 4 (F14) |
 
 Nothing here is production-ready.
 
@@ -48,16 +70,29 @@ This reads the component's `.ts`, `.html`, styles, and `.spec.ts` files and writ
 | `requirement.md` | The deliverable. Framework-neutral behavioral spec for human review. |
 | `migration_notes.md` | Hazards that will not survive a naive rewrite. Separate so the spec stays framework-neutral. |
 | `signature.json` | What the component is: public interface, dependencies, state outline. |
-| `dependencies.json` | How it connects: in-file call graph, cross-file edges. |
+| `dependencies.json` | How it connects: call graph, field access, routing, imports. |
+| `functions.json` | Per-symbol detail: complexity, side-effect hints, forms, signals, streams, spec cases. |
+| `template.json` | What it renders: control flow, bindings, events, accessibility, i18n. |
 
 `OUTPUT/` is gitignored scratch space. A run worth keeping — in particular the hand-derived
-`signature.json` and `callGraph`, which are the baseline Phase 1's extractor gets measured
-against — is promoted by **manually** copying the component folder to `examples/`, preserving
+`signature.json` and `callGraph`, which are the baseline Phase 1's extractor was measured
+against (F16) — is promoted by **manually** copying the component folder to `examples/`, preserving
 the same mirrored path. Promotion is deliberately a human step, and `examples/` is denied to
 Edit/Write in `.claude/settings.json` so no agent can overwrite a promoted baseline.
 
 You can also just ask in plain language — "document the component at `INPUT/.../foo`" — and the
 relevant skills load automatically.
+
+### Extract the deterministic tiers
+
+```
+npm run resolve -- <component.ts> --out <dir> [--unit-path <path>]
+npm run q -- <unit-dir> refs method:save      # query without loading whole files
+```
+
+The Resolver never throws on bad input: a file it cannot read or classify is recorded and the run
+continues. Everything it could not determine is a structured warning in `provenance.warnings`,
+with `parseStatus` **derived** from those warnings rather than asserted.
 
 ### Check the artifacts
 
@@ -65,10 +100,22 @@ relevant skills load automatically.
 npm test
 ```
 
-Runs three checks: every JSON tier validates against its schema; every id referenced in one tier
-exists in the tier that owns it; and the extractor fixtures are well-formed. The second is the
-one that matters — schema validation reads one file at a time, and a dangling evidence id is
-perfectly well-formed on its own.
+Four checks, each answering something the others cannot:
+
+| Check | Answers |
+|---|---|
+| `validate` | Is each file well-formed against its schema? *(one file at a time)* |
+| `check` | Does every id referenced in one tier exist in the tier that owns it? *(a dangling id is well-formed on its own)* |
+| `golden` | Did extractor behavior change unnoticed? Plus pair equivalence. |
+| recall audit | Did the extractor return seven of nine and report success? |
+
+The last one exists because goldens structurally cannot answer it: a golden is written from the
+output it judges, so an extractor that has **always** missed a construct produces a stable,
+passing golden forever. `ng-scan` counts the same constructs a second way and reports the gap.
+Verified against exactly that case — see F15.
+
+`npm run golden` also prints a **recorded gaps** summary, so warnings are visible on every run
+rather than only inside files nobody opens.
 
 ### Review the output
 
@@ -117,10 +164,13 @@ templates/               the two rendered Markdown views (requirement, migration
   schema/                  one JSON Schema per tier -- SOLE authority on shape, field
                            semantics and tier purpose; id conventions pinned as patterns
 fixtures/                hand-written Angular files, one construct each — extractor unit tests
-tools/                   validate / check-integrity / golden runners; Resolver lands here (Phase 1)
-examples/                promoted runs — reference output and Phase 1 baseline, hand-curated
-benchmarks/              cost/duration per run, per phase — the skills-vs-tooling comparison
-INPUT/                   Angular source under analysis (gitignored)
+  fixtures.json            what each fixture MUST extract, written before the extractor
+tools/                   resolve (the Resolver) + validate / check-integrity / golden / query
+  resolve/                 the four extractors, the warning channel, ng-scan
+examples/                promoted runs — reference output and the Phase A baseline, hand-curated
+benchmarks/              cost per phase, and the Phase 1 omission measurement (F16)
+angular-docs/            pinned Angular 17.3.9 typings + guides (gitignored, regenerable)
+INPUT/                   Angular source under analysis (gitignored, held out from design)
 OUTPUT/                  generated documentation, scratch (gitignored)
 ```
 
@@ -169,9 +219,9 @@ Four rules the whole design rests on. Full reasoning in `plans/1_Decisions.md`.
 | Phase | |
 |---|---|
 | A | Skills-only POC, component level, no tooling — **done** |
-| **0** | Contracts and test harness: schemas, integrity checker, fixtures ← **here** |
-| 1 | Resolver: deterministic extraction via the TypeScript Compiler API |
-| 2 | Repo inventory and cross-unit dependency graph |
+| 0 | Contracts and test harness: schemas, integrity checker, fixtures — **done** |
+| 1 | Resolver: deterministic extraction via the TypeScript Compiler API — **done**, exit measured (F16) |
+| **2** | Repo inventory and cross-unit dependency graph ← **here** |
 | 3 | Agent wiring, one unit end to end |
 | 4 | Decide whether the Explainer stage earns its place, then build it |
 | 5 | Requirements Synthesizer and the Markdown renderer |
