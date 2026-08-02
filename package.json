@@ -10,7 +10,10 @@
     "golden": "node tools/golden.mjs",
     "test": "npm run validate && npm run check && npm run golden",
     "resolve": "node tools/resolve.mjs",
-    "q": "node tools/query.mjs"
+    "index": "node tools/resolve.mjs index",
+    "backfill": "node tools/resolve.mjs backfill",
+    "q": "node tools/query.mjs",
+    "render": "node tools/render.mjs"
   },
   "devDependencies": {
     "@angular/compiler": "^17.3.9",

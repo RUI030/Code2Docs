@@ -1,12 +1,16 @@
 #!/usr/bin/env node
 /**
- * Resolver CLI -- deterministic extraction (Phase 1).
+ * Resolver CLI -- deterministic extraction (Phases 1 & 2).
  *
  *   npm run resolve -- <component.ts> [--out <dir>] [--unit-path <path>]
+ *   npm run resolve -- index <src-root> [--out <dir>] [--stamp]
  *
- * Prints signature.json to stdout, or writes it into --out. Determinism is the
- * point of this tier, so generatedAt is fixed unless --stamp is passed: a
- * timestamp would make every run differ and defeat golden-file diffing.
+ * Unit mode: prints signature.json to stdout, or writes all four ast tiers into
+ * --out. Determinism is the point, so generatedAt is fixed unless --stamp is
+ * passed (a real timestamp defeats golden-file diffing).
+ *
+ * Index mode: walks <src-root>, classifies every Angular unit, builds the
+ * cross-unit dependency graph, and writes index.json to --out (or stdout).
  */
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from "node:fs";
 import { dirname, basename, join, resolve as resolvePath, relative } from "node:path";
@@ -18,6 +22,8 @@ import { countConstructs, recallGaps } from "./resolve/ng-scan.mjs";
 import { extractDependencies } from "./resolve/ts-dependencies.mjs";
 import { extractTemplate, findAngularCompiler } from "./resolve/ng-template.mjs";
 import { extractFunctions } from "./resolve/ts-functions.mjs";
+import { buildIndex } from "./resolve/ng-index.mjs";
+import { backfill } from "./resolve/backfill.mjs";
 import { pathToFileURL, fileURLToPath } from "node:url";
 
 const RESOLVER_VERSION = "0.1.0";
@@ -85,6 +91,58 @@ for (let i = 0; i < argv.length; i++) {
 }
 const flag = (name, fallback = null) => opts.get(name) ?? fallback;
 const has = (name) => opts.get(name) === true;
+
+// ── backfill subcommand ───────────────────────────────────────────────────────
+if (files[0] === "backfill") {
+  const indexPath = files[1];
+  const srcRoot   = files[2];
+  const out       = flag("--out");
+  if (!indexPath || !srcRoot || !out) {
+    console.error("usage: npm run resolve -- backfill <index.json> <src-root> --out <output-dir>");
+    process.exit(2);
+  }
+  const report = backfill(resolvePath(indexPath), resolvePath(srcRoot), resolvePath(out));
+  console.error(
+    `backfill: ${report.signatureUpdates} signature(s) updated, `
+    + `${report.depsUpdates} deps file(s) updated `
+    + `(+${report.httpAdded} http interaction(s), +${report.edgesAdded} unit edge(s))`
+  );
+  process.exit(0);
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── index subcommand ─────────────────────────────────────────────────────────
+if (files[0] === "index") {
+  const srcRoot = files[1];
+  if (!srcRoot) {
+    console.error("usage: npm run resolve -- index <src-root> [--out <dir>] [--stamp]");
+    process.exit(2);
+  }
+  const index = await buildIndex(srcRoot, {
+    rootDir: ROOT_DIR,
+    stamp: has("--stamp"),
+  });
+  const out = flag("--out");
+  if (out) {
+    mkdirSync(out, { recursive: true });
+    const dest = join(out, "index.json");
+    writeFileSync(dest, JSON.stringify(index, null, 2) + "\n");
+    console.error(
+      `index: ${index.unitCount} units, ${index.dependencyEdges.length} edges, `
+      + `${index.unresolvedReferences.length} unresolved refs`
+      + (index.warnings.length ? `, ${index.warnings.length} warning(s)` : "")
+      + ` -> ${dest}`,
+    );
+    if (index.warnings.length) {
+      for (const w of index.warnings) console.error(`  warn: ${w}`);
+    }
+  } else {
+    console.log(JSON.stringify(index, null, 2));
+  }
+  process.exit(0);
+}
+// ────────────────────────────────────────────────────────────────────────────
+
 if (files.length === 0) {
   console.error("usage: npm run resolve -- <component.ts> [--out <dir>] [--unit-path <path>]");
   process.exit(2);

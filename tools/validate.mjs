@@ -10,7 +10,7 @@
  * shape, not instances of it -- see plans/3_PhaseAFindings.md.
  */
 import { readFileSync, readdirSync, statSync } from "node:fs";import { join, basename, resolve } from "node:path";import Ajv2020 from "ajv/dist/2020.js";
-import { ROOT, SCHEMA_DIR, ALL_TIERS as TIERS } from "./tiers.mjs";
+import { ROOT, SCHEMA_DIR, VALIDATABLE_TIERS as TIERS } from "./tiers.mjs";
 
 
 function loadSchemas() {

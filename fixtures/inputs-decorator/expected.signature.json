@@ -98,6 +98,7 @@
   "injectedDependencies": [],
   "lifecycle": {
     "implementedHooks": [],
+    "registeredHooks": [],
     "declaredInterfaces": [],
     "constructorDoesWork": false,
     "fieldInitializerDoesWork": false,

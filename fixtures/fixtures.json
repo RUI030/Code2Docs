@@ -258,6 +258,22 @@
         "dependencies streams[].unsubscribeStrategy is 'async-pipe' -- the PER-STREAM vocabulary, which is a different closed set that does not contain 'async-pipe-only'",
         "the two vocabularies are never assigned across: F20 found the unit-level value written straight into the per-stream field, invalid against the schema and invisible to 59 fixtures because the enums overlap on three values"
       ]
+    },
+    {
+      "id": "lifecycle-render-hooks",
+      "pair": [
+        "lifecycle-render-hooks"
+      ],
+      "isolates": "afterRender and afterNextRender -- render-timing hooks registered by calling a function in the constructor, not by implementing an interface method (F10f).",
+      "mustExtract": [
+        "lifecycle.registeredHooks includes 'afterNextRender' and 'afterRender' -- both calls are detected",
+        "neither hook appears in lifecycle.implementedHooks -- that list is for interface methods only",
+        "lifecycle.constructorDoesWork is true -- the constructor calls the hooks"
+      ],
+      "equivalence": {
+        "mayDiffer": [],
+        "reason": "Single-member: there is no alternative syntax for afterRender/afterNextRender -- they are always standalone calls, not decorators or method implementations."
+      }
     }
   ],
   "notCoveredYet": {
@@ -269,7 +285,6 @@
       "computed() and linkedSignal() dependency chains",
       "inherited members from a base class -- the extensionPoints case (F5a)",
       "cross-component shared mutable service state, which is the highest-severity migration risk and not observable from one unit (F3)",
-      "ICU expressions themselves -- fixtures/i18n-icu asserts the gap is REPORTED, not that it is extracted",
       "async validators, and cross-field (group-level) validators -- neither fixture exercises them"
     ]
   }

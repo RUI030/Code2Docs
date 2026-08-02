@@ -188,7 +188,7 @@ function formConstruction(init, src) {
   if (ts.isNewExpression(init)) {
     const name = ts.isIdentifier(init.expression) ? init.expression.text : null;
     if (name && FORM_CTORS.has(name)) {
-      return { builtWith: name === "FormGroup" ? "new FormGroup" : null, ctor: name, args: init.arguments };
+      return { builtWith: `new ${name}`, ctor: name, args: init.arguments };
     }
     return null;
   }
@@ -230,13 +230,6 @@ function extractForms(cls, src, file, w) {
     if (!built) continue;
     approach = "reactive";
     const name = m.name.getText(src);
-
-    if (built.builtWith === null) {
-      w?.warn("unhandled-declaration",
-        `form '${name}' is built with new ${built.ctor}, which builtWith has no value for. `
-        + "Recorded as not-determined rather than guessed at.",
-        { file, line: loc(m, src, file).line });
-    }
 
     const controls = [];
     const objLit = built.args?.[0];

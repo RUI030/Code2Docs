@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "0.5.0",
+  "unitId": "component:fixtures/lifecycle-render-hooks:ScrollComponent",
+  "callGraph": {
+    "nodes": [],
+    "edges": [],
+    "calls": {},
+    "calledBy": {},
+    "entryPoints": [],
+    "executionOrder": [],
+    "depthFromEntry": {},
+    "cycles": [],
+    "unreachableMethods": [],
+    "leafMethods": []
+  },
+  "fieldAccess": {
+    "reads": {},
+    "writes": {},
+    "readBy": {},
+    "writtenBy": {},
+    "derivedFrom": {},
+    "signalDependencies": {}
+  },
+  "dependencyUsage": [
+    {
+      "dep": "dep:el",
+      "resolvedUnitId": null,
+      "calledMembers": [],
+      "readProperties": [],
+      "usedByMethods": []
+    }
+  ],
+  "outboundUnitEdges": [],
+  "inboundUnitEdges": [],
+  "httpInteractions": [],
+  "routing": {
+    "isRoutedComponent": false,
+    "routePaths": [],
+    "routeParamsConsumed": [],
+    "queryParamsConsumed": [],
+    "routeDataConsumed": [],
+    "navigations": [],
+    "guards": [],
+    "resolvers": []
+  },
+  "imports": {
+    "angular": [
+      {
+        "module": "@angular/core",
+        "symbols": [
+          "Component",
+          "afterRender",
+          "afterNextRender",
+          "ElementRef",
+          "inject"
+        ]
+      }
+    ],
+    "rxjs": [],
+    "thirdParty": [],
+    "internal": [],
+    "unresolved": []
+  },
+  "dataTypes": [],
+  "streams": [],
+  "provenance": {
+    "source": "ast",
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "inputHash": "05070ef82102551d",
+    "parseStatus": "partial",
+    "warnings": [
+      {
+        "code": "empty-by-design",
+        "severity": "info",
+        "message": "outboundUnitEdges and inboundUnitEdges are empty: cross-unit resolution needs the repo index (Phase 2)."
+      },
+      {
+        "code": "upper-bound-only",
+        "severity": "warning",
+        "message": "unreachableMethods OVER-REPORTS: no template was parsed, so methods called only from a template binding or host listener look uncalled. Treat it as an upper bound until template.json exists."
+      },
+      {
+        "code": "lower-bound-only",
+        "severity": "warning",
+        "message": "httpInteractions is empty, but this unit injects 1 dependenc(ies). Only DIRECT HttpClient calls are detected here; requests made through an injected service are invisible until the cross-unit graph exists (Phase 2). Empty does NOT mean this unit makes no requests."
+      }
+    ]
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://code2docs/schema/index.schema.json",
+  "title": "index.json -- repo inventory and cross-unit dependency graph",
+  "$comment": "Phase 2 output. Produced by `node tools/resolve.mjs index <src-root>`. One record per Angular unit in the source tree; dependency edges come from both import statements and template selector usage. The processingOrder array is a leaf-first topological sort so that a unit's dependencies are already documented when it is processed. Units involved in import cycles are appended after the sort and noted in warnings.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "generatedAt",
+    "srcRoot",
+    "unitCount",
+    "units",
+    "dependencyEdges",
+    "processingOrder",
+    "reverseDependencies",
+    "unresolvedReferences"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": "0.1.0" },
+    "generatedAt": { "type": "string", "minLength": 1 },
+    "srcRoot": {
+      "type": "string",
+      "$comment": "Path of the Angular source root relative to the project root directory."
+    },
+    "unitCount": { "type": "integer", "minimum": 0 },
+    "units": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/unitRecord" }
+    },
+    "dependencyEdges": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/edge" }
+    },
+    "processingOrder": {
+      "type": "array",
+      "items": { "$ref": "common.schema.json#/$defs/unitId" },
+      "$comment": "Leaf-first: dependencies come before their dependents. Units in a cycle appear at the end. Process in this order so a unit's dependencies are already documented when it is reached."
+    },
+    "routeTree": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/routeFile" }
+    },
+    "routeTreeNote": {
+      "type": "string",
+      "$comment": "Human-readable caveat on routeTree completeness."
+    },
+    "reverseDependencies": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "$ref": "common.schema.json#/$defs/unitId" }
+      },
+      "$comment": "Map from unitId to the list of unitIds that directly depend on it. Lets consumedBy be populated from fact rather than inference."
+    },
+    "unresolvedReferences": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/unresolvedRef" }
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" },
+      "$comment": "Non-fatal issues encountered during indexing. Reported rather than silently dropped."
+    }
+  },
+  "$defs": {
+    "unitRecord": {
+      "type": "object",
+      "required": ["id", "kind", "className", "path", "files"],
+      "additionalProperties": false,
+      "properties": {
+        "id":        { "$ref": "common.schema.json#/$defs/unitId" },
+        "kind":      { "$ref": "common.schema.json#/$defs/unitKind" },
+        "className": { "type": "string", "minLength": 1 },
+        "selector":  { "type": ["string", "null"] },
+        "path": {
+          "type": "string",
+          "$comment": "Directory path relative to srcRoot (forward slashes)."
+        },
+        "files": {
+          "type": "object",
+          "required": ["typescript"],
+          "additionalProperties": false,
+          "properties": {
+            "typescript": { "type": "string" },
+            "template":   { "type": "string" },
+            "styles":     { "type": "array", "items": { "type": "string" } },
+            "specs":      { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "required": ["from", "to", "via"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "$ref": "common.schema.json#/$defs/unitId" },
+        "to":   { "$ref": "common.schema.json#/$defs/unitId" },
+        "via": {
+          "type": "string",
+          "enum": ["import", "selector"],
+          "$comment": "'import' = TypeScript import statement; 'selector' = child component used in template."
+        }
+      }
+    },
+    "routeFile": {
+      "type": "object",
+      "required": ["file", "declaredPaths"],
+      "additionalProperties": false,
+      "properties": {
+        "file":         { "type": "string" },
+        "declaredPaths": {
+          "type": "array",
+          "items": { "type": "string" },
+          "$comment": "Path strings declared in Routes arrays in this file. Lazy-loaded children are not followed."
+        }
+      }
+    },
+    "unresolvedRef": {
+      "type": "object",
+      "required": ["unit", "kind", "ref"],
+      "additionalProperties": false,
+      "properties": {
+        "unit": { "$ref": "common.schema.json#/$defs/unitId" },
+        "kind": {
+          "type": "string",
+          "enum": ["import", "selector"],
+          "$comment": "Whether this was an unresolved import path or an unresolved template selector."
+        },
+        "ref":  { "type": "string", "$comment": "The raw import path or selector string that could not be resolved." }
+      }
+    }
+  }
+}

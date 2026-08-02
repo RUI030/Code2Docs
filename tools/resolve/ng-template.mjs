@@ -367,9 +367,13 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
     } else if (n instanceof C.TmplAstDeferredBlock) {
       // @defer changes WHEN content renders -- exactly the behavior this project
       // preserves, and absent from the pre-D13 construct vocabulary (F8e).
+      // prefetchTriggers fire a prefetch but do not change WHEN the block renders,
+      // so they are prefixed to distinguish them from render triggers (F10d).
+      const triggers = Object.keys(n.triggers ?? {});
+      const prefetch  = Object.keys(n.prefetchTriggers ?? {}).map((k) => `prefetch:${k}`);
       emit("controlFlow", n, {
         id: null, construct: "@defer",
-        expression: (n.triggers ? Object.keys(n.triggers) : []).join(",") || null,
+        expression: [...triggers, ...prefetch].join(",") || null,
         itemAlias: null, trackBy: null, aliases: [], dependsOn: [], parent: null, depth, loc: loc(n),
       });
       for (const [k, blk] of [["@placeholder", n.placeholder], ["@loading", n.loading], ["@error", n.error]]) {
@@ -542,6 +546,26 @@ export function extractTemplate(templateFile, templateText, signature, compilerP
           isInteractiveNonSemantic: nonSemanticInteractive,
         });
       }
+    } else if (n instanceof C.TmplAstIcu) {
+      // ICU expressions: `{count, plural, =0 {none} one {one} other {many}}`.
+      // Previously fell through to the unhandled-template-node catch-all (F10a).
+      // The ICU structure is in n.i18n.nodes[0]: { expression, type, cases }.
+      // n.vars holds VAR_PLURAL/VAR_SELECT placeholder → ASTWithSource, not
+      // the source expression; the readable form lives in i18n.nodes[0].
+      const i18nDef = n.i18n?.nodes?.[0];
+      const icuType = i18nDef?.type ?? "plural";
+      const switchExpr = i18nDef?.expression ?? "";
+      const caseKeys = i18nDef?.cases ? Object.keys(i18nDef.cases) : [];
+      const depId = switchExpr ? memberIdFor(switchExpr) : null;
+      emit("i18n", n, {
+        id: null,
+        mechanism: "icu",
+        icuType,
+        switchExpression: switchExpr,
+        cases: caseKeys,
+        dependsOn: depId ? [depId] : [],
+        loc: loc(n),
+      });
     } else if (n instanceof C.TmplAstUnknownBlock) {
       // Angular itself did not recognise the block: an invalid template, or one
       // using syntax newer than the compiler doing the parsing. Distinct from the

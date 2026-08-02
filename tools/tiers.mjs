@@ -24,5 +24,11 @@ export const AST_TIERS = Object.freeze([
   "signature", "dependencies", "functions", "template",
 ]);
 
-/** Every tier, including the model-written aggregate. What schemas and ids span. */
+/** Every per-unit tier, including the model-written aggregate. What schemas and ids span. */
 export const ALL_TIERS = Object.freeze([...AST_TIERS, "analysis"]);
+
+/** Repo-level outputs (one per repository, not one per unit). */
+export const REPO_TIERS = Object.freeze(["index"]);
+
+/** Union of all tier names that have schemas and can be validated. */
+export const VALIDATABLE_TIERS = Object.freeze([...ALL_TIERS, ...REPO_TIERS]);

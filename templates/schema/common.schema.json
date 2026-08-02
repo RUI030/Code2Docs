@@ -179,7 +179,8 @@
             "lower-bound-only",
             "upper-bound-only",
             "empty-by-design",
-            "parser-selected"
+            "parser-selected",
+            "http-via-service"
           ]
         },
         "severity": {

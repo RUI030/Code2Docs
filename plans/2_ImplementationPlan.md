@@ -316,18 +316,51 @@ The tasks below apply only if the comparison favours staging.
 - Author `.claude/skills/requirements-writing/`: the description's "Requirements Skill File" —
   how to phrase a behavioral requirement, how to convert each Angular template construct
   into a framework-independent statement, and the prohibition on target-framework design.
-- Single comprehensive call over the aggregate (the `ast` tiers + explanations + dependency
-  context), per the description.
+
+**Synthesizer decomposes into three sub-agents** rather than a single comprehensive call.
+Each sub-agent is focused, reads the minimum context it needs, and passes its draft forward
+to the next:
+
+```
+ ast tiers + doc tier (from Explainer)
+        │
+        ▼
+  StructureAgent   — reads: signature.json + dependencies.json
+                     writes: stateModel, publicContract,
+                             serviceLayer, externalIntegrations
+        │
+        ▼
+  BehaviorAgent    — reads: template.json + functions.json
+                            + StructureAgent draft
+                     writes: workflows, lifecycleBehavior,
+                             acceptanceCriteria
+        │
+        ▼
+  CritiqueAgent    — reads: all four ast tiers + both drafts above
+                     writes: deadCode, risks, openQuestions,
+                             domainRules, behavioralInvariants
+        │
+        ▼
+  Orchestrator merges sections → analysis.json
+```
+
+Rationale: each sub-agent's context window contains only what it needs to reason about.
+StructureAgent never sees template noise; BehaviorAgent can assume the contract is already
+settled; CritiqueAgent reads across both views specifically to catch contradictions between
+them. If D8 shows that one-shot wins for small units, collapse back to a single call for
+those and keep the decomposition only for units above the size threshold.
+
 - Enforce the evidence rule mechanically: post-validate that every `doc` entry's
   `evidence` ids resolve to real `ast` ids. Dangling evidence is a hard failure, not a warning
   — this check is what keeps the LLM stages honest.
 - Build the **renderer** (deterministic, no LLM — see **D2a**): `analysis.json` plus the
   cited ast tiers in, `requirement.md` and `migration_notes.md` out. Implement the
   section-hash marker protocol so human edits are never overwritten, and add the
-  re-render-and-diff consistency check to CI.
+  re-render-and-diff consistency check to CI. (Renderer is already built as of Phase 2.)
 
 *Exit:* a fixture unit's `requirement.md` is judged accurate on human read; all evidence
-ids resolve.
+ids resolve; CritiqueAgent's `openQuestions` count is lower than the Phase A baseline on
+the same unit (D11 check).
 
 ### Phase 6 — Scale and orchestration
 

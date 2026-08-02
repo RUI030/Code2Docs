@@ -414,6 +414,14 @@
             "$ref": "common.schema.json#/$defs/identifier"
           }
         },
+        "registeredHooks": {
+          "$comment": "Render-timing hooks registered by calling afterRender() or afterNextRender() in an injection context. Distinct from implementedHooks (which are interface methods) because these are standalone function calls, not class member implementations (F10f).",
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["afterRender", "afterNextRender"]
+          }
+        },
         "declaredInterfaces": {
           "type": "array",
           "items": {

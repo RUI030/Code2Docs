@@ -365,6 +365,28 @@ export function extractSignature(filePath, sourceText, opts = {}) {
     }
   }
 
+  // afterRender/afterNextRender are standalone function calls registered in an
+  // injection context (constructor or field initializer), not interface methods,
+  // so LIFECYCLE_HOOKS.has() is the wrong test for them (F10f).
+  const registeredHooks = [];
+  const RENDER_HOOKS = new Set(["afterRender", "afterNextRender"]);
+  function scanForRenderHooks(node) {
+    if (!node) return;
+    ts.forEachChild(node, (child) => {
+      if (ts.isCallExpression(child) &&
+          ts.isIdentifier(child.expression) &&
+          RENDER_HOOKS.has(child.expression.text) &&
+          !registeredHooks.includes(child.expression.text)) {
+        registeredHooks.push(child.expression.text);
+      }
+      scanForRenderHooks(child);
+    });
+  }
+  if (ctor?.body) scanForRenderHooks(ctor.body);
+  for (const m of cls.members) {
+    if (ts.isPropertyDeclaration(m) && m.initializer) scanForRenderHooks(m.initializer);
+  }
+
   const bodyText = cls.getText(src);
   const cleanupStrategy = implementedHooks.includes("ngOnDestroy")
     ? (/\.unsubscribe\(\)/.test(bodyText) ? "ngOnDestroy-unsubscribe" : "none")
@@ -416,7 +438,7 @@ export function extractSignature(filePath, sourceText, opts = {}) {
     },
     injectedDependencies: deps,
     lifecycle: {
-      implementedHooks, declaredInterfaces, constructorDoesWork,
+      implementedHooks, registeredHooks, declaredInterfaces, constructorDoesWork,
       fieldInitializerDoesWork, cleanupStrategy,
     },
     stateOutline: { fields, methodIds, accessorIds, formIds, streamIds },

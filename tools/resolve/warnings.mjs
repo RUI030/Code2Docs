@@ -79,6 +79,8 @@ export const WARNING_CODES = Object.freeze({
     why: "A section is empty because another stage owns it, not because extraction failed. Previously indistinguishable from a real gap." },
   "parser-selected": { severity: "info",
     why: "Records which compiler was used and from where. Path must be relativised -- see this module's header." },
+  "http-via-service": { severity: "info",
+    why: "httpInteractions entries have directHttpClientUse:false -- they were inferred by the Phase 2 backfill by parsing the injected service's source. The lower-bound-only warning is removed when this fires, because the bound is now tighter." },
 });
 
 const RANK = { error: 3, warning: 2, info: 1 };
