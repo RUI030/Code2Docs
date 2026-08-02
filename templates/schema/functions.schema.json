@@ -24,6 +24,15 @@
     "unitId": {
       "$ref": "common.schema.json#/$defs/unitId"
     },
+    "callGraph": {
+      "$comment": "Intra-class call graph: method:X → [method:Y, ...] for each this.Y() call found in X's body. Only methods with at least one intra-class callee appear as keys. A method absent from all value lists and not bound in the template is a dead-code candidate (D11 q:1).",
+      "type": "object",
+      "propertyNames": { "$ref": "common.schema.json#/$defs/memberId" },
+      "additionalProperties": {
+        "type": "array",
+        "items": { "$ref": "common.schema.json#/$defs/memberId" }
+      }
+    },
     "symbols": {
       "type": "object",
       "propertyNames": {

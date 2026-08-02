@@ -1,6 +1,7 @@
 {
   "schemaVersion": "0.5.0",
   "unitId": "component:fixtures/i18n-icu:MessageComponent",
+  "callGraph": {},
   "symbols": {},
   "forms": {
     "approach": "none",

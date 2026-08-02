@@ -1,6 +1,7 @@
 {
   "schemaVersion": "0.5.0",
   "unitId": "component:fixtures/teardown-manual:TickerComponent",
+  "callGraph": {},
   "symbols": {
     "method:ngOnInit": {
       "ast": {

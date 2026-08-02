@@ -46,12 +46,16 @@
 
 **What Phase 2 provides:**
 - Template `eventBindings` shows only `method:save` and `method:previousState` — proving the three file-handling methods are not template-reachable.
-- `functions.json` lists all 12 method symbols, making the dead-code candidates visible by name.
-- `callGraph` is empty — Phase 2 extractors do not build intra-class call edges. The Synthesizer cannot verify whether `save()` or other methods call `byteSize`/`openFile`/`setFileData`.
+- `functions.json` `callGraph` now emits intra-class call edges (shipped as part of Phase 2 gap closure):
+  ```
+  method:ngOnInit          → [updateForm, loadRelationshipsOptions]
+  method:save              → [subscribeToSaveResponse]
+  method:subscribeToSaveResponse → [onSaveFinalize, onSaveSuccess, onSaveError]
+  method:onSaveSuccess     → [previousState]
+  ```
+  `byteSize`, `openFile`, `setFileData` appear in no value list — confirmed not called by any other method in the class.
 
-**Verdict: still blocking.** Template-level reachability is now proven (the three methods are NOT bound), but intra-class reachability is invisible. A Synthesizer reading only the structured JSON cannot confirm the methods are unreachable from other methods in the class. The question narrows from "unknown if reachable from anywhere" to "not template-reachable, but call chain unknown" — still a blocking gap.
-
-**What would close it:** `callGraph` in `functions.json` — edges from callers to callees within the class. This is a named Phase 3 / F20 gap.
+**Verdict: closed.** Combined with template-level evidence (not bound) and call-graph evidence (not called internally), a Synthesizer can assert the three methods are unreachable with no blocking uncertainty remaining.
 
 ---
 
@@ -72,20 +76,16 @@
 | Unit | Phase A blocking | Phase 2 projected blocking | Change |
 |------|-----------------|--------------------------|--------|
 | `activate` | 0 | 0 | — |
-| `post/update` q:1 (dead code) | 1 | **1** (narrowed) | still blocking |
+| `post/update` q:1 (dead code) | 1 | **0** | closed by callGraph + template evidence |
 | `post/update` q:2 (error display) | 1 | **0** | closed by selector edge |
-| **Total** | **2** | **1** | **-1** |
+| **Total** | **2** | **0** | **-2** |
 
 ---
 
 ## Interpretation
 
-Phase 2 closes one of the two blocking questions by providing **selector-edge discovery** — the dependency graph now records which named components appear in a template, not just which services are injected. That single edge made q:2 answerable from structured data alone.
+Phase 2 closes both blocking questions. **2 blocking → 0 blocking.**
 
-The remaining blocking question (q:1) exposes the **intra-class call graph gap**. Phase 2 extractors parse method declarations but do not trace which methods call which other methods within the class. Without that, a Synthesizer cannot distinguish "genuinely dead code" from "code reached via an internal chain the template initiates indirectly."
+**q:2** was closed by **selector-edge discovery** — `AlertErrorComponent` appearing in `outboundUnitEdges` via selector tells a Synthesizer exactly which component handles error display.
 
-### Named gap: `callGraph` in `functions.json`
-
-The current `functions.json` emits a `callGraph: {}` field but leaves it empty. Populating it with `{ "method:save": ["method:subscribeToSaveResponse"], ... }` would close q:1 without any LLM involvement — the dead-code question becomes a graph reachability check on deterministic data.
-
-This is the highest-priority gap exposed by D11. It is a purely structural extraction problem (walk method bodies, collect `this.X()` calls), not a semantic one.
+**q:1** was closed by **intra-class callGraph** — `functions.json` now emits `this.X()` edges for every method body. `byteSize`, `openFile`, `setFileData` appear in no callGraph value list and in no template event binding, making them provably unreachable from any entry point without LLM involvement.

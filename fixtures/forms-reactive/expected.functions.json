@@ -1,6 +1,7 @@
 {
   "schemaVersion": "0.5.0",
   "unitId": "component:fixtures/forms-reactive:SignupComponent",
+  "callGraph": {},
   "symbols": {
     "method:submit": {
       "ast": {

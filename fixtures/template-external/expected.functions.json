@@ -1,6 +1,7 @@
 {
   "schemaVersion": "0.5.0",
   "unitId": "component:fixtures/template-external:PanelComponent",
+  "callGraph": {},
   "symbols": {
     "method:toggle": {
       "ast": {

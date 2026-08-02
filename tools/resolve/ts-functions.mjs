@@ -106,6 +106,29 @@ function sideEffectHints(node, src, depNames) {
   return h;
 }
 
+/**
+ * Collect `this.X()` calls within a method body where X is another method in
+ * this class. Returns method ids (e.g. "method:save"), deduped, in call order.
+ * Only direct `this.X()` — service calls (`this.svc.X()`) are excluded because
+ * their receiver is not `this` directly.
+ */
+function intraClassCallsIn(body, classMethodIds) {
+  const calls = [];
+  const walk = (n) => {
+    if (
+      ts.isCallExpression(n) &&
+      ts.isPropertyAccessExpression(n.expression) &&
+      n.expression.expression.kind === ts.SyntaxKind.ThisKeyword
+    ) {
+      const id = `method:${n.expression.name.text}`;
+      if (classMethodIds.has(id) && !calls.includes(id)) calls.push(id);
+    }
+    ts.forEachChild(n, walk);
+  };
+  walk(body);
+  return calls;
+}
+
 /** `a.pipe(x, y).subscribe(...)` -> the chain, its operators, and how it ends. */
 function subscriptionsIn(node, src, file, cleanupStrategy) {
   const out = [];
@@ -362,6 +385,19 @@ export function extractFunctions(filePath, sourceText, signature, dependencies, 
     };
   }
 
+  // Intra-class call graph: method:X → [method:Y, ...] for each this.Y() call in X's body.
+  // Only methods with at least one intra-class callee appear as keys; absent key = no such calls.
+  const classMethodIds = new Set(Object.keys(symbols));
+  const callGraph = {};
+  for (const m of cls.members) {
+    if ((!ts.isMethodDeclaration(m) && !ts.isConstructorDeclaration(m)) || !m.body) continue;
+    const name = ts.isConstructorDeclaration(m) ? "constructor" : m.name.getText(src);
+    const id = `method:${name}`;
+    if (!classMethodIds.has(id)) continue;
+    const callees = intraClassCallsIn(m.body, classMethodIds);
+    if (callees.length) callGraph[id] = callees;
+  }
+
   const memberNames = new Map(
     [...signature.stateOutline.methodIds.map((x) => [x.slice(7), x]),
      ...signature.stateOutline.fields.map((f) => [f.name, f.id])]);
@@ -386,6 +422,7 @@ export function extractFunctions(filePath, sourceText, signature, dependencies, 
   return {
     schemaVersion: "0.5.0",
     unitId: signature.unit.id,
+    callGraph,
     symbols,
     forms,
     streams: [],  // source-named only (D12a); inline ones are on their symbol

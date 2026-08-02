@@ -1,6 +1,7 @@
 {
   "schemaVersion": "0.5.0",
   "unitId": "component:fixtures/control-flow-block:ListComponent",
+  "callGraph": {},
   "symbols": {
     "method:trackById": {
       "ast": {

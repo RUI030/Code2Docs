@@ -1,6 +1,7 @@
 {
   "schemaVersion": "0.5.0",
   "unitId": "component:fixtures/lifecycle-render-hooks:ScrollComponent",
+  "callGraph": {},
   "symbols": {
     "method:constructor": {
       "ast": {

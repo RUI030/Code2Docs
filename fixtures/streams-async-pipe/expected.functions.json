@@ -1,6 +1,7 @@
 {
   "schemaVersion": "0.5.0",
   "unitId": "component:fixtures/streams-async-pipe:FeedComponent",
+  "callGraph": {},
   "symbols": {},
   "forms": {
     "approach": "none",

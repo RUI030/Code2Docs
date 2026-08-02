@@ -1,6 +1,7 @@
 {
   "schemaVersion": "0.5.0",
   "unitId": "component:fixtures/di-constructor:ReaderComponent",
+  "callGraph": {},
   "symbols": {
     "method:constructor": {
       "ast": {

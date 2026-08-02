@@ -1,6 +1,7 @@
 {
   "schemaVersion": "0.5.0",
   "unitId": "component:fixtures/raw-html-sink:BannerComponent",
+  "callGraph": {},
   "symbols": {},
   "forms": {
     "approach": "none",

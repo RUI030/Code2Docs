@@ -1,6 +1,7 @@
 {
   "schemaVersion": "0.5.0",
   "unitId": "component:fixtures/handlers-compound:ToolbarComponent",
+  "callGraph": {},
   "symbols": {
     "method:save": {
       "ast": {

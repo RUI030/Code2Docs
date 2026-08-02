@@ -1,6 +1,7 @@
 {
   "schemaVersion": "0.5.0",
   "unitId": "component:fixtures/template-missing:OrphanComponent",
+  "callGraph": {},
   "symbols": {},
   "forms": {
     "approach": "none",
