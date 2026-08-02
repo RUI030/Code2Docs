@@ -98,27 +98,27 @@ load-bearing decision without the answer. Do not name a target framework.
 
 ## After CritiqueAgent
 
-1. Merge the three drafts into a single `analysis.json`. Validate against
-   `templates/schema/analysis.schema.json` — schema failure is a hard stop.
+1. Merge the three drafts into a single `analysis.json`. The file must conform to
+   `templates/schema/analysis.schema.json` — write valid JSON that satisfies the schema.
+   The Orchestrator will run `tools/validate.mjs` on it after this agent returns; schema
+   failure is a hard stop.
 
-2. Post-validate evidence ids: every `doc` entry's `evidence` ids must resolve to real
-   `ast` ids in the JSON tiers. Dangling evidence is a hard failure.
+2. Write `analysis.json` to `<outputDir>/analysis.json`.
 
-3. Run the renderer:
-   ```
-   node tools/render.mjs <outputDir>/analysis.json
-   ```
-   This writes `requirement.md` and `migration_notes.md` at paths declared in
-   `analysis.rendersTo`.
+3. Post-validate evidence ids before writing: every `doc` entry's `evidence` ids must
+   resolve to real `ast` ids in the JSON tiers. Dangling evidence is a hard failure —
+   report any dangling ids to the Orchestrator rather than writing them silently.
+
+**Do not run the renderer.** The Orchestrator runs `tools/render.mjs` after validation.
 
 ## Output
 
 Report to the orchestrator:
+- path to `analysis.json` written
 - `openQuestions` count, split by `blocking: true` / `blocking: false`
 - count of `deadCode` entries
 - count of `risks` by severity
-- whether all evidence ids resolved
-- renderer exit status
+- whether all evidence ids resolved (list any dangling ids)
 
 ## Constraints
 
