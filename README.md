@@ -4,8 +4,8 @@ Reads an Angular codebase and writes down what it does — a human-reviewable re
 specification plus a machine-readable dataset — so the behavior can be preserved when the code
 is rebuilt in another framework.
 
-This is **Stage 1** of a migration. It produces documentation and stops at a human approval
-gate. It does not generate target-framework code.
+**Stage 1 of a migration pipeline.** Produces documentation and stops at a human approval gate.
+Does not generate target-framework code.
 
 ## Why this exists
 
@@ -17,88 +17,85 @@ because nothing flagged them.
 Code2Docs' job is to write down the behavior precisely enough — and traceably enough — that a
 reviewer can confirm it before anyone rebuilds anything.
 
-## Status
+## How it works
 
-**Phases A and 0 are complete. Phase 1 has met its exit criteria; Phase 2 is next.**
+The pipeline has two halves.
 
-*Phase A* ran one agent against two components with no AST tooling, to establish whether
-generated requirement documents are accurate and useful *before* investing in extraction
-infrastructure. The documents were accurate, and the failures were not where the plan assumed:
-nothing was wrong with comprehension or with `requirement.md`'s structure. What failed was naming
-unanchored to real identifiers, everything living outside one component folder, and six evidence
-citations that resolve to nothing — the last found by a mechanical check after a close read had
-missed them. The producing state is tagged `phase-a-baseline`.
+The **left half** is deterministic and LLM-free: the Resolver reads Angular TypeScript source,
+template HTML, and spec files using the TypeScript Compiler API and emits four structured JSON
+tiers (`signature`, `dependencies`, `functions`, `template`). These tiers are reproducible,
+schema-validated, and carry no model output.
 
-*Phase 0* pinned every artifact shape as a JSON Schema, added the cross-tier integrity checker,
-and built the fixture corpus and golden runner.
+The **right half** is LLM-written: an Explainer fills per-symbol semantic explanations on
+complex units; a Synthesizer reads the full unit and writes `analysis.json` (structured findings,
+behavioral workflows, open questions). Every LLM claim must cite an `ast` tier id as evidence —
+dangling evidence is a hard failure, not a warning. A deterministic renderer then assembles
+`requirement.md` and `migration_notes.md` from the JSON.
 
-*Phase 1* extracts all four `ast` tiers deterministically. Its exit measurement is in
-`benchmarks/phase1-omission.json`, and it inverted the assumption it was written on: the
-hand-filled Phase A baseline had **zero** omissions on every declarative category, and the
-*extractor* was the weaker side. What the extractor uniquely supplies is derived — template-to-
-method call edges nobody enumerated by hand, which is what makes reachability verified rather
-than searched. The comparison's real yield was two extractor defects, one of which the agent had
-gotten right.
+The two halves are kept separate so errors are attributable: a wrong fact in the output traces
+to either a wrong extraction (deterministic, reproducible, fixable) or a wrong inference
+(LLM-written, evidence-checked). A pipeline where they are mixed cannot make that distinction.
 
-All findings are in `plans/3_PhaseAFindings.md` (F1–F19).
+See **`ARCHITECTURE.md`** for the full pipeline diagram, dataflow, and file responsibilities.
 
-**Known and recorded, not fixed** — each carries a warning in the output rather than passing
-silently:
-
-| Gap | Owner |
-|---|---|
-| HTTP through injected services is invisible (`httpInteractions` under-reports) | Phase 2 |
-| Cross-unit edges, `consumedBy`, selector resolution | Phase 2 |
-| ICU expressions, `@defer` prefetch triggers, `afterRender`/`afterNextRender` | Phase 1 follow-up (F10) |
-| `analysis.json` shapes not yet renderable faithfully | before Phase 4 (F14) |
-
-Nothing here is production-ready.
+---
 
 ## Usage
 
-### Analyze one component
+### Analyze one component (skills-only, available now)
 
 ```
 /code2docs-analyze INPUT/<path>/<component-folder>
 ```
 
-This reads the component's `.ts`, `.html`, styles, and `.spec.ts` files and writes to
-`OUTPUT/<mirrored path>/`:
+Or in plain language: *"document the component at `INPUT/.../foo`"* — the relevant skills load
+automatically.
+
+This runs the Phase A skills-only path: one agent reads the source and writes:
 
 | Output | What it is |
 |---|---|
 | `requirement.md` | The deliverable. Framework-neutral behavioral spec for human review. |
 | `migration_notes.md` | Hazards that will not survive a naive rewrite. Separate so the spec stays framework-neutral. |
-| `signature.json` | What the component is: public interface, dependencies, state outline. |
-| `dependencies.json` | How it connects: call graph, field access, routing, imports. |
-| `functions.json` | Per-symbol detail: complexity, side-effect hints, forms, signals, streams, spec cases. |
-| `template.json` | What it renders: control flow, bindings, events, accessibility, i18n, and the static text the screen shows — the product's own vocabulary (F19). |
 
-`OUTPUT/` is gitignored scratch space. A run worth keeping — in particular the hand-derived
-`signature.json` and `callGraph`, which are the baseline Phase 1's extractor was measured
-against (F16) — is promoted by **manually** copying the component folder to `examples/`, preserving
-the same mirrored path. Promotion is deliberately a human step, and `examples/` is denied to
-Edit/Write in `.claude/settings.json` so no agent can overwrite a promoted baseline.
-
-You can also just ask in plain language — "document the component at `INPUT/.../foo`" — and the
-relevant skills load automatically.
+Prose is real but recall is unverified — the LLM may miss methods or bindings that a human
+reviewer would catch. Two reviewed examples are in `examples/baseline_skillsonly/`.
 
 ### Extract the deterministic tiers
 
 ```
 npm run resolve -- <component.ts> --out <dir> [--unit-path <path>]
-npm run q -- <unit-dir> refs method:save      # query without loading whole files
 ```
 
-`npm run q` is a **developer CLI, and deliberately unscheduled**: no phase lifts its verbs into
-agent tool definitions or evaluates them, so agents currently read the tier files directly. See
-`plans/2_ImplementationPlan.md` §1 for why that is a stated choice rather than an oversight.
+Emits schema-valid `ast` content for `signature.json`, `dependencies.json`, `functions.json`,
+and `template.json`. Never throws on bad input — unresolvable constructs are recorded as
+structured warnings in `provenance.warnings`, and `parseStatus` is derived from those rather
+than asserted.
 
-The Resolver never throws on bad input: a file it cannot read or classify is recorded and the run
-continues. Everything it could not determine is a structured warning in `provenance.warnings`,
-with `parseStatus` **derived** from those warnings rather than asserted.
+### Build the repo index
 
-### Check the artifacts
+```
+npm run resolve -- index <src-root> --out <dir>
+```
+
+Walks the entire source tree, classifies every Angular unit, resolves selector and import edges
+across the repo, and emits `index.json`. This backfills `outboundUnitEdges`, `consumedBy`, and
+`httpInteractions` for every unit (HTTP calls through injected services are traced through the
+index, not just direct `HttpClient` calls).
+
+### Query tier data
+
+```
+npm run q -- <unit-dir> refs method:save
+npm run q -- <unit-dir> calls method:ngOnInit
+npm run q -- <unit-dir> outline
+```
+
+Random access into emitted tiers without loading the full files. **Developer CLI — not scheduled
+for agent use.** Agents in the pipeline read tier files directly; the query layer is there for
+local inspection.
+
+### Verify artifacts
 
 ```
 npm test
@@ -113,103 +110,56 @@ Four checks, each answering something the others cannot:
 | `golden` | Did extractor behavior change unnoticed? Plus pair equivalence. |
 | recall audit | Did the extractor return seven of nine and report success? |
 
-The last one exists because goldens structurally cannot answer it: a golden is written from the
-output it judges, so an extractor that has **always** missed a construct produces a stable,
+The recall audit exists because goldens structurally cannot catch it: a golden is written from
+the output it judges, so an extractor that has *always* missed a construct produces a stable,
 passing golden forever. `ng-scan` counts the same constructs a second way and reports the gap.
-Verified against exactly that case — see F15.
 
-`npm run golden` also prints a **recorded gaps** summary, so warnings are visible on every run
-rather than only inside files nobody opens.
-
-### Review the output
-
-`requirement.md` is the artifact that matters. Read it and check it against the source.
-
-Two kinds of error, and they are not equally easy to find:
-
-- **False statements** — the document claims something the code does not do. Findable by
-  reading both.
-- **Omissions** — the code does something the document never mentions. **These are invisible
-  from the document alone.** A document covering 9 of 12 behaviors reads exactly as complete
-  and confident as one covering all 12.
+`npm run golden` also prints a **recorded gaps** summary on every run.
 
 ### Score omissions without reading Angular
 
-Angular projects ship test files (`*.spec.ts`) whose titles are already behavior statements in
-plain English:
+Angular projects ship spec files (`*.spec.ts`) whose test titles are already behavior statements
+in plain English:
 
 ```
 it('should disable the save button when the form is invalid', ...)
 it('should navigate back to the list after a successful save', ...)
 ```
 
-Extract every test title for the component, then check each one appears somewhere in
-`requirement.md`. Any that does not is a **confirmed omission** — found by comparing two lists
-of English sentences, with no Angular knowledge required.
+Extract every test title for the component, check each appears somewhere in `requirement.md`.
+Any that does not is a confirmed omission — found by comparing two English-sentence lists, no
+Angular knowledge needed. Its limit: tests cover only part of a component's behavior, so this
+establishes a floor on omissions, not a full measurement.
 
-Its limit: tests cover only part of a component's behavior, so this establishes a floor on
-omissions, not a full measurement. Definitive review is owned by a separate team.
+---
 
-See **`ARCHITECTURE.md`** for the pipeline, dataflow, and what each file is responsible for.
+## Output artifacts
 
-## Layout
+Per-unit outputs, written to `OUTPUT/<mirrored source path>/<unit>/`:
 
-```
-.claude/skills/          the agent's instructions (auto-discovered, see below)
-  angular-semantics/       Angular construct -> observable behavior
-  requirements-writing/    how to write framework-neutral requirements
-  migration-risk-flagging/ hazards that break silently in a rewrite
-  code2docs-analyze/       the workflow entry point
-plans/
-  0_ProjectDescription.md  intent, scope, artifact model
-  1_Decisions.md           D1-D15, append-only decision records
-  2_ImplementationPlan.md  phases, risks, next steps
-templates/               the two rendered Markdown views (requirement, migration_notes)
-  schema/                  one JSON Schema per tier -- SOLE authority on shape, field
-                           semantics and tier purpose; id conventions pinned as patterns
-fixtures/                hand-written Angular files, one construct each — extractor unit tests
-  fixtures.json            what each fixture MUST extract, written before the extractor
-tools/                   resolve (the Resolver) + validate / check-integrity / golden / query
-  resolve/                 the four extractors, the warning channel, ng-scan
-    ts-source.mjs          one parse configuration + the node helpers all four share (D15)
-  tiers.mjs                the tier lists and shared paths, defined once (D15)
-examples/                promoted runs — reference output and the Phase A baseline, hand-curated
-benchmarks/              cost per phase, and the Phase 1 omission measurement (F16)
-angular-docs/            pinned Angular 17.3.9 typings + guides (gitignored, regenerable)
-INPUT/                   Angular source under analysis (gitignored, held out from design)
-OUTPUT/                  generated documentation, scratch (gitignored)
-```
+| File | Content |
+|---|---|
+| `signature.json` | What the unit *is*: public API, injected dependencies, lifecycle hooks, state outline, inferred metrics |
+| `dependencies.json` | How it *connects*: imports, HTTP interactions, outbound edges to other components (by import and by selector), intra-class call graph |
+| `functions.json` | What each symbol *does*: per-method detail, forms, signals, streams, spec cases, intra-class `callGraph` |
+| `template.json` | What it *renders*: control flow, bindings, event handlers, static text on screen, accessibility, i18n |
+| `analysis.json` | LLM-written findings: state model, behavioral workflows, risks, open questions — written by the Synthesizer in Phase 5 |
+| `requirement.md` | The deliverable. Framework-neutral behavioral spec rendered from `analysis.json`. |
+| `migration_notes.md` | Target-framework hazards rendered from `analysis.json`. |
 
-## Skills and slash commands
+`OUTPUT/` is gitignored scratch space. A run worth keeping is promoted by **manually** copying
+the unit folder to `examples/`, preserving the mirrored path. Promotion is a human step;
+`examples/` is write-protected in `.claude/settings.json` so no agent can overwrite a baseline.
 
-**No registration needed.** Claude Code discovers skills by location: any
-`.claude/skills/<name>/SKILL.md` in the project is picked up automatically. There is nothing to
-add to `settings.json`.
+---
 
-Two ways they activate:
-
-- **Automatically.** Claude reads each skill's `description` frontmatter and loads the relevant
-  ones when a task matches. This is the main path, and why those descriptions are written to
-  say *when* to use the skill rather than just what it contains.
-- **Explicitly, as a slash command.** Typing `/code2docs-analyze` invokes it by name.
-
-That difference is worth keeping in mind when adding more:
-
-| | Skill | Slash command (`.claude/commands/*.md`) |
-|---|---|---|
-| Invoked by | model, when relevant — or by name | user, explicitly |
-| Good for | knowledge and procedure | a fixed task you trigger often |
-
-`angular-semantics` is pure reference — you would never "run" it, you want it loaded when
-Angular is being read. `code2docs-analyze` is a workflow, so it is written to work either way.
-
-## Design invariants
+## Design principles
 
 Five rules the whole design rests on. Full reasoning in `plans/1_Decisions.md`.
 
 1. **No fact is stored twice.** The JSON tiers are one dataset with one id space, split by
-   access pattern for cheap random access. Two files asserting the same thing would eventually
-   disagree, and then neither could be trusted.
+   access pattern. Two files asserting the same thing would eventually disagree; then neither
+   can be trusted.
 2. **`ast` content is deterministic; `doc` content cites it.** Extracted facts are reproducible
    from unchanged source and contain no model output. Every model-written claim carries
    `evidence` ids that must resolve. Dangling evidence is a hard failure.
@@ -222,20 +172,143 @@ Five rules the whole design rests on. Full reasoning in `plans/1_Decisions.md`.
 5. **One implementation per fact, and the compiler before text** (D15, D3). How a file is
    parsed, what the tier list is, how complexity is counted — each defined once and imported.
    Here duplication is not a maintenance cost but a *correctness* one: this project emits
-   metrics, so two copies that drift produce a defect in the output, indistinguishable from the
-   extraction bugs we are hunting. Regex is a legitimate fallback where the parse tree cannot
-   reach, never a quiet substitute for it.
+   metrics, so two copies that drift produce a defect in the output.
+
+---
+
+## Project layout
+
+```
+.claude/
+  skills/            auto-discovered skill files (see below)
+    angular-semantics/       Angular construct → observable behavior (Phase A baseline, never modified)
+    requirements-writing/    how to write framework-neutral requirements (Phase A baseline, never modified)
+    migration-risk-flagging/ hazard taxonomy (Phase A baseline, never modified)
+    code2docs-analyze/       workflow entry point, invocable as /code2docs-analyze (Phase A baseline)
+  agents/            subagent definitions for the Phase 3+ pipeline
+    resolver.md              runs tools/resolve.mjs on one unit, reports 4 tiers + warnings
+    explainer.md             complexity-gated per-symbol semantic explanation (Phase 4 prompt)
+    synthesizer.md           full-unit synthesis: StructureAgent → BehaviorAgent → CritiqueAgent
+plans/
+  0_ProjectDescription.md  intent, scope, artifact model
+  1_Decisions.md           D1–D15, append-only decision records
+  2_ImplementationPlan.md  phases, risks, current next steps
+  3_PhaseAFindings.md      F1–F19, findings from Phase A evaluation
+templates/
+  requirement.md           rendered Markdown template (render target)
+  migration_notes.md       rendered Markdown template (render target)
+  schema/                  one JSON Schema per tier — SOLE authority on shape,
+                           field semantics, tier purpose, and id conventions
+tools/
+  resolve.mjs              Resolver CLI: find unit files, run extractors, write tiers
+  resolve/
+    ts-signature.mjs       signature.json — class, public API, DI, lifecycle, state
+    ts-dependencies.mjs    dependencies.json — call graph, imports, HTTP, selector edges
+    ng-template.mjs        template.json — control flow, bindings, events, static text
+    ts-functions.mjs       functions.json — per-symbol detail, forms, signals, callGraph
+    warnings.mjs           shared warning channel, closed code vocabulary
+    ng-scan.mjs            text-search recall audit (D3a); repo sweep for Phase 2 index
+    ts-source.mjs          one parse configuration + node helpers shared by all four extractors
+  tiers.mjs                tier list and shared paths, defined once (D15)
+  validate.mjs             schema validation
+  check-integrity.mjs      cross-tier referential integrity (dangling id → hard failure)
+  golden.mjs               golden-file runner + recorded-gaps summary
+  query.mjs                random access into tier data (developer CLI, unscheduled)
+fixtures/                  hand-written Angular files, one construct each — extractor unit tests
+  fixtures.json            what each fixture must extract (written before the extractor)
+examples/                  promoted runs — reference output and the Phase A baseline
+  baseline_skillsonly/     two complete documents from Phase A, no extractor (D11 baseline)
+benchmarks/                cost per phase, Phase 1 omission measurement (F16)
+docs/                      comparison and analysis documents
+  D11_comparison.md        blocking-question count before vs after Phase 2 (2 → 0)
+angular-docs/              pinned Angular 17.3.9 typings + guides (gitignored, regenerable)
+INPUT/                     Angular source under analysis (gitignored, held out from design)
+OUTPUT/                    generated documentation, scratch (gitignored)
+```
+
+---
+
+## Skills and slash commands
+
+**No registration needed.** Claude Code discovers skills by location: any
+`.claude/skills/<name>/SKILL.md` in the project is picked up automatically.
+
+Two ways they activate:
+
+- **Automatically.** Claude reads each skill's `description` frontmatter and loads the relevant
+  ones when a task matches.
+- **Explicitly, as a slash command.** Typing `/code2docs-analyze` invokes it by name.
+
+| | Skill | Slash command (`.claude/commands/*.md`) |
+|---|---|---|
+| Invoked by | model, when relevant — or by name | user, explicitly |
+| Good for | knowledge and procedure | a fixed task you trigger often |
+
+`angular-semantics` is pure reference — you would never "run" it; you want it loaded when
+Angular is being read. `code2docs-analyze` is a workflow, so it works either way.
+
+**The four Phase A skills are the D11 baseline and must never be modified or removed.** The D11
+comparison (`docs/D11_comparison.md`) uses them as the measurement baseline; changing them
+changes the baseline.
+
+---
+
+## Development status
+
+**Phase 2 is complete. Phase 3 is next.**
+
+### What is built
+
+| Phase | Deliverable |
+|---|---|
+| **A** | Skills-only POC: two reviewed `requirement.md` files, hand-filled baselines in `examples/baseline_skillsonly/` |
+| **0** | JSON Schemas for all five tiers, cross-tier integrity checker, fixture corpus, golden runner |
+| **1** | Resolver: TypeScript Compiler API extraction of all four `ast` tiers; structured warning channel; D3a recall audit |
+| **2** | Repo index CLI; httpInteractions backfill through injected services; Phase 1 follow-up gaps (ICU, `@defer`, `afterRender`, `FormRecord`); intra-class `callGraph` in `functions.json`; `analysis.json` schema + renderer stub; D11 comparison; Phase 3 agent definitions |
+
+### Phase 2 measurement (D11)
+
+The D11 comparison (`docs/D11_comparison.md`) counted unresolved blocking questions on two units
+before and after Phase 2:
+
+| Unit | Phase A blocking | After Phase 2 |
+|---|---|---|
+| `activate` | 0 | 0 |
+| `post/update` | 2 | **0** |
+
+Both blocking questions closed: q:1 (dead-code confirmation) by the intra-class `callGraph`;
+q:2 (error-display mechanism) by selector-edge discovery (`outboundUnitEdges`).
+
+### Phase 3 goal
+
+Wire the orchestration skeleton: orchestrator reads `index.json`, invokes Resolver → (optional
+Explainer) → Synthesizer for one unit, validates schemas and referential integrity, renders
+`requirement.md`. Agent definitions are written; Phase 3 builds the orchestrator that drives
+them end-to-end. Prose will be placeholder-quality at exit.
+
+### Open gaps (by design, recorded in output as warnings)
+
+Nothing here is production-ready.
+
+| Gap | Owner |
+|---|---|
+| `doc` tier in `functions.json` is unpopulated — Explainer not yet built | Phase 4 |
+| `analysis.json` Synthesizer writes nothing real yet — renderer stub only | Phase 5 |
+| `FormRecord` representable in one tier schema but not the other | Phase 1 follow-up (F10e) — low priority |
+| Phase A baseline uses schema 0.2.0 (legacy); no diff/upgrade script yet | Phase 7 (Task #7) |
+
+---
 
 ## Roadmap
 
-| Phase | |
-|---|---|
-| A | Skills-only POC, component level, no tooling — **done** |
-| 0 | Contracts and test harness: schemas, integrity checker, fixtures — **done** |
-| 1 | Resolver: deterministic extraction via the TypeScript Compiler API — **done**, exit measured (F16) |
-| **2** | Repo inventory and cross-unit dependency graph ← **here** |
-| 3 | Agent wiring, one unit end to end |
-| 4 | Decide whether the Explainer stage earns its place, then build it |
-| 5 | Requirements Synthesizer and the Markdown renderer |
-| 6 | Scale, caching, resumable runs |
-| 7 | Evaluation and the human review loop |
+| Phase | Deliverable | Status |
+|---|---|---|
+| A | Skills-only POC, component level | **done** |
+| 0 | Contracts and test harness: schemas, integrity checker, fixtures | **done** |
+| 1 | Resolver: deterministic extraction via TypeScript Compiler API | **done** |
+| 2 | Repo inventory, cross-unit graph, Phase 1 follow-up gaps, D11 comparison | **done** |
+| **3** | Agent wiring skeleton, one unit end to end | ← **here** |
+| 4 | Explainer: complexity-gated per-symbol explanation (D8 comparison first) |  |
+| 5 | Requirements Synthesizer: StructureAgent → BehaviorAgent → CritiqueAgent |  |
+| 6 | Scale, caching, resumable runs |  |
+| 7 | Evaluation and the human review loop |  |

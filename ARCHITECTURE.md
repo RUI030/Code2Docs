@@ -164,17 +164,25 @@ only Phase 2 produces (F3).
 
 ```mermaid
 flowchart LR
-  PA["A ✅<br/>POC"] --> P0["0 ✅<br/>contracts"] --> P1["1 ✅<br/>Resolver"] --> P2["2 ◀<br/>repo index"] --> P3["3<br/>wiring"] --> P4["4<br/>Explainer?"] --> P5["5<br/>Synthesizer"] --> P6["6<br/>scale"] --> P7["7<br/>eval"]
+  PA["A ✅<br/>POC"] --> P0["0 ✅<br/>contracts"] --> P1["1 ✅<br/>Resolver"] --> P2["2 ✅<br/>repo index"] --> P3["3 ◀<br/>wiring"] --> P4["4<br/>Explainer"] --> P5["5<br/>Synthesizer"] --> P6["6<br/>scale"] --> P7["7<br/>eval"]
   style PA fill:#e8f4ea,stroke:#3a7d44
   style P0 fill:#e8f4ea,stroke:#3a7d44
   style P1 fill:#e8f4ea,stroke:#3a7d44
-  style P2 fill:#fdf3e3,stroke:#b07d2b
+  style P2 fill:#e8f4ea,stroke:#3a7d44
+  style P3 fill:#fdf3e3,stroke:#b07d2b
 ```
 
-Phase 1 is complete: four extractors, a structured warning channel with a derived `parseStatus`,
-the D3a recall audit, and the exit measurement recorded in `benchmarks/phase1-omission.json`
-(F16). What it does not cover is cross-unit — HTTP routed through injected services, `consumedBy`,
-selector resolution — which is Phase 2's job and is flagged in the output rather than left silent.
+Phase 2 is complete: repo inventory CLI (`index` command), httpInteractions backfill through
+injected services, selector-edge discovery (`outboundUnitEdges`), Phase 1 follow-up gaps (ICU,
+`@defer`, `afterRender`, `FormRecord`), intra-class `callGraph` in `functions.json`,
+`analysis.json` schema and renderer stub, and the D11 comparison (2 blocking → 0 blocking).
+Phase 3 agent definitions are written in `.claude/agents/` (resolver, explainer, synthesizer).
 
-Phase 4 carries a question mark because **D8** requires proving the Explainer earns its place
-before building it. F14's `analysis.json` shape work should land before that phase either way.
+Phase 3 is the active phase: build the orchestrator that drives those three agents end-to-end on
+one unit and produces schema-valid tiers with placeholder-quality prose.
+
+Phase 4 (Explainer) is complexity-gated by design (D8): simple units skip it and go one-shot to
+the Synthesizer; complex units (linesOfCode > 200 OR method count > 10, calibrated during D8)
+run the full bottom-up explain pass. The comparison against Phase A one-shot still runs before
+building it — the gate handles the case where one-shot wins at all sizes (threshold → ∞, agent
+kept).
