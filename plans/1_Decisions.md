@@ -584,3 +584,33 @@ things that are genuinely different, per the second corollary.
 The validator catches it on every run; the Orchestrator treats a schema failure as a hard
 stop and does not render. The fix is always to replace the fabricated id with the nearest
 real id or to remove it and convert the claim to an open question.
+
+### D17 — Unit tier classifier is deterministic; lives in one shared module
+
+**Problem (Phase 6, 2026-08-02):** Two threshold checks exist independently:
+1. The Explainer complexity gate in `orchestrator.md` prose (`tsLineCount > 200 OR methodCount > 10`)
+2. A new trivial-unit gate needed by the Phase 6 batch runner (skip Synthesizer entirely for
+   pure presentational units with no forms, streams, or HTTP)
+
+Writing the same thresholds in two places violates D15 — they will drift.
+
+**Resolution:** A single deterministic classifier module `tools/classify-unit.mjs` exports
+one pure function `classifyUnit(metrics, stateOutline)` returning one of three tiers:
+
+| Tier | Criteria | Pipeline path |
+|---|---|---|
+| `trivial` | no forms AND no streams AND no httpInteractions AND `methodCount ≤ 3` | Resolver only; render from `signature.json` directly (no Synthesizer, no Explainer) |
+| `standard` | everything else below complex threshold | Resolver → Synthesizer |
+| `complex` | `tsLineCount > 200 OR methodCount > 10` | Resolver → Explainer → Synthesizer |
+
+All inputs come from `signature.json` (deterministic Resolver output). No LLM is involved
+in the classification decision.
+
+**Consumers:** the Phase 6 batch runner imports `classify-unit.mjs` to route each unit.
+`orchestrator.md` is updated to call `node tools/classify-unit.mjs <outputDir>` rather than
+re-stating the thresholds in prose.
+
+**Rationale:** the thresholds are calibrated facts (D8 for the complex threshold, Phase 6
+measurement for trivial). Having one module means recalibrating one number propagates to all
+consumers automatically. The classifier is also independently testable — trivial/standard/
+complex units from `fixtures/` serve as the test corpus.

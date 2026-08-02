@@ -255,7 +255,7 @@ changes the baseline.
 
 ## Development status
 
-**Phases 2–5 are complete. Phase 6 is next.**
+**Phases 2–6 are complete. Phase 7 (evaluation) is next.**
 
 ### What is built
 
@@ -268,6 +268,7 @@ changes the baseline.
 | **3** | Orchestrator agent; `/code2docs-pipeline` slash command; end-to-end pipeline on one fixture unit |
 | **4** | `explaining-functions` skill; complexity-gated Explainer; D8 comparison (staged beats one-shot: 2 blocking → 1 blocking on `post/update`); complexity threshold calibrated (`methodCount > 10` OR `tsLineCount > 200`) |
 | **5** | Phase 5 Synthesizer with full sub-agent decomposition (StructureAgent → BehaviorAgent → CritiqueAgent); deepened prompts with state-ownership classification, workflow tracing, risk taxonomy, blocking-question discipline; D16 (fabricated evidence id pattern rejected) |
+| **6** | Deterministic batch runner (`tools/run.mjs`); `classify-unit.mjs` (D17, single tier classifier module); content-hash caching; resumable runs via `run-manifest.json`; topological parallelism; degraded path for oversized units; `run-summary.json`; trivial-tier renderer (`render-trivial.mjs`, no LLM); `orchestrator.md` updated to call classifier |
 
 ### Phase 5 measurement
 
@@ -287,12 +288,13 @@ null option vs required — not caught by Phase A) while closing Phase A's q:2 (
 closed by Phase 2 selector-edge discovery). The document is materially richer across every
 other dimension.
 
-### Phase 6 goal
+### Phase 7 goal
 
-Run the pipeline over a whole repo without manual babysitting: content-hash caching so
-unchanged units skip re-extraction, resumable runs so a single failure does not abort the
-batch, parallelism across topologically independent units, and a run summary (units processed,
-cached, failed, degraded; aggregate risks and open questions).
+Evaluate the pipeline across the full `INPUT/` corpus: score output quality per the rubric
+(factual accuracy, completeness, framework-neutrality, intent capture), run the mechanical
+floor check (every screen label appears in `requirement.md`), and close the human review loop
+(`review.status` progresses to `approved` on a representative sample without clobbering
+human edits on re-run).
 
 ### Open gaps (by design, recorded in output as warnings)
 
@@ -300,8 +302,9 @@ Nothing here is production-ready.
 
 | Gap | Owner |
 |---|---|
-| Caching, resumable runs, parallelism, run summary | Phase 6 |
+| Evaluation rubric, corpus scoring, review loop | Phase 7 |
 | Phase A baseline uses schema 0.2.0 (legacy); no diff/upgrade script yet | Phase 7 (Task #7) |
+| D18: oversized-unit degradation thresholds (TBD after first corpus run) | Phase 7 |
 
 ---
 
@@ -316,6 +319,5 @@ Nothing here is production-ready.
 | 3 | Agent wiring skeleton, one unit end to end | **done** |
 | 4 | Explainer: complexity-gated, D8 comparison | **done** |
 | 5 | Requirements Synthesizer: StructureAgent → BehaviorAgent → CritiqueAgent | **done** |
-| **6** | Scale, caching, resumable runs | ← **here** |
-| 6 | Scale, caching, resumable runs |  |
-| 7 | Evaluation and the human review loop |  |
+| **6** | Scale, caching, resumable runs | **done** |
+| **7** | Evaluation and the human review loop | ← **here** |

@@ -454,7 +454,7 @@ achievable on a representative sample.
 
 ## 4. Immediate next steps
 
-**Phases A–5 are complete.** Phase 6 is the active phase.
+**Phases A–6 are complete.** Phase 7 is next.
 
 ### Phases A–2 exit (summary)
 
@@ -483,16 +483,32 @@ Field name is `tsLineCount`, not `linesOfCode` — corrected in orchestrator gat
 (2 high: subscription-leak, forms-semantics), 0 dangling ids. D16 added: Synthesizer must
 use only schema-defined evidence id patterns. `analysis.json` schema considered stable.
 
-### Remaining open gap
+### Phase 6 exit (summary, 2026-08-02)
+
+**Phase 6:** Deterministic batch runner replacing LLM orchestration prose for the scale path.
+
+- `tools/classify-unit.mjs` (D17): pure function `classifyUnit(sig, deps)` → `trivial | standard | complex`.
+  Thresholds defined once; `orchestrator.md` now calls the module instead of restating numbers.
+- `tools/run.mjs`: batch runner with content-hash caching (`.cache.json` per unit), resumable
+  runs (`run-manifest.json`), topological parallelism (batches from `processingOrder`), degraded
+  path for oversized units, and `run-summary.json` on completion.
+- `tools/render-trivial.mjs`: deterministic renderer for trivial units — reads `signature.json`,
+  writes a minimal `requirement.md` (public contract table + note); no LLM call.
+- Verified on `fixtures/` (21 units, 2 topo batches, dry-run + subset real run). Trivial units
+  classify, resolve, and render cleanly. Cache skip confirmed on re-run (1.6s → 0.5s).
+- LLM steps (explain, synthesize) are deferred in `run.mjs` with `status: "pending-agent"` — the
+  batch runner handles the deterministic half; `/code2docs-pipeline` handles individual units that
+  need LLM passes. D18 (oversized degradation thresholds) is a placeholder pending first corpus run.
+
+### Remaining open gaps
 
 | Gap | Owner |
 |---|---|
 | Phase A baseline on schema 0.2.0 (legacy); no diff/upgrade script | Phase 7 (Task #7) |
+| D18: oversized-unit degradation thresholds (TBD after first corpus run on INPUT/) | Phase 7 |
 
-**Next: Phase 6** — content-hash caching so unchanged units skip re-extraction, resumable
-runs so a failure on one unit does not abort the batch, parallelism across topologically
-independent units (respecting the leaf-first order from `index.json`), context budgeting for
-oversized units, and a run summary.
+**Next: Phase 7** — evaluation across `INPUT/`, scoring per the rubric in §2 above, and the
+human review loop (edit `requirement.md`, resolve blocking questions, re-run without clobbering edits).
 
 Do not update Phase A skills to conform to the current schema until Phase 7 (Task #7,
 deferred).

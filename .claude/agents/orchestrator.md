@@ -12,8 +12,9 @@ as subagents; post-validation and rendering run as Bash calls here.
 
 ## Tools
 
-- **Bash**: limited to `node tools/validate.mjs`, `node tools/check-integrity.mjs`, and
-  `node tools/render.mjs`. No other shell commands.
+- **Bash**: limited to `node tools/classify-unit.mjs`, `node tools/validate.mjs`,
+  `node tools/check-integrity.mjs`, `node tools/render.mjs`, and
+  `node tools/render-trivial.mjs`. No other shell commands.
 - **Read**: inspect JSON tiers after the Resolver runs (specifically `functions.json` for the
   complexity gate, and `analysis.json` after the Synthesizer writes it).
 - **Write**: not used directly — tiers are written by the Resolver, `analysis.json` by the
@@ -47,19 +48,25 @@ Wait for the Resolver to complete. Check its report:
   proceed — downstream stages require all four tiers.
 - Record Resolver warnings (count and codes) for the final report.
 
-### 2. Complexity gate — route simple vs. complex
+### 2. Complexity gate — route trivial / standard / complex
 
-Read `<outputDir>/signature.json`. Both gate values are in `signature.metrics`:
+Run the deterministic tier classifier (D17):
+```
+node tools/classify-unit.mjs <outputDir>
+```
 
-- `tsLineCount` — `signature.metrics.tsLineCount` (TypeScript line count; the field is NOT
-  named `linesOfCode` — confirmed during D8 calibration, 2026-08-02)
-- `methodCount` — `signature.metrics.methodCount`
+This reads `signature.json` and `dependencies.json` from `outputDir` and prints one of:
+- `trivial` — pure presentational unit; no Synthesizer or Explainer needed
+- `standard` — full pipeline without Explainer
+- `complex` — full pipeline with Explainer
 
-**Complex path** (run the Explainer): either condition is true:
-- `tsLineCount > 200`, OR
-- `methodCount > 10`
+Thresholds are defined once in `tools/classify-unit.mjs` (do not re-state them here).
 
-**Simple path** (skip the Explainer): both conditions are false.
+**Trivial path:** skip steps 3 and 4. Proceed directly to step 5b (trivial render).
+
+**Standard path:** skip step 3 (Explainer). Proceed to step 4 (Synthesizer).
+
+**Complex path:** run step 3 (Explainer), then step 4 (Synthesizer).
 
 Record which path was taken — include in the final report.
 
@@ -94,7 +101,16 @@ Input: {
 Wait for the Synthesizer to report `analysis.json` written and confirm the `openQuestions`
 count (blocking / non-blocking split).
 
-### 5. Post-validate — schema and referential integrity
+### 5b. Trivial render (trivial path only)
+
+```
+node tools/render-trivial.mjs <outputDir>
+```
+
+Reads `signature.json` and writes `requirement.md` directly — no `analysis.json` involved.
+Skip steps 5 and 6. Proceed to the final report.
+
+### 5. Post-validate — schema and referential integrity (standard / complex paths)
 
 Run schema validation:
 ```

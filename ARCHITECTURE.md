@@ -164,7 +164,7 @@ only Phase 2 produces (F3).
 
 ```mermaid
 flowchart LR
-  PA["A ✅<br/>POC"] --> P0["0 ✅<br/>contracts"] --> P1["1 ✅<br/>Resolver"] --> P2["2 ✅<br/>repo index"] --> P3["3 ✅<br/>wiring"] --> P4["4 ✅<br/>Explainer"] --> P5["5 ✅<br/>Synthesizer"] --> P6["6 ◀<br/>scale"] --> P7["7<br/>eval"]
+  PA["A ✅<br/>POC"] --> P0["0 ✅<br/>contracts"] --> P1["1 ✅<br/>Resolver"] --> P2["2 ✅<br/>repo index"] --> P3["3 ✅<br/>wiring"] --> P4["4 ✅<br/>Explainer"] --> P5["5 ✅<br/>Synthesizer"] --> P6["6 ✅<br/>scale"] --> P7["7 ◀<br/>eval"]
   style PA fill:#e8f4ea,stroke:#3a7d44
   style P0 fill:#e8f4ea,stroke:#3a7d44
   style P1 fill:#e8f4ea,stroke:#3a7d44
@@ -172,10 +172,11 @@ flowchart LR
   style P3 fill:#e8f4ea,stroke:#3a7d44
   style P4 fill:#e8f4ea,stroke:#3a7d44
   style P5 fill:#e8f4ea,stroke:#3a7d44
-  style P6 fill:#fdf3e3,stroke:#b07d2b
+  style P6 fill:#e8f4ea,stroke:#3a7d44
+  style P7 fill:#fdf3e3,stroke:#b07d2b
 ```
 
-Phases 3–5 are complete. Phase 3 wired the orchestrator and `/code2docs-pipeline` command.
+Phases 3–6 are complete. Phase 3 wired the orchestrator and `/code2docs-pipeline` command.
 Phase 4 ran the D8 comparison (staged beats one-shot: 2 blocking → 1 blocking on `post/update`)
 and calibrated the complexity gate (`methodCount > 10` OR `tsLineCount > 200`, both from
 `signature.metrics`). Phase 5 deepened all three Synthesizer sub-agents with state-ownership
@@ -183,5 +184,12 @@ classification, workflow tracing from template event bindings, the full risk tax
 blocking-question discipline; Phase 5 run on `post/update` produced 14 ACs, 7 invariants,
 6 risks, 0 dangling evidence ids (D16 added to prevent fabricated id patterns).
 
-Phase 6 is the active phase: content-hash caching, resumable runs, parallelism across
-independent units, context budgeting for oversized units, and a run summary.
+Phase 6 built the deterministic batch runner. `tools/classify-unit.mjs` (D17) is the single
+authoritative tier classifier (`trivial | standard | complex`) — thresholds defined once,
+consumed by `run.mjs` and `orchestrator.md`. `tools/run.mjs` handles content-hash caching,
+resumable runs via `run-manifest.json`, topological parallelism (batches from `processingOrder`),
+a degraded path for oversized units, and `run-summary.json`. `tools/render-trivial.mjs` renders
+a minimal `requirement.md` from `signature.json` for trivial units with no LLM call.
+
+Phase 7 is the active phase: evaluation across `INPUT/`, scoring per the rubric (factual
+accuracy, completeness, framework-neutrality, intent capture), and closing the human review loop.
