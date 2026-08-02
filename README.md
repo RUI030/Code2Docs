@@ -255,7 +255,7 @@ changes the baseline.
 
 ## Development status
 
-**Phase 2 is complete. Phase 3 is next.**
+**Phases 2–5 are complete. Phase 6 is next.**
 
 ### What is built
 
@@ -264,27 +264,35 @@ changes the baseline.
 | **A** | Skills-only POC: two reviewed `requirement.md` files, hand-filled baselines in `examples/baseline_skillsonly/` |
 | **0** | JSON Schemas for all five tiers, cross-tier integrity checker, fixture corpus, golden runner |
 | **1** | Resolver: TypeScript Compiler API extraction of all four `ast` tiers; structured warning channel; D3a recall audit |
-| **2** | Repo index CLI; httpInteractions backfill through injected services; Phase 1 follow-up gaps (ICU, `@defer`, `afterRender`, `FormRecord`); intra-class `callGraph` in `functions.json`; `analysis.json` schema + renderer stub; D11 comparison; Phase 3 agent definitions |
+| **2** | Repo index CLI; httpInteractions backfill; Phase 1 follow-up gaps (ICU, `@defer`, `afterRender`, `FormRecord`); intra-class `callGraph`; `analysis.json` schema + renderer; D11 comparison; Phase 3 agent definitions |
+| **3** | Orchestrator agent; `/code2docs-pipeline` slash command; end-to-end pipeline on one fixture unit |
+| **4** | `explaining-functions` skill; complexity-gated Explainer; D8 comparison (staged beats one-shot: 2 blocking → 1 blocking on `post/update`); complexity threshold calibrated (`methodCount > 10` OR `tsLineCount > 200`) |
+| **5** | Phase 5 Synthesizer with full sub-agent decomposition (StructureAgent → BehaviorAgent → CritiqueAgent); deepened prompts with state-ownership classification, workflow tracing, risk taxonomy, blocking-question discipline; D16 (fabricated evidence id pattern rejected) |
 
-### Phase 2 measurement (D11)
+### Phase 5 measurement
 
-The D11 comparison (`docs/D11_comparison.md`) counted unresolved blocking questions on two units
-before and after Phase 2:
+Full staged pipeline on `post/update` (131 TS lines, 12 methods):
 
-| Unit | Phase A blocking | After Phase 2 |
+| Metric | Phase A baseline | Phase 5 |
 |---|---|---|
-| `activate` | 0 | 0 |
-| `post/update` | 2 | **0** |
+| Blocking questions | 2 | 2 |
+| Non-blocking questions | — | 4 |
+| Acceptance criteria | — | 14 (all 8 spec tests linked) |
+| Behavioral invariants | — | 7 |
+| Migration risks | — | 6 (2 high, 3 medium, 1 low) |
+| Dangling evidence ids | — | 0 |
 
-Both blocking questions closed: q:1 (dead-code confirmation) by the intra-class `callGraph`;
-q:2 (error-display mechanism) by selector-edge discovery (`outboundUnitEdges`).
+Phase 5 tied the Phase A blocking count but found a **new** blocking question (blog field
+null option vs required — not caught by Phase A) while closing Phase A's q:2 (error display,
+closed by Phase 2 selector-edge discovery). The document is materially richer across every
+other dimension.
 
-### Phase 3 goal
+### Phase 6 goal
 
-Wire the orchestration skeleton: orchestrator reads `index.json`, invokes Resolver → (optional
-Explainer) → Synthesizer for one unit, validates schemas and referential integrity, renders
-`requirement.md`. Agent definitions are written; Phase 3 builds the orchestrator that drives
-them end-to-end. Prose will be placeholder-quality at exit.
+Run the pipeline over a whole repo without manual babysitting: content-hash caching so
+unchanged units skip re-extraction, resumable runs so a single failure does not abort the
+batch, parallelism across topologically independent units, and a run summary (units processed,
+cached, failed, degraded; aggregate risks and open questions).
 
 ### Open gaps (by design, recorded in output as warnings)
 
@@ -292,9 +300,7 @@ Nothing here is production-ready.
 
 | Gap | Owner |
 |---|---|
-| `doc` tier in `functions.json` is unpopulated — Explainer not yet built | Phase 4 |
-| `analysis.json` Synthesizer writes nothing real yet — renderer stub only | Phase 5 |
-| `FormRecord` representable in one tier schema but not the other | Phase 1 follow-up (F10e) — low priority |
+| Caching, resumable runs, parallelism, run summary | Phase 6 |
 | Phase A baseline uses schema 0.2.0 (legacy); no diff/upgrade script yet | Phase 7 (Task #7) |
 
 ---
@@ -307,8 +313,9 @@ Nothing here is production-ready.
 | 0 | Contracts and test harness: schemas, integrity checker, fixtures | **done** |
 | 1 | Resolver: deterministic extraction via TypeScript Compiler API | **done** |
 | 2 | Repo inventory, cross-unit graph, Phase 1 follow-up gaps, D11 comparison | **done** |
-| **3** | Agent wiring skeleton, one unit end to end | ← **here** |
-| 4 | Explainer: complexity-gated per-symbol explanation (D8 comparison first) |  |
-| 5 | Requirements Synthesizer: StructureAgent → BehaviorAgent → CritiqueAgent |  |
+| 3 | Agent wiring skeleton, one unit end to end | **done** |
+| 4 | Explainer: complexity-gated, D8 comparison | **done** |
+| 5 | Requirements Synthesizer: StructureAgent → BehaviorAgent → CritiqueAgent | **done** |
+| **6** | Scale, caching, resumable runs | ← **here** |
 | 6 | Scale, caching, resumable runs |  |
 | 7 | Evaluation and the human review loop |  |

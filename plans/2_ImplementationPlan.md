@@ -454,60 +454,45 @@ achievable on a representative sample.
 
 ## 4. Immediate next steps
 
-**Phases A, 0, 1, and 2 are complete.** Phase 3 is the active phase.
+**Phases A–5 are complete.** Phase 6 is the active phase.
 
-### Phase A, 0, 1 exit (summary)
+### Phases A–2 exit (summary)
 
-Phase A: two components analyzed, artifacts under `examples/baseline_skillsonly/`, review in
-`3_PhaseAFindings.md`, state tagged `phase-a-baseline`.
+Phase A–2 summaries are preserved below for reference.
 
+Phase A: two components analyzed (`examples/baseline_skillsonly/`), review in `3_PhaseAFindings.md`.
 Phase 0: schemas, integrity checker, fixture corpus.
+Phase 1: all four `ast` tiers, warning channel, D3a recall audit. Exit: 60+ facts, 6.7% extractor omission vs 3.3% hand-fill.
+Phase 2: repo index, httpInteractions backfill, Phase 1 follow-up gaps, `callGraph`, renderer, D11 comparison (2 blocking → 0).
 
-Phase 1: all four `ast` tiers, structured warning channel with derived `parseStatus` (**F11**),
-D3a recall audit (**F15**), template resolution from decorator (**F13**). Exit measurement in
-`benchmarks/phase1-omission.json` (**F16**): over 60 extracted facts, hand-fill missed 2 (3.3%),
-extractor missed 4 (6.7%). The measurement inverted its own premise — the extractor's real yield
-is derived facts (template-to-method call edges) that nobody enumerated by hand.
+### Phases 3–5 exit (summary)
 
-Two Phase A results that shaped what followed:
+**Phase 3:** Orchestrator agent (`orchestrator.md`), `/code2docs-pipeline` slash command, end-to-end
+pipeline on `fixtures/template-external/` — five schema-valid tiers, rendered `requirement.md`,
+0 dangling evidence ids.
 
-- **F5 — the templates needed no revision.** Phase 0 therefore began at the JSON Schemas.
-- **F3 — the blocking gaps are cross-folder.** D11 moved the comparison to Phase 2, with
-  unresolved blocking questions as the metric (spec-title coverage had saturated at 100%).
+**Phase 4:** `explaining-functions` skill written. D8 comparison on `post/update` (131 TS lines,
+12 methods): staged path (Explainer → Synthesizer) produced 1 blocking question vs one-shot's 2.
+Complexity gate confirmed: `signature.metrics.methodCount > 10 OR signature.metrics.tsLineCount > 200`.
+Field name is `tsLineCount`, not `linesOfCode` — corrected in orchestrator gate (D8 outcome,
+`1_Decisions.md`).
 
-### Phase 2 exit, measured (D11)
+**Phase 5:** All three Synthesizer sub-agent prompts deepened. Full run on `post/update`:
+2 blocking (PostFormService validators; blog null/required — new finding missed by Phase A),
+14 acceptance criteria (all 8 spec tests linked), 7 behavioral invariants, 6 risks
+(2 high: subscription-leak, forms-semantics), 0 dangling ids. D16 added: Synthesizer must
+use only schema-defined evidence id patterns. `analysis.json` schema considered stable.
 
-`docs/D11_comparison.md`. Blocking questions on `activate` and `post/update` before vs. after
-Phase 2:
+### Remaining open gap
 
-| Unit | Phase A | After Phase 2 |
-|---|---|---|
-| `activate` | 0 | 0 |
-| `post/update` | 2 | **0** |
+| Gap | Owner |
+|---|---|
+| Phase A baseline on schema 0.2.0 (legacy); no diff/upgrade script | Phase 7 (Task #7) |
 
-q:1 (dead-code confirmation) closed by intra-class `callGraph` in `functions.json`.
-q:2 (error-display mechanism) closed by selector-edge discovery in `outboundUnitEdges`.
+**Next: Phase 6** — content-hash caching so unchanged units skip re-extraction, resumable
+runs so a failure on one unit does not abort the batch, parallelism across topologically
+independent units (respecting the leaf-first order from `index.json`), context budgeting for
+oversized units, and a run summary.
 
-Phase 2 delivered beyond its original list:
-- Intra-class `callGraph` emission in `ts-functions.mjs` — closes D11 q:1 before Phase 3
-- Phase 1 follow-up gaps closed: ICU expressions (**F10a**), `@defer` prefetch triggers (**F10d**),
-  `afterRender`/`afterNextRender` detection (**F10f**), `FormRecord` cross-tier representation (**F10e**)
-- `analysis.json` schema pinned and renderer stub built (**F14**)
-- Phase 3 agent definitions written: `resolver.md`, `explainer.md`, `synthesizer.md`
-
-### Remaining open gaps (recorded as warnings, not silent)
-
-| Gap | Owner | Finding |
-|---|---|---|
-| `doc` tier in `functions.json` unpopulated | Phase 4 (Explainer) | — |
-| `analysis.json` Synthesizer content absent — renderer stub only | Phase 5 (Synthesizer) | F14 |
-| Phase A baseline on schema 0.2.0 (legacy); no diff/upgrade script | Phase 7 | — |
-
-**Next: Phase 3**, the agent wiring skeleton. Three subagent definitions are written
-(`resolver.md`, `explainer.md`, `synthesizer.md`); Phase 3 builds the orchestrator that drives
-them end-to-end on one unit and produces schema-valid tiers with placeholder-quality prose.
-
-Not blocking: `explaining-functions` and the staged-versus-one-shot comparison (**D8**) wait for
-Phase 4. `analysis.json` schema is pinned (**F14**) but will evolve through Phase 5 — do not
-update Phase A skills to write into it until after Phase 5 has stabilized the shape (Task #7,
-Phase 7).
+Do not update Phase A skills to conform to the current schema until Phase 7 (Task #7,
+deferred).
