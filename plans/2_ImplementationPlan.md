@@ -296,9 +296,10 @@ extractor output:
 - **Complex path (staged):** Explainer runs first, bottom-up per symbol, then Synthesizer
   reads the enriched `doc` tier. Use when either threshold is exceeded.
 
-The threshold values (linesOfCode and method count) are calibrated during D8 by comparing
-one-shot vs. staged output quality across a sample of units at different sizes. Start with
-linesOfCode > 200 OR method count > 10 as the initial probe; tune from there.
+The threshold values are calibrated during D8. **D8 outcome (2026-08-02):** staged wins on
+`post/update` (131 TS lines, 12 methods) — 2 blocking → 1 blocking. Confirmed thresholds:
+`signature.metrics.tsLineCount > 200 OR signature.metrics.methodCount > 10`. Note: the
+extractor field is `tsLineCount`, not `linesOfCode` — confirmed during D8.
 
 This means the Explainer agent is never fully dropped — it is the complex-path branch.
 If D8 shows one-shot wins at *all* sizes in the corpus, set the threshold to infinity and

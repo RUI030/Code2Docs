@@ -225,6 +225,40 @@ range it holds for.
 `explaining-functions` is written in Phase 4 alongside the comparison that justifies it,
 rather than speculatively now.
 
+---
+
+**D8 outcome — recorded 2026-08-02 (Phase 4)**
+
+Comparison run on `post/update` (131 TS lines, 12 methods, callGraph depth 3).
+
+| | One-shot | Staged (Explainer → Synthesizer) |
+|---|---|---|
+| Blocking questions | 2 | **1** |
+| Non-blocking | 4 | 3 |
+| Total | 6 | 4 |
+
+Staged closed one blocking question: `onSaveError`'s empty body looked broken from raw AST;
+the Explainer read the source comment "Api for inheritance" and encoded the correct meaning
+before the Synthesizer ran. The remaining blocking question (PostFormService validators) is
+cross-unit and unsolvable by either path.
+
+**Where staged helped most:** methods that call other methods — the bottom-up composition let
+callers be described in behavioral terms without re-deriving callee semantics from Angular
+machinery. **Where staged made no difference:** questions derivable from structured AST data
+alone (form validators, routing edge cases, subscription cleanup).
+
+**Threshold confirmed:** `methodCount > 10` (from `signature.metrics.methodCount`) fires the
+complex path. `tsLineCount` is the correct field name for line count in the extractor (field:
+`signature.metrics.tsLineCount`), not `linesOfCode`. Threshold: `tsLineCount > 200 OR
+methodCount > 10`. For `post/update`: tsLineCount=131 (below), methodCount=12 (above) —
+method count gate fired correctly.
+
+**Conclusion:** staged wins on this unit; keep the complexity gate. The Explainer agent is
+never dropped — threshold is set to infinity only if a future comparison shows one-shot wins
+at all corpus sizes.
+
+---
+
 ### D9 — Drop the Service Layer / UUIP section
 
 **Status: superseded by D10.**

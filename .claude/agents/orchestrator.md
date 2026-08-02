@@ -49,15 +49,15 @@ Wait for the Resolver to complete. Check its report:
 
 ### 2. Complexity gate — route simple vs. complex
 
-Read `<outputDir>/functions.json`. Extract:
+Read `<outputDir>/signature.json`. Both gate values are in `signature.metrics`:
 
-- `linesOfCode` — from `provenance.metrics.linesOfCode` (or the extractor top-level
-  `metrics.linesOfCode` field if present)
-- method count — number of entries in `symbols` whose id starts with `method:`
+- `tsLineCount` — `signature.metrics.tsLineCount` (TypeScript line count; the field is NOT
+  named `linesOfCode` — confirmed during D8 calibration, 2026-08-02)
+- `methodCount` — `signature.metrics.methodCount`
 
 **Complex path** (run the Explainer): either condition is true:
-- `linesOfCode > 200`, OR
-- method count `> 10`
+- `tsLineCount > 200`, OR
+- `methodCount > 10`
 
 **Simple path** (skip the Explainer): both conditions are false.
 
