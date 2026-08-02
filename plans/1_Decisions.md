@@ -566,3 +566,21 @@ defect, in the output, indistinguishable from the extraction bugs we are hunting
 **Limit.** This is not an argument for premature abstraction. The trigger is a *second* call site
 that needs the same answer, not the anticipation of one — and never at the cost of collapsing two
 things that are genuinely different, per the second corollary.
+
+### D16 — Synthesizer must use only schema-defined evidence id patterns
+
+**Observed failure (Phase 5 first run, 2026-08-02):** The Synthesizer invented
+`"field-initializer:editForm"` as an evidence id. The pattern does not exist in
+`common.schema.json`; the schema validator rejected it as a hard failure.
+
+**Rule:** every `evidence` array entry must match one of the patterns defined in
+`common.schema.json#/$defs/memberId` / `evidenceList`. The complete set is:
+`field:X`, `method:X`, `accessor:X`, `dep:X`, `input:X`, `output:X`, `model:X`,
+`form:X`, `stream:X`, `query:X`, `type:X`, `tpl:N`, `tpl-handler:N`, `hostbind:N`,
+`hostlisten:N`, `test:N`, `http:N`, `nav:N`, `control:X.Y`, and the unit-id pattern
+`kind:path:ClassName`. No other pattern is valid.
+
+**Mitigation:** the constraint is now explicit in `synthesizer.md`'s constraints section.
+The validator catches it on every run; the Orchestrator treats a schema failure as a hard
+stop and does not render. The fix is always to replace the fabricated id with the nearest
+real id or to remove it and convert the claim to an open question.
