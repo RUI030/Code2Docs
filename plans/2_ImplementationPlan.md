@@ -283,25 +283,43 @@ number that justifies the extractor's existence.
 **Run the comparison before building it (D8).** With the Resolver now supplying a verified
 call graph, score staged output against Phase A's one-shot baseline on the *same* components:
 write `.claude/skills/explaining-functions/`, run explain-bottom-up-then-synthesize, and compare
-factual errors and omissions separately. If one-shot wins across the sampled size range, drop
-this stage and go straight to Phase 5 — that deletes the Explainer, its skill, and its
-orchestration. Record the size range any such conclusion holds for; a large component may
-still need decomposition purely to fit the context budget.
+factual errors and omissions separately. Record the size range any such conclusion holds for;
+a large component may still need decomposition purely to fit the context budget.
 
-The tasks below apply only if the comparison favours staging.
+**The Explainer is complexity-gated, not unconditional.** Rather than running on every unit
+or being dropped entirely, it routes based on a per-unit complexity score computed from
+extractor output:
+
+- **Simple path (one-shot):** Synthesizer reads the `ast` tiers directly, no Explainer
+  invoked. Use when `signature.json` `metrics.linesOfCode` is below the threshold AND
+  `functions.json` method count ≤ N.
+- **Complex path (staged):** Explainer runs first, bottom-up per symbol, then Synthesizer
+  reads the enriched `doc` tier. Use when either threshold is exceeded.
+
+The threshold values (linesOfCode and method count) are calibrated during D8 by comparing
+one-shot vs. staged output quality across a sample of units at different sizes. Start with
+linesOfCode > 200 OR method count > 10 as the initial probe; tune from there.
+
+This means the Explainer agent is never fully dropped — it is the complex-path branch.
+If D8 shows one-shot wins at *all* sizes in the corpus, set the threshold to infinity and
+document that finding; do not delete the agent, since the corpus may not represent the
+largest units that will be encountered in production.
+
+The tasks below apply to the complex path:
 
 - Input per call: one symbol's source, its callees' *already-written* explanations
   (available because of `executionOrder`), the field/dep signatures it touches, and any
   spec cases targeting it.
 - Batch trivially small symbols (one-line getters, pass-through delegates) into a single
-  call; the description's granularity concern is best handled by a size/complexity
+  call; the description's granularity concern is best handled by the size/complexity
   threshold rather than by prompt pleading.
 - Require `confidence` and forbid invented behavior: if the snippet's purpose is not
   determinable from the provided context, that becomes an entry in `review.openQuestions`.
 - Tune against fixtures with known-correct explanations; iterate on the threshold.
 
-*Exit:* `inferred.functionExplanations` covers every non-trivial member, ordered, with
-`coverageAssessment` populated.
+*Exit:* routing logic is wired and tested on at least one simple and one complex fixture;
+`inferred.functionExplanations` covers every non-trivial member on the complex path, ordered,
+with `coverageAssessment` populated.
 
 ### Phase 5 — Requirements Synthesizer (reduce stage)
 

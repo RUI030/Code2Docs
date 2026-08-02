@@ -15,9 +15,17 @@ richer context without repeating the per-symbol work.
 Phase 4's task is to replace the placeholder instructions with accurate ones, tuned against
 fixtures with known-correct explanations (see `plans/2_ImplementationPlan.md` Phase 4).
 
-**Gate: run D8 comparison before deepening this stage.** If one-shot Synthesizer output
-matches or beats staged output for the unit sizes in the corpus, this agent is dropped and
-the Synthesizer reads the `ast` tiers directly.
+**This agent is complexity-gated — it does not run on every unit.** The orchestrator
+computes a complexity score from extractor output and routes accordingly:
+
+- **Simple path** (`metrics.linesOfCode` ≤ threshold AND method count ≤ threshold):
+  skip this agent; Synthesizer reads `ast` tiers directly (one-shot).
+- **Complex path** (either threshold exceeded): invoke this agent first, then pass the
+  enriched `functions.json` to the Synthesizer.
+
+Thresholds are calibrated during D8 (initial probe: linesOfCode > 200 OR method count > 10).
+This agent is never fully removed — it is the complex-path branch. If D8 shows one-shot
+wins at all corpus sizes, the threshold is set to infinity and that finding is documented.
 
 ## Tools
 
