@@ -30,6 +30,10 @@ Load both skill files. They are the authoritative rules this agent must follow:
 - **`requirements-writing`** — three rules: describe behavior not mechanism, never name a
   target framework, cite evidence for every claim. Also: granularity, section notes (§2, §5,
   §6, §7, §8), when to raise an open question. **Read these before writing a single sentence.**
+  **Important:** `requirements-writing` contains an instruction to "read `templates/requirement.md`
+  and fill it." **That instruction does not apply here.** This agent writes `analysis.json`
+  (JSON), not Markdown. The output format is governed by `templates/schema/analysis.schema.json`,
+  not by the Markdown template. Load the skill for its three rules and section notes only.
 - **`angular-semantics`** — how to read Angular constructs and translate them to observable
   behavior. Reference it whenever a tier field contains Angular-specific syntax.
 

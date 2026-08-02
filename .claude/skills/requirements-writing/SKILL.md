@@ -15,6 +15,31 @@ Pair with `angular-semantics` (what the constructs mean) and `migration-risk-fla
 The section outline lives in `templates/requirement.md`. Read it and fill it; do not restate
 it here — two copies of the outline would drift.
 
+## Which path you are on
+
+This skill is used by two different paths. Know which one you are on before writing:
+
+**Phase A / S2 path (writing `requirement.md` directly):**
+Read `templates/requirement.md` in full. Write output that matches its structure exactly,
+including the `<!-- c2d:begin -->` / `<!-- c2d:end -->` markers for every section. Rules:
+- All 9 sections must be present: §1–§8 plus `review-gate`
+- Each section must open with `<!-- c2d:begin section="<id>" source="hand-written" -->`
+  and close with `<!-- c2d:end section="<id>" -->` using the exact section IDs from the
+  template (`1-purpose`, `2-state-and-data-flow`, `3-ui-and-rendering`, `4-public-interface`,
+  `5-dependencies`, `6-service-layer`, `7-acceptance-criteria`, `8-domain-business-rules`,
+  `review-gate`)
+- Omit the `hash` attribute — leave it absent; the renderer computes it, hand-written files
+  do not include it
+- The opening HTML comment must carry `schemaVersion="0.4.0"`
+- After writing, count: there must be exactly 9 `c2d:begin` and 9 `c2d:end` tags. A missing
+  section is an error — add it before finishing
+
+**Pipeline path (writing `analysis.json`):**
+The three rules and all section notes below still apply. The template-routing instruction
+above does not — `analysis.json` is JSON, not Markdown. Its format is governed by
+`templates/schema/analysis.schema.json`. The renderer converts it to `requirement.md`
+after the Synthesizer writes the JSON.
+
 ## The three rules
 
 ### 1. Describe behavior, not mechanism

@@ -41,13 +41,24 @@ guess which component to analyze.
    Phase 1's extractor is measured against.
 
 6. **Write the documents**, following `requirements-writing`:
-   - `requirement.md` from `templates/requirement.md`
+   - `requirement.md` from `templates/requirement.md`. Read the template in full first.
+     Preserve every `<!-- c2d:begin section="<id>" source="hand-written" -->` /
+     `<!-- c2d:end section="<id>" -->` marker pair exactly as they appear in the template.
+     All 9 sections must be present. The opening HTML comment must carry
+     `schemaVersion="0.4.0"`. Do not add a `hash` attribute — leave it absent.
    - `migration_notes.md` from `templates/migration_notes.md`, following
      `migration-risk-flagging`
    - `signature.json` and the `callGraph` portion of `dependencies.json`, following
      `templates/schema/signature.schema.json` and
      `templates/schema/dependencies.schema.json`. The schemas carry both the shape and
      the reasoning; for a worked example of any tier, read a golden under `fixtures/`.
+
+7a. **Format check — before the self-check.** Count the `c2d:begin` and `c2d:end` tags in
+    the `requirement.md` you just wrote. There must be exactly 9 of each, with section IDs:
+    `1-purpose`, `2-state-and-data-flow`, `3-ui-and-rendering`, `4-public-interface`,
+    `5-dependencies`, `6-service-layer`, `7-acceptance-criteria`, `8-domain-business-rules`,
+    `review-gate`. A missing section is an error — write the missing section now, wrapped in
+    its markers, before proceeding to step 7.
 
 7. **Self-check before declaring done.** Non-negotiable:
    - Every item on the step-3 checklist appears somewhere in `requirement.md`, or is
