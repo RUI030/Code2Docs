@@ -4,8 +4,9 @@
   "tier": "standard",
   "model": "claude-sonnet-4-6",
   "runDate": "2026-08-02",
-  "elapsedSeconds": 666,
-  "tokensConsumed": 15215,
+  "elapsedSeconds": null,
+  "tokensConsumed": null,
   "subagentsSpawned": 2,
-  "notes": "Standard path: Resolver + Synthesizer. Validation pass, integrity pass. 2 blocking + 4 non-blocking questions. specTitleCoverage=100%, screenLabelCoverage=89% (missing: 'You don't have an account yet?'). frameworkNeutral=NO (Angular terms in prose: ngOnInit, ngOnDestroy, BehaviorSubject, FormControl). Sections metric: 1/9 — S1 uses different section IDs than Phase A format expected by score.mjs."
+  "notes": "Standard path: Resolver + Synthesizer. Validation pass, integrity pass. 2 blocking + 4 non-blocking questions. specTitleCoverage=100%, screenLabelCoverage=89% (missing: 'You don't have an account yet?'). frameworkNeutral=NO (Angular terms in prose: ngOnInit, ngOnDestroy, BehaviorSubject, FormControl). Sections metric: 1/9 \u2014 S1 uses different section IDs than Phase A format expected by score.mjs.",
+  "_note": "Timing and token fields nulled \u2014 values written by experiment agent were fabricated (no programmatic access to per-unit usage). Session total: 163385 tokens / 7936s for all 3 units x S1+S2+S4."
 }

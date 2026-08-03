@@ -4,7 +4,9 @@ Tracks quality metrics per anchor unit across phases and benchmark settings.
 Updated at each phase exit. Source of truth for "is the pipeline getting better?"
 
 **How to read:** each table is one anchor unit. Rows are phases or benchmark settings.
-TBD = not yet measured. — = metric does not apply to this path.
+TBD = not yet measured. — = metric does not apply to this path. null = metric applies but
+was not captured (per-unit token/timing data requires instrumentation in run.mjs that is
+not yet wired up; the Phase 7 session total was 163 385 tokens / 7 936 s across all runs).
 
 ---
 
@@ -17,7 +19,7 @@ The Phase 5 reference unit; the hardest of the three benchmark units.
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | **Phase A** (skills-only) | Sonnet (unknown) | 2 | — | — | — | — | — | 8/8 (100%) | yes | — | — | 0 |
 | **Phase 5** (staged pipeline) | Sonnet 4.6 | 2 | 4 | 14 | 7 | 6 | TBD | TBD | yes | — | — | 3 |
-| **S1** (pipeline, Sonnet 4.6) | Sonnet 4.6 | 1 | 3 | 12 | 4 | 7 | 100% | 63% | no | 5584 | 16041 | 3 |
+| **S1** (pipeline, Sonnet 4.6) | Sonnet 4.6 | 1 | 3 | 12 | 4 | 7 | 100% | 63% | no | null | null | 3 |
 | **S2** (Phase A skills, Sonnet 4.6) | Sonnet 4.6 | 1 | 3 | — | — | — | null | 100% | yes | null | null | 0 |
 | **S3** (Phase A skills, Opus) | Opus 5 | — | — | — | — | — | — | — | — | — | — | — |
 | **S4 fix** (post-S1) | Sonnet 4.6 | 1 | 3 | — | — | — | 100% | 100% | no | null | null | — |
@@ -35,7 +37,7 @@ Phase A anchor unit. Classify-unit says "trivial" but HTTP behavior warrants rea
 | Phase / Setting | Model | Blocking Qs | Non-blocking Qs | ACs | Invariants | Risks | Screen label coverage | Spec title coverage | Framework neutral | Elapsed (s) | Tokens | Subagents |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
 | **Phase A** (skills-only) | Sonnet (unknown) | 0 | — | — | — | — | — | 4/4 (100%) | yes | — | — | 0 |
-| **S1** (pipeline, Sonnet 4.6) | Sonnet 4.6 | — | — | — | — | — | 0% | 0% | yes | null | 13009 | 1 |
+| **S1** (pipeline, Sonnet 4.6) | Sonnet 4.6 | — | — | — | — | — | 0% | 0% | yes | null | null | 1 |
 | **S2** (Phase A skills, Sonnet 4.6) | Sonnet 4.6 | 0 | 3 | — | — | — | null | 100% | yes | null | null | 0 |
 | **S3** (Phase A skills, Opus) | Opus 5 | — | — | — | — | — | — | — | — | — | — | — |
 | **S4 fix** (post-S1) | Sonnet 4.6 | — | — | — | — | — | 100% | 100% | yes | null | null | — |
@@ -49,7 +51,7 @@ Phase A anchor unit. Classify-unit says "trivial" but HTTP behavior warrants rea
 
 | Phase / Setting | Model | Blocking Qs | Non-blocking Qs | ACs | Invariants | Risks | Screen label coverage | Spec title coverage | Framework neutral | Elapsed (s) | Tokens | Subagents |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| **S1** (pipeline, Sonnet 4.6) | Sonnet 4.6 | 2 | 4 | 8 | 4 | 4 | 89% | 100% | no | 666 | 15215 | 2 |
+| **S1** (pipeline, Sonnet 4.6) | Sonnet 4.6 | 2 | 4 | 8 | 4 | 4 | 89% | 100% | no | null | null | 2 |
 | **S2** (Phase A skills, Sonnet 4.6) | Sonnet 4.6 | 2 | 2 | — | — | — | null | 100% | yes | null | null | 0 |
 | **S3** (Phase A skills, Opus) | Opus 5 | — | — | — | — | — | — | — | — | — | — | — |
 | **S4 fix** (post-S1) | Sonnet 4.6 | 2 | 4 | — | — | — | 100% | 100% | no | null | null | — |
