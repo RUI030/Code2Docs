@@ -1,0 +1,11 @@
+{
+  "setting": "s1-pipeline",
+  "unit": "login",
+  "tier": "standard",
+  "model": "claude-sonnet-4-6",
+  "runDate": "2026-08-02",
+  "elapsedSeconds": 666,
+  "tokensConsumed": 15215,
+  "subagentsSpawned": 2,
+  "notes": "Standard path: Resolver + Synthesizer. Validation pass, integrity pass. 2 blocking + 4 non-blocking questions. specTitleCoverage=100%, screenLabelCoverage=89% (missing: 'You don't have an account yet?'). frameworkNeutral=NO (Angular terms in prose: ngOnInit, ngOnDestroy, BehaviorSubject, FormControl). Sections metric: 1/9 — S1 uses different section IDs than Phase A format expected by score.mjs."
+}

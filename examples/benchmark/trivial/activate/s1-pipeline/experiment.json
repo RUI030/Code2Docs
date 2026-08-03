@@ -1,0 +1,11 @@
+{
+  "setting": "s1-pipeline",
+  "unit": "activate",
+  "tier": "trivial",
+  "model": "claude-sonnet-4-6",
+  "runDate": "2026-08-02",
+  "elapsedSeconds": null,
+  "tokensConsumed": 13009,
+  "subagentsSpawned": 1,
+  "notes": "Classify-unit returned 'trivial'; Resolver ran, render-trivial used. No Synthesizer or Explainer. Score bugs fixed in score.mjs (staticText path + openQuestions path). screenLabelCoverage=0 and specTitleCoverage=0 reflect that trivial renderer produces no behavioral prose."
+}

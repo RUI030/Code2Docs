@@ -1,12 +1,11 @@
 {
-  "schemaVersion": "0.3.0",
-  "$comment": "PHASE A BASELINE \u2014 hand-derived by reading source, NOT extractor output. Recorded so Phase 1's Resolver can be diffed against it to quantify what verified extraction adds. Treat every field as an approximation; the derived ones (call graph, read/write sets) are the least reliable.",
+  "schemaVersion": "0.4.0",
   "unit": {
-    "id": "component:app/account/activate:ActivateComponent",
+    "id": "component:account/activate:ActivateComponent",
     "kind": "component",
     "className": "ActivateComponent",
     "selector": "jhi-activate",
-    "path": "src/main/webapp/app/account/activate",
+    "path": "account/activate",
     "standalone": true,
     "declaredInModule": null,
     "isDefaultExport": true,
@@ -18,21 +17,15 @@
       "specs": [
         "activate.component.spec.ts"
       ]
-    },
-    "$comment_siblings": "The folder also contains activate.route.ts, activate.service.ts, and activate.service.spec.ts. Under D1 the service is its own unit and was NOT analyzed as one here; it is treated as a dependency. The route file is unit-level configuration.",
-    "siblings": [
-      "activate.route.ts",
-      "activate.service.ts",
-      "activate.service.spec.ts"
-    ]
+    }
   },
   "manifest": {
     "dependencies": "./dependencies.json",
-    "functions": null,
-    "template": null,
+    "functions": "./functions.json",
+    "template": "./template.json",
     "analysis": null,
-    "requirement": "./requirement.md",
-    "migrationNotes": "./migration_notes.md",
+    "requirement": null,
+    "migrationNotes": null,
     "repoIndex": null
   },
   "publicApi": {
@@ -43,16 +36,16 @@
     "templateReachableMembers": [
       "field:error",
       "field:success"
-    ],
-    "$comment": "No @Input, @Output, or model(). The two signal fields are public and read by both the template and the spec, so they form the de facto external surface."
+    ]
   },
   "injectedDependencies": [
     {
       "id": "dep:activateService",
       "propertyName": "activateService",
       "token": "ActivateService",
-      "resolvedUnitId": "service:app/account/activate:ActivateService",
+      "resolvedUnitId": null,
       "origin": "internal",
+      "visibility": "private",
       "injectionStyle": "inject-fn",
       "modifiers": {
         "optional": false,
@@ -72,6 +65,7 @@
       "token": "ActivatedRoute",
       "resolvedUnitId": null,
       "origin": "angular",
+      "visibility": "private",
       "injectionStyle": "inject-fn",
       "modifiers": {
         "optional": false,
@@ -90,12 +84,13 @@
     "implementedHooks": [
       "ngOnInit"
     ],
+    "registeredHooks": [],
     "declaredInterfaces": [
       "OnInit"
     ],
     "constructorDoesWork": false,
-    "cleanupStrategy": "none",
-    "$comment": "No ngOnDestroy and no takeUntilDestroyed despite an active subscription."
+    "fieldInitializerDoesWork": false,
+    "cleanupStrategy": "none"
   },
   "stateOutline": {
     "fields": [
@@ -149,8 +144,7 @@
     ],
     "accessorIds": [],
     "formIds": [],
-    "streamIds": [],
-    "$comment_streams": "Empty under D12a: this component's only stream is built and subscribed inline in ngOnInit and has no name in source. It is recorded on method:ngOnInit in functions.json. The Phase A baseline invented 'stream:queryParamsActivation' here."
+    "streamIds": []
   },
   "decorator": {
     "changeDetection": null,
@@ -161,8 +155,7 @@
       "RouterModule"
     ],
     "hostDirectives": [],
-    "animations": [],
-    "$comment": "changeDetection unspecified, so Default applies. State is signal-based regardless."
+    "animations": []
   },
   "metrics": {
     "tsLineCount": 27,
@@ -171,19 +164,15 @@
     "publicApiSurface": 0,
     "injectedDependencyCount": 2,
     "maxCyclomaticComplexity": 1,
-    "maxTemplateNestingDepth": 4,
-    "$comment_surface": "0 under the F8b definition: no inputs, outputs, two-way bindings or public methods. The baseline recorded 2, counting the public signal fields the template reads -- internal consumption, not a contract with a parent."
+    "maxTemplateNestingDepth": 6
   },
   "provenance": {
-    "source": "hand-derived",
-    "resolverVersion": null,
-    "generatedAt": "2026-07-29",
+    "source": "ast",
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
     "sourceRevision": null,
-    "inputHash": null,
+    "inputHash": "edca2538bd5d4af2",
     "parseStatus": "ok",
-    "warnings": [
-      "Hand-derived baseline, not extractor output. Determinism is not claimed.",
-      "The co-located ActivateService is a separate unit under D1 and was not analyzed as one."
-    ]
+    "warnings": []
   }
 }

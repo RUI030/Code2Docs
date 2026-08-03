@@ -1,0 +1,32 @@
+{
+  "scoredAt": "2026-08-03T00:58:27.385Z",
+  "outputDir": "/home/rui030/home/rui030/JaseciLab/2607_AllyBaseCamp/Code2Docs/OUTPUT/benchmark/trivial/activate/s2-llm-sonnet",
+  "specFile": "/home/rui030/home/rui030/JaseciLab/2607_AllyBaseCamp/Code2Docs/INPUT/jhipster-ng17-fixture/src/main/webapp/app/account/activate/activate.component.spec.ts",
+  "blockingQuestions": null,
+  "nonBlockingQuestions": null,
+  "coverageRatio": null,
+  "screenLabelCoverage": null,
+  "screenLabels": {
+    "total": 0,
+    "missing": []
+  },
+  "specTitleCoverage": 1,
+  "specTitles": {
+    "total": 3,
+    "missing": []
+  },
+  "frameworkNeutral": true,
+  "frameworkTermsFound": [],
+  "sectionsPresent": [
+    "1-purpose",
+    "2-state-and-data-flow",
+    "3-ui-and-rendering",
+    "4-public-interface",
+    "5-dependencies",
+    "6-service-layer",
+    "7-acceptance-criteria",
+    "8-domain-business-rules",
+    "review-gate"
+  ],
+  "missingSections": []
+}

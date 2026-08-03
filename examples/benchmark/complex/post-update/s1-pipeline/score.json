@@ -1,0 +1,43 @@
+{
+  "scoredAt": "2026-08-03T00:53:15.691Z",
+  "outputDir": "/home/rui030/home/rui030/JaseciLab/2607_AllyBaseCamp/Code2Docs/OUTPUT/benchmark/complex/post-update/s1-pipeline",
+  "specFile": "/home/rui030/home/rui030/JaseciLab/2607_AllyBaseCamp/Code2Docs/INPUT/jhipster-ng17-fixture/src/main/webapp/app/entities/post/update/post-update.component.spec.ts",
+  "blockingQuestions": 1,
+  "nonBlockingQuestions": 3,
+  "coverageRatio": null,
+  "screenLabelCoverage": 1,
+  "screenLabels": {
+    "total": 12,
+    "missing": []
+  },
+  "specTitleCoverage": 0.625,
+  "specTitles": {
+    "total": 8,
+    "missing": [
+      "Should update editForm",
+      "Should forward to blogService",
+      "Should forward to tagService"
+    ]
+  },
+  "frameworkNeutral": false,
+  "frameworkTermsFound": [
+    "ngOnInit",
+    "ngOnDestroy",
+    "FormGroup",
+    "ActivatedRoute",
+    "HttpClient"
+  ],
+  "sectionsPresent": [
+    "1-purpose"
+  ],
+  "missingSections": [
+    "2-state-and-data-flow",
+    "3-ui-and-rendering",
+    "4-public-interface",
+    "5-dependencies",
+    "6-service-layer",
+    "7-acceptance-criteria",
+    "8-domain-business-rules",
+    "review-gate"
+  ]
+}

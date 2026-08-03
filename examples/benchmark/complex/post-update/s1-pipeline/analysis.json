@@ -1,0 +1,772 @@
+{
+  "schemaVersion": "0.4.0",
+  "unitId": "component:entities/post/update:PostUpdateComponent",
+  "rendersTo": {
+    "requirement": "requirement.md",
+    "migrationNotes": "migration_notes.md"
+  },
+  "notes": [
+    {
+      "id": "ui:1",
+      "statement": "This screen receives data through the router rather than through parent-supplied inputs: the post record (when editing) arrives via the activated route's data object, and the available blog and tag options are fetched from the server on initialization. The component has no @Input, @Output, or two-way bindings.",
+      "evidence": ["dep:activatedRoute", "method:ngOnInit", "dep:blogService", "dep:tagService"],
+      "confidence": "high"
+    },
+    {
+      "id": "ui:2",
+      "statement": "Three public methods — byteSize, openFile, and setFileData — appear to support a file-attachment capability (byte-size display, file preview, file-to-form loading) that is not wired to any template binding in the current implementation. They and their exclusive dependencies (DataUtils and EventManager) are unreachable dead code.",
+      "evidence": ["method:byteSize", "method:openFile", "method:setFileData", "dep:dataUtils", "dep:eventManager"],
+      "confidence": "high"
+    }
+  ],
+  "purpose": {
+    "statement": "PostUpdateComponent serves users who need to create a new blog post or edit an existing one, presenting a validated form that collects the post's title, content, publication date, assigned blog, and tags, then persists the record to the server and returns the user to the previous screen.",
+    "evidence": ["tpl:13", "tpl:7", "tpl:4", "method:save"],
+    "responsibilities": [
+      {
+        "id": "resp:1",
+        "statement": "Presents a form pre-populated with an existing post's data when editing, or blank when creating, using the post record supplied by the current route.",
+        "evidence": ["method:ngOnInit", "method:updateForm", "dep:activatedRoute"]
+      },
+      {
+        "id": "resp:2",
+        "statement": "Fetches available blogs and tags from the server on initialization so the form's dropdown and multi-select are populated, merging in the post's current associations so pre-selected values are always visible.",
+        "evidence": ["method:loadRelationshipsOptions", "dep:blogService", "dep:tagService"]
+      },
+      {
+        "id": "resp:3",
+        "statement": "Persists the form data to the server as a create or update operation, blocks re-submission while the request is pending, and navigates away on success.",
+        "evidence": ["method:save", "method:subscribeToSaveResponse", "method:onSaveSuccess", "field:isSaving", "tpl:164"]
+      }
+    ]
+  },
+  "stateModel": {
+    "notes": [
+      {
+        "id": "ui:3",
+        "statement": "The propsAndEvents list is empty: this unit accepts no parent-supplied inputs and emits no output events. All input data arrives through the routing layer (the current post record) or is fetched directly from the server (option lists).",
+        "evidence": ["dep:activatedRoute", "method:loadRelationshipsOptions"]
+      }
+    ],
+    "propsAndEvents": [],
+    "local": [
+      {
+        "id": "state:1",
+        "member": "field:isSaving",
+        "statement": "Tracks whether a save operation is currently in progress. Starts false; set to true when submission begins and cleared back to false when the server request completes (whether it succeeds or fails). While true, the Save button is inaccessible.",
+        "mutatedBy": ["method:save", "method:onSaveFinalize"],
+        "evidence": ["field:isSaving", "method:save", "method:onSaveFinalize", "tpl:164"],
+        "confidence": "high"
+      },
+      {
+        "id": "state:2",
+        "member": "field:post",
+        "statement": "Holds the post record currently being worked on. Null when creating a new post; populated from the route data when editing an existing one. Read during relationship-loading so the post's current blog and tags can be merged into the option lists.",
+        "mutatedBy": ["method:ngOnInit", "method:updateForm"],
+        "evidence": ["field:post", "method:ngOnInit", "method:updateForm", "method:loadRelationshipsOptions"],
+        "confidence": "high"
+      },
+      {
+        "id": "state:3",
+        "member": "field:blogsSharedCollection",
+        "statement": "The list of blog records available for selection in the Blog dropdown. Initially empty; populated on initialization by merging the full list of blogs from the server with any blog already assigned to the current post.",
+        "mutatedBy": ["method:updateForm", "method:loadRelationshipsOptions"],
+        "evidence": ["field:blogsSharedCollection", "method:updateForm", "method:loadRelationshipsOptions", "tpl:125"],
+        "confidence": "high"
+      },
+      {
+        "id": "state:4",
+        "member": "field:tagsSharedCollection",
+        "statement": "The list of tag records available for selection in the Tags multi-select. Initially empty; populated on initialization by merging the full list of tags from the server with any tags already assigned to the current post.",
+        "mutatedBy": ["method:updateForm", "method:loadRelationshipsOptions"],
+        "evidence": ["field:tagsSharedCollection", "method:updateForm", "method:loadRelationshipsOptions", "tpl:143"],
+        "confidence": "high"
+      },
+      {
+        "id": "state:5",
+        "member": "field:compareBlog",
+        "statement": "A comparison function supplied to the Blog dropdown to determine which option matches the form's currently-selected blog value. Delegates to the blog service's comparison logic so identity is determined by the service's definition of equality rather than object reference.",
+        "evidence": ["field:compareBlog", "dep:blogService", "tpl:122"],
+        "confidence": "high"
+      },
+      {
+        "id": "state:6",
+        "member": "field:compareTag",
+        "statement": "A comparison function supplied to the Tags multi-select to determine which options match the form's currently-selected tag values. Delegates to the tag service's comparison logic.",
+        "evidence": ["field:compareTag", "dep:tagService", "tpl:142"],
+        "confidence": "high"
+      }
+    ],
+    "external": [
+      {
+        "id": "state:30",
+        "name": "Route data",
+        "owner": "ActivatedRoute (routing layer)",
+        "statement": "The current route's data object supplies the post record when the user is editing an existing post, or an empty value when creating a new one. This data is provided by a route resolver or route configuration outside this unit and is consumed once at initialization.",
+        "evidence": ["dep:activatedRoute", "method:ngOnInit"],
+        "confidence": "high"
+      }
+    ],
+    "form": [
+      {
+        "id": "state:10",
+        "form": "form:editForm",
+        "statement": "Manages the post's editable fields as a single reactive form group. Created by PostFormService at startup and reset with the existing post's values (or empty values for a new post) during initialization. The form's validity gates the Save button.",
+        "evidence": ["field:editForm", "method:updateForm", "dep:postFormService", "tpl:8"],
+        "confidence": "high",
+        "controls": [
+          {
+            "control": "control:editForm.id",
+            "statement": "The post's system-assigned identifier. Displayed as a read-only field only when editing an existing post (when the value is non-null); hidden for new post creation.",
+            "evidence": ["tpl:17", "tpl:25", "tpl:32"]
+          },
+          {
+            "control": "control:editForm.title",
+            "statement": "The post's title. Required. An inline error message appears when the field is invalid and the user has interacted with it (field is dirty or touched).",
+            "evidence": ["tpl:40", "tpl:48", "tpl:51", "tpl:52"]
+          },
+          {
+            "control": "control:editForm.content",
+            "statement": "The post's body content. Required. An inline error message appears when the field is invalid and has been interacted with.",
+            "evidence": ["tpl:63", "tpl:70", "tpl:73", "tpl:74"]
+          },
+          {
+            "control": "control:editForm.date",
+            "statement": "The post's publication date and time. Required and must conform to a datetime-local format (YYYY-MM-DD HH:mm). Two separate inline messages are shown depending on which validation rule is violated: required or invalid format.",
+            "evidence": ["tpl:87", "tpl:96", "tpl:99", "tpl:104", "tpl:106"]
+          },
+          {
+            "control": "control:editForm.blog",
+            "statement": "The blog the post belongs to, selected from a dropdown of available blogs. A null (no blog) option is available. The dropdown uses a custom comparator to match the pre-selected value by identity.",
+            "evidence": ["tpl:116", "tpl:122", "tpl:123", "tpl:124", "tpl:125"]
+          },
+          {
+            "control": "control:editForm.tags",
+            "statement": "The tags applied to the post, selected from a multi-select list of available tags. Zero or more tags may be selected. Uses a custom comparator to match pre-selected tags by identity.",
+            "evidence": ["tpl:135", "tpl:142", "tpl:143", "tpl:144", "tpl:145"]
+          }
+        ]
+      }
+    ],
+    "async": [
+      {
+        "id": "state:20",
+        "stream": "activatedRoute.data",
+        "trigger": "First display of the screen",
+        "loadingIndicator": null,
+        "errorHandling": null,
+        "evidence": ["dep:activatedRoute", "method:ngOnInit"]
+      },
+      {
+        "id": "state:21",
+        "stream": "blogService.query()",
+        "trigger": "First display of the screen (called unconditionally from ngOnInit)",
+        "loadingIndicator": null,
+        "errorHandling": null,
+        "evidence": ["dep:blogService", "method:loadRelationshipsOptions", "method:ngOnInit"]
+      },
+      {
+        "id": "state:22",
+        "stream": "tagService.query()",
+        "trigger": "First display of the screen (called unconditionally from ngOnInit)",
+        "loadingIndicator": null,
+        "errorHandling": null,
+        "evidence": ["dep:tagService", "method:loadRelationshipsOptions", "method:ngOnInit"]
+      },
+      {
+        "id": "state:23",
+        "stream": "postService.create() or postService.update()",
+        "trigger": "User submits the form",
+        "loadingIndicator": "isSaving is set to true while the request is pending; the Save button is disabled and the form cannot be submitted again.",
+        "errorHandling": "isSaving is cleared to false when the request completes. No additional error presentation is performed by this unit; the child alert-error component (tpl:15) may display server-returned error details.",
+        "evidence": ["method:save", "method:subscribeToSaveResponse", "method:onSaveFinalize", "field:isSaving", "tpl:15", "tpl:164"]
+      }
+    ]
+  },
+  "publicContract": {
+    "notes": [
+      {
+        "id": "ui:4",
+        "statement": "This unit exposes no @Input or @Output bindings. It is used as a routed screen, not as a reusable child component. The five members listed in the class's public API surface are callable from the template; three of them (byteSize, openFile, setFileData) are not referenced by any template binding and are dead code.",
+        "evidence": ["method:byteSize", "method:openFile", "method:setFileData"],
+        "confidence": "high"
+      }
+    ],
+    "inputContracts": [],
+    "outputContracts": [],
+    "methods": [
+      {
+        "id": "api:1",
+        "symbol": "method:save",
+        "signature": "save(): void",
+        "contract": "Called when the form is submitted. Marks a save operation as in progress, extracts the current form values as a post record, sends either an update request (if the post already has an id) or a create request (if it is new), and wires the response to navigate away on success or clear the in-progress state on completion. Must not be called while isSaving is true.",
+        "preconditions": ["The form is valid", "isSaving is false"],
+        "postconditions": ["isSaving is set to true during the request", "On success: the user is navigated to the previous page", "On any outcome: isSaving is restored to false"],
+        "evidence": ["method:save", "tpl:7"],
+        "confidence": "high"
+      },
+      {
+        "id": "api:2",
+        "symbol": "method:previousState",
+        "signature": "previousState(): void",
+        "contract": "Navigates the browser back to the previous page. Called by the Cancel button and automatically after a successful save.",
+        "preconditions": [],
+        "postconditions": ["The browser navigates to the previous history entry"],
+        "evidence": ["method:previousState", "tpl:153"],
+        "confidence": "high"
+      }
+    ],
+    "extensionPoints": [
+      {
+        "id": "ext:1",
+        "statement": "onSaveError() is a protected method with an intentionally empty body, designed as an extension point for subclasses that need to add error-specific behavior when a save request fails. Overriding it adds behavior on failure without replacing the shared finalize logic.",
+        "symbols": ["method:onSaveError"],
+        "evidence": ["method:onSaveError", "method:subscribeToSaveResponse"],
+        "confidence": "high"
+      }
+    ]
+  },
+  "workflows": [
+    {
+      "id": "flow:1",
+      "name": "Save post",
+      "trigger": "User submits the form by clicking the Save button",
+      "preconditions": [
+        "All required form fields (title, content, date) are filled and the date is in a valid datetime-local format",
+        "No save operation is currently in progress (isSaving is false)"
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "action": "The Save button becomes inaccessible and the saving-in-progress state is activated",
+          "evidence": ["method:save", "field:isSaving", "tpl:164"]
+        },
+        {
+          "order": 2,
+          "action": "The post record is extracted from the form values",
+          "evidence": ["method:save", "dep:postFormService"]
+        },
+        {
+          "order": 3,
+          "action": "If the post has an existing id, an update request is sent to the server; if the post is new (no id), a creation request is sent",
+          "evidence": ["method:save", "dep:postService"]
+        },
+        {
+          "order": 4,
+          "action": "On a successful server response, the user is navigated to the previous page",
+          "evidence": ["method:onSaveSuccess", "method:previousState"]
+        },
+        {
+          "order": 5,
+          "action": "Regardless of whether the request succeeded or failed, the saving-in-progress state is cleared and the Save button becomes accessible again",
+          "evidence": ["method:onSaveFinalize", "field:isSaving"]
+        }
+      ],
+      "successOutcome": "The post is persisted and the user is returned to the previous page.",
+      "failureOutcomes": [
+        {
+          "condition": "The server returns an error response",
+          "result": "The form remains visible and the Save button becomes accessible again. No error message is shown directly by this unit; the child alert-error component may surface server-returned error details. The onSaveError method has an empty body and performs no additional action."
+        }
+      ],
+      "evidence": ["tpl:7", "method:save", "method:subscribeToSaveResponse", "method:onSaveSuccess", "method:onSaveError", "method:onSaveFinalize"]
+    },
+    {
+      "id": "flow:2",
+      "name": "Cancel and return to previous page",
+      "trigger": "User clicks the Cancel button",
+      "preconditions": [],
+      "steps": [
+        {
+          "order": 1,
+          "action": "The browser navigates back to the previous page, discarding any unsaved form changes",
+          "evidence": ["method:previousState", "tpl:153"]
+        }
+      ],
+      "successOutcome": "The user returns to the previous page without the post being saved.",
+      "failureOutcomes": [],
+      "evidence": ["tpl:153", "method:previousState"]
+    }
+  ],
+  "lifecycleBehavior": {
+    "onInitialization": "On first display, this unit subscribes to the current route's data. If the route data contains an existing post record (edit mode), the form fields are populated with that post's current values and the post's associated blog and tags are stored locally; otherwise the form starts empty (create mode). Regardless of mode, the full list of available blogs and the full list of available tags are then each fetched from the server; the post's currently-assigned associations are merged into those lists so they appear as selectable options even if they would otherwise fall outside the server's default query results.",
+    "onInputChange": null,
+    "onDestroy": null,
+    "orderingConstraints": [
+      {
+        "statement": "The form is populated with the existing post's values (and the post's associations are stored locally) before the relationship option lists are fetched. This ordering ensures the current blog and tag values are available to merge into the server-returned lists when loadRelationshipsOptions runs.",
+        "evidence": ["method:ngOnInit", "method:updateForm", "method:loadRelationshipsOptions"]
+      }
+    ],
+    "notes": [
+      {
+        "id": "ui:5",
+        "statement": "This unit implements no cleanup hook. HTTP-based subscriptions (blogService.query, tagService.query, postService.create/update) complete automatically after one server response and do not persist. The subscription to activatedRoute.data is a long-lived observable with no explicit teardown; see migration risks.",
+        "evidence": ["method:ngOnInit", "dep:activatedRoute"],
+        "confidence": "high"
+      }
+    ]
+  },
+  "externalIntegrations": {
+    "notes": [
+      {
+        "id": "ui:6",
+        "statement": "HTTP interactions are entirely indirect: this unit calls PostService, BlogService, and TagService, which make the actual HTTP requests. The dependencies.json httpInteractions list is empty because only direct HttpClient calls are detected at this tier. The presence of HTTP behavior is confirmed by the call graph (postService.update, postService.create, blogService.query, tagService.query).",
+        "evidence": ["dep:postService", "dep:blogService", "dep:tagService"],
+        "confidence": "high"
+      }
+    ],
+    "services": [
+      {
+        "id": "ext:10",
+        "dep": "dep:postService",
+        "purpose": "Persists the post record to the server: sends an update request when the post already exists or a create request when it is new.",
+        "operations": ["update", "create"],
+        "evidence": ["dep:postService", "method:save"]
+      },
+      {
+        "id": "ext:11",
+        "dep": "dep:postFormService",
+        "purpose": "Manages the form's structure and data mapping: constructs the form group on initialization, converts the form's current values to a post record for saving, and resets the form to match an existing post's values when editing.",
+        "operations": ["createPostFormGroup", "getPost", "resetForm"],
+        "evidence": ["dep:postFormService", "field:editForm", "method:save", "method:updateForm"]
+      },
+      {
+        "id": "ext:12",
+        "dep": "dep:blogService",
+        "purpose": "Provides blog data for the Blog dropdown: fetches all available blogs, merges in the post's currently-assigned blog so it is always present in the list, and determines whether two blog records represent the same entity for option matching.",
+        "operations": ["query", "addBlogToCollectionIfMissing", "compareBlog"],
+        "evidence": ["dep:blogService", "method:loadRelationshipsOptions", "method:updateForm", "field:compareBlog"]
+      },
+      {
+        "id": "ext:13",
+        "dep": "dep:tagService",
+        "purpose": "Provides tag data for the Tags multi-select: fetches all available tags, merges in the post's currently-assigned tags, and determines whether two tag records represent the same entity for multi-select matching.",
+        "operations": ["query", "addTagToCollectionIfMissing", "compareTag"],
+        "evidence": ["dep:tagService", "method:loadRelationshipsOptions", "method:updateForm", "field:compareTag"]
+      },
+      {
+        "id": "ext:14",
+        "dep": "dep:activatedRoute",
+        "purpose": "Supplies the current route's data object, which contains the post record when the user is editing an existing post and is absent (or empty) when creating a new one.",
+        "operations": ["data (observable property)"],
+        "evidence": ["dep:activatedRoute", "method:ngOnInit"]
+      },
+      {
+        "id": "ext:15",
+        "dep": "dep:dataUtils",
+        "purpose": "Utility service for file data operations: computing the human-readable byte size of a base64-encoded string, triggering the browser to open or download a file, and loading a selected file into a form field. Currently only used by dead-code methods.",
+        "operations": ["byteSize", "openFile", "loadFileToForm"],
+        "evidence": ["dep:dataUtils", "method:byteSize", "method:openFile", "method:setFileData"]
+      },
+      {
+        "id": "ext:16",
+        "dep": "dep:eventManager",
+        "purpose": "Broadcasts application-level error notifications; used by setFileData to signal a file-load failure. Currently only used by dead-code methods.",
+        "operations": ["broadcast"],
+        "evidence": ["dep:eventManager", "method:setFileData"]
+      }
+    ],
+    "apis": [],
+    "packages": []
+  },
+  "serviceLayer": {
+    "applicable": true,
+    "notes": [
+      {
+        "id": "ui:7",
+        "statement": "No service injected by this unit is confirmed to hold persistent mutable state accessible app-wide, because the scope (providedIn value) of each service cannot be determined from this tier alone. EventManager.broadcast() pushes to an application-level event bus whose consumers and lifetime are unknown. All other service calls are per-request HTTP dispatches or pure utility operations. Other consumers of these services cannot be identified without the repository-wide index.",
+        "evidence": ["dep:eventManager", "dep:postService", "dep:blogService", "dep:tagService"],
+        "confidence": "medium"
+      }
+    ],
+    "sharedState": [
+      {
+        "id": "svc:1",
+        "service": "dep:eventManager",
+        "state": "Application-level event bus; broadcast() pushes error events to subscribers across the application.",
+        "lifetime": "unknown",
+        "readByThisUnit": false,
+        "mutatedByThisUnit": true,
+        "mutatingMethods": ["method:setFileData"],
+        "otherConsumers": [],
+        "consumersKnown": false,
+        "evidence": ["dep:eventManager", "method:setFileData"]
+      }
+    ],
+    "statelessOperations": [
+      {
+        "id": "svcop:1",
+        "service": "dep:postService",
+        "operation": "HTTP create and update requests for the post entity; each call is a discrete request with no retained state.",
+        "evidence": ["dep:postService", "method:save"]
+      },
+      {
+        "id": "svcop:2",
+        "service": "dep:blogService",
+        "operation": "HTTP query for available blogs and pure comparator/merge operations; no service-side mutable state.",
+        "evidence": ["dep:blogService", "method:loadRelationshipsOptions"]
+      },
+      {
+        "id": "svcop:3",
+        "service": "dep:tagService",
+        "operation": "HTTP query for available tags and pure comparator/merge operations; no service-side mutable state.",
+        "evidence": ["dep:tagService", "method:loadRelationshipsOptions"]
+      },
+      {
+        "id": "svcop:4",
+        "service": "dep:postFormService",
+        "operation": "Form group construction, form-to-model conversion (getPost), and form reset (resetForm); all operate on the form instance owned by this unit.",
+        "evidence": ["dep:postFormService", "field:editForm", "method:updateForm", "method:save"]
+      }
+    ],
+    "couplingNotes": [
+      {
+        "id": "svccoupling:1",
+        "statement": "Whether PostService, BlogService, and TagService are application-scope singletons (one instance shared across all components) or narrower-scoped instances is not visible at this tier. If any holds cached state between requests (e.g., a cached blog list), mutations made by this unit could affect other screens. This requires the repository-wide index to resolve.",
+        "evidence": ["dep:postService", "dep:blogService", "dep:tagService"],
+        "confidence": "medium"
+      }
+    ]
+  },
+  "behavioralInvariants": [
+    {
+      "id": "inv:1",
+      "statement": "The Save button is inaccessible whenever the form contains an invalid value or a save operation is currently in progress.",
+      "whyItMatters": "Prevents duplicate submissions and ensures only valid data is sent to the server.",
+      "evidence": ["tpl:164", "field:isSaving", "field:editForm"]
+    },
+    {
+      "id": "inv:2",
+      "statement": "The ID field is visible only when the form's id control holds a non-null value — that is, only when the user is editing a post that already exists in the system.",
+      "whyItMatters": "Distinguishes create mode from edit mode visually and prevents confusion about whether a new record has been assigned an id.",
+      "evidence": ["tpl:17", "tpl:25", "tpl:32"]
+    },
+    {
+      "id": "inv:3",
+      "statement": "Inline validation error messages for a form field appear only after the user has interacted with that field (the field has been dirtied or touched). Errors are not shown immediately on page load.",
+      "whyItMatters": "Avoids surfacing errors before the user has had a chance to fill in the form, which would be disorienting when the screen first opens.",
+      "evidence": ["tpl:48", "tpl:70", "tpl:96"]
+    },
+    {
+      "id": "inv:4",
+      "statement": "After every save attempt — whether the server request succeeds or fails — the saving-in-progress flag is cleared and the Save button becomes accessible again.",
+      "whyItMatters": "Ensures the form does not become permanently blocked if a transient server error occurs.",
+      "evidence": ["method:onSaveFinalize", "field:isSaving"]
+    }
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "ac:1",
+      "scenario": "Blog options include the post's currently-assigned blog even if it is absent from the default query results",
+      "given": ["The user is editing an existing post that has an assigned blog"],
+      "when": ["The screen initializes"],
+      "then": ["The blog service is queried for all blogs", "The post's current blog is merged into the result if it was not returned by the query", "The blog dropdown shows the current blog as a selectable option"],
+      "derivedFrom": ["method:loadRelationshipsOptions", "method:updateForm", "dep:blogService"],
+      "coveredByExistingTest": "test:1"
+    },
+    {
+      "id": "ac:2",
+      "scenario": "Tag options include the post's currently-assigned tags even if they are absent from the default query results",
+      "given": ["The user is editing an existing post that has assigned tags"],
+      "when": ["The screen initializes"],
+      "then": ["The tag service is queried for all tags", "The post's current tags are merged into the result if any were absent", "The tags multi-select shows the current tags as selectable options"],
+      "derivedFrom": ["method:loadRelationshipsOptions", "method:updateForm", "dep:tagService"],
+      "coveredByExistingTest": "test:2"
+    },
+    {
+      "id": "ac:3",
+      "scenario": "Form is pre-populated when editing an existing post",
+      "given": ["The route data contains an existing post record"],
+      "when": ["The screen initializes"],
+      "then": ["The form fields are populated with the post's current title, content, date, blog, and tags"],
+      "derivedFrom": ["method:ngOnInit", "method:updateForm", "field:editForm"],
+      "coveredByExistingTest": "test:3"
+    },
+    {
+      "id": "ac:4",
+      "scenario": "Saving an existing post sends an update request",
+      "given": ["The form is populated with an existing post (has an id)", "The form is valid"],
+      "when": ["The user submits the form"],
+      "then": ["The post service's update operation is called with the current form values", "On success, the user is navigated to the previous page"],
+      "derivedFrom": ["method:save", "dep:postService"],
+      "coveredByExistingTest": "test:4"
+    },
+    {
+      "id": "ac:5",
+      "scenario": "Saving a new post sends a create request",
+      "given": ["The form is empty (no id — creating a new post)", "The form is valid"],
+      "when": ["The user submits the form"],
+      "then": ["The post service's create operation is called with the current form values", "On success, the user is navigated to the previous page"],
+      "derivedFrom": ["method:save", "dep:postService"],
+      "coveredByExistingTest": "test:5"
+    },
+    {
+      "id": "ac:6",
+      "scenario": "Save in-progress flag is cleared after a server error",
+      "given": ["A save request is in progress"],
+      "when": ["The server returns an error response"],
+      "then": ["isSaving is set to false", "The Save button becomes accessible again", "The form remains visible"],
+      "derivedFrom": ["method:onSaveFinalize", "method:onSaveError", "field:isSaving"],
+      "coveredByExistingTest": "test:6"
+    },
+    {
+      "id": "ac:7",
+      "scenario": "Blog comparison delegates to the blog service",
+      "given": ["The blog dropdown is rendered"],
+      "when": ["The dropdown needs to determine whether an option matches the selected value"],
+      "then": ["The comparison is performed by the blog service's compareBlog function"],
+      "derivedFrom": ["field:compareBlog", "dep:blogService"],
+      "coveredByExistingTest": "test:7"
+    },
+    {
+      "id": "ac:8",
+      "scenario": "Tag comparison delegates to the tag service",
+      "given": ["The tags multi-select is rendered"],
+      "when": ["The multi-select needs to determine whether an option matches a selected value"],
+      "then": ["The comparison is performed by the tag service's compareTag function"],
+      "derivedFrom": ["field:compareTag", "dep:tagService"],
+      "coveredByExistingTest": "test:8"
+    },
+    {
+      "id": "ac:9",
+      "scenario": "Save button is inaccessible while form is invalid",
+      "given": ["One or more required fields are empty or the date is in an invalid format"],
+      "when": ["The user views the form"],
+      "then": ["The Save button is disabled and cannot be clicked"],
+      "derivedFrom": ["tpl:164", "field:editForm"],
+      "coveredByExistingTest": null
+    },
+    {
+      "id": "ac:10",
+      "scenario": "Save button is inaccessible while a save is in progress",
+      "given": ["A save request has been submitted and has not yet completed"],
+      "when": ["The user views the form"],
+      "then": ["The Save button is disabled and cannot be submitted again"],
+      "derivedFrom": ["tpl:164", "field:isSaving"],
+      "coveredByExistingTest": null
+    },
+    {
+      "id": "ac:11",
+      "scenario": "ID field is hidden when creating a new post",
+      "given": ["The form has no id value (creation mode)"],
+      "when": ["The form is rendered"],
+      "then": ["The ID field is not shown"],
+      "derivedFrom": ["tpl:17"],
+      "coveredByExistingTest": null
+    },
+    {
+      "id": "ac:12",
+      "scenario": "Cancel button returns to the previous page",
+      "given": ["The user is on the create or edit post screen"],
+      "when": ["The user clicks Cancel"],
+      "then": ["The browser navigates back to the previous page without saving any changes"],
+      "derivedFrom": ["tpl:153", "method:previousState"],
+      "coveredByExistingTest": null
+    }
+  ],
+  "domainRules": {
+    "businessConstraints": [
+      {
+        "id": "rule:1",
+        "statement": "The Title field is required; the form cannot be submitted without a value.",
+        "evidence": ["tpl:48", "tpl:51", "tpl:52"],
+        "confidence": "high"
+      },
+      {
+        "id": "rule:2",
+        "statement": "The Content field is required; the form cannot be submitted without a value.",
+        "evidence": ["tpl:70", "tpl:73", "tpl:74"],
+        "confidence": "high"
+      },
+      {
+        "id": "rule:3",
+        "statement": "The Date field is required and must contain a value in datetime-local format (placeholder indicates YYYY-MM-DD HH:mm). Two distinct error messages are shown: one for absence, one for an invalid format.",
+        "evidence": ["tpl:96", "tpl:99", "tpl:100", "tpl:104", "tpl:106", "tpl:108", "tpl:87"],
+        "confidence": "high"
+      },
+      {
+        "id": "rule:4",
+        "statement": "A post may be assigned to at most one blog, or to none. The blog dropdown includes an explicit null option.",
+        "evidence": ["tpl:116", "tpl:123", "tpl:124"],
+        "confidence": "high"
+      },
+      {
+        "id": "rule:5",
+        "statement": "A post may have zero or more tags; the tag field is a multi-select that allows simultaneous selection of multiple values.",
+        "evidence": ["tpl:135"],
+        "confidence": "high"
+      },
+      {
+        "id": "rule:6",
+        "statement": "The post's system-assigned ID is read-only and cannot be modified by the user when editing; it is not shown when creating a new post.",
+        "evidence": ["tpl:17", "tpl:25", "tpl:32"],
+        "confidence": "high"
+      }
+    ],
+    "edgeCases": [
+      {
+        "id": "edge:1",
+        "situation": "User opens the screen to create a new post (no existing record in route data)",
+        "currentBehavior": "The form fields start empty. The ID field is hidden. Blog and tag option lists are still fetched from the server.",
+        "evidence": ["method:ngOnInit", "tpl:17"],
+        "confidence": "high"
+      },
+      {
+        "id": "edge:2",
+        "situation": "Blog or tag option list fetch fails (server error on blogService.query or tagService.query)",
+        "currentBehavior": "No error handling is present for these requests. The behavior is unknown — the dropdown may remain empty or an unhandled observable error may propagate. This is an open question.",
+        "evidence": ["method:loadRelationshipsOptions", "dep:blogService", "dep:tagService"],
+        "confidence": "low"
+      },
+      {
+        "id": "edge:3",
+        "situation": "The date field shows a format-error message (rather than a required-error message)",
+        "currentBehavior": "A [hidden] property binding is used for the format error message (tpl:106), not an @if block. This means the element is kept in the document and only hidden visually, preserving any associated state. This differs from the required-error messages which use @if and destroy their content when the condition is false.",
+        "evidence": ["tpl:104", "tpl:106", "tpl:108"],
+        "confidence": "high"
+      },
+      {
+        "id": "edge:4",
+        "situation": "Save request succeeds on the first attempt",
+        "currentBehavior": "The user is navigated to the previous page immediately. The form data is not cleared first.",
+        "evidence": ["method:onSaveSuccess", "method:previousState"],
+        "confidence": "high"
+      }
+    ],
+    "terminology": [
+      {
+        "term": "Post",
+        "definition": "A blog entry that consists of a title, body content, a publication date, an optional parent blog, and zero or more tags. The screen heading reads 'Create or edit a Post'.",
+        "evidence": ["tpl:13", "tpl:39", "tpl:62", "tpl:84"]
+      },
+      {
+        "term": "Blog",
+        "definition": "The parent entity a post belongs to; a post may belong to at most one blog. Shown as a label and dropdown field on the form.",
+        "evidence": ["tpl:115", "tpl:116"]
+      },
+      {
+        "term": "Tag",
+        "definition": "A classification label applied to a post. Multiple tags may be applied simultaneously; shown as a multi-select field on the form.",
+        "evidence": ["tpl:134", "tpl:135"]
+      },
+      {
+        "term": "Date",
+        "definition": "The post's publication date and time, entered in YYYY-MM-DD HH:mm format as indicated by the field's placeholder text.",
+        "evidence": ["tpl:84", "tpl:94"]
+      }
+    ],
+    "formulas": []
+  },
+  "migration": {
+    "isLowerBound": true,
+    "risks": [
+      {
+        "id": "risk:1",
+        "category": "forms-semantics",
+        "severity": "high",
+        "description": "Validation error messages use dirty/touched gating: they appear only when a field is invalid AND (dirty OR touched). The exact interaction-timing rule must be preserved in a rebuild. Loss of this gating causes error messages to appear immediately on page load rather than only after user interaction.",
+        "behaviorAtRisk": "Error messages that currently appear only after a user touches a field would appear immediately on screen load, making the form feel broken from the start.",
+        "evidence": ["tpl:48", "tpl:70", "tpl:96"]
+      },
+      {
+        "id": "risk:2",
+        "category": "forms-semantics",
+        "severity": "high",
+        "description": "The form group structure, all validators (including the custom datetimelocal validator), and the resetForm behavior are defined inside PostFormService, which is not visible in this tier. A rebuild that incorrectly infers these rules may silently accept data the original rejects or vice versa.",
+        "behaviorAtRisk": "The rebuilt form may accept an invalid date format, omit a required validator, or display validation errors at wrong times.",
+        "evidence": ["dep:postFormService", "field:editForm", "method:updateForm"]
+      },
+      {
+        "id": "risk:3",
+        "category": "subscription-leak",
+        "severity": "medium",
+        "description": "ngOnInit subscribes to activatedRoute.data with unsubscribeStrategy 'none' and no ngOnDestroy cleanup hook. The route data observable is long-lived and does not complete automatically. Whether Angular's router destroys the component (and its subscriptions) on navigation determines whether this leaks in practice.",
+        "behaviorAtRisk": "If the subscription is not torn down, a navigated-away component may still react to future route data changes, causing state mutations on a component that is no longer visible.",
+        "evidence": ["method:ngOnInit", "dep:activatedRoute"]
+      },
+      {
+        "id": "risk:4",
+        "category": "direct-dom-access",
+        "severity": "medium",
+        "description": "previousState() calls window.history.back() directly rather than using the router's navigation API. This bypasses the router's guard, resolver, and scroll-restoration mechanisms.",
+        "behaviorAtRisk": "In environments without a populated browser history (direct URL entry, server-side rendering, certain test harnesses), the back navigation may fail silently or navigate to an unexpected destination outside the application.",
+        "evidence": ["method:previousState"]
+      },
+      {
+        "id": "risk:5",
+        "category": "routing",
+        "severity": "medium",
+        "description": "The post record is consumed from activatedRoute.data via a subscription in ngOnInit. If Angular reuses the same component instance when navigating from one post's edit screen to another (possible when the route configuration keeps the component alive), the form will not be repopulated for the new post.",
+        "behaviorAtRisk": "A user navigating from editing post A directly to editing post B (without the component being destroyed) would see post A's data in the form.",
+        "evidence": ["method:ngOnInit", "dep:activatedRoute"]
+      },
+      {
+        "id": "risk:6",
+        "category": "template-directive",
+        "severity": "medium",
+        "description": "The validation error messages for the required rule use @if blocks (tpl:51, tpl:73, tpl:99), which DESTROY and recreate the DOM elements when the condition changes. The datetime format error (tpl:104) uses a [hidden] property binding, which KEEPS the element in the DOM but hides it. These two mechanisms have different effects on in-element state and must not be conflated in a rebuild.",
+        "behaviorAtRisk": "Replacing [hidden] with conditional removal (or @if with hiding) changes whether the error element retains its state when toggled, which may affect animations, focus management, or screen-reader announcements.",
+        "evidence": ["tpl:51", "tpl:73", "tpl:99", "tpl:104", "tpl:106"]
+      },
+      {
+        "id": "risk:7",
+        "category": "template-directive",
+        "severity": "low",
+        "description": "The @for loops for blog and tag options use track $index (array position) rather than a stable entity id. When the option list is replaced with a new array (e.g., after a re-fetch), all option elements are rebuilt from scratch rather than reused and reordered by identity.",
+        "behaviorAtRisk": "Any in-option DOM state (focus, scroll position within a long list) is lost when the option list is refreshed, rather than being preserved for the matching item.",
+        "evidence": ["tpl:125", "tpl:143"]
+      }
+    ],
+    "deadCode": {
+      "methods": ["method:byteSize", "method:openFile", "method:setFileData"],
+      "dependencies": ["dep:dataUtils", "dep:eventManager"],
+      "statement": "Three methods — byteSize, openFile, and setFileData — are unreachable from any template event binding or internal call chain. They appear to implement a file-attachment feature (displaying byte sizes, opening files for preview, loading a file into a form field with error notification via EventManager) that is not currently connected to the template. Their exclusive dependencies, DataUtils and EventManager, are also unused by any live code path.",
+      "verified": true,
+      "evidence": ["method:byteSize", "method:openFile", "method:setFileData", "dep:dataUtils", "dep:eventManager"]
+    },
+    "suggestedDecomposition": []
+  },
+  "coverageAssessment": {
+    "symbolsTotal": 12,
+    "symbolsExplained": 12,
+    "templateNodesCovered": 52,
+    "templateNodesTotal": 78,
+    "overallConfidence": "high"
+  },
+  "review": {
+    "status": "pending",
+    "openQuestions": [
+      {
+        "id": "q:1",
+        "question": "What is the complete set of validators that PostFormService installs on each form control — including any minLength, maxLength, pattern, async validators, updateOn timing, and the exact behavioral rule of the datetimelocal custom validator? Without this information, a rebuild cannot know what data the form accepts or rejects, or when validation fires.",
+        "blocking": true,
+        "evidence": ["dep:postFormService", "field:editForm", "tpl:104"]
+      },
+      {
+        "id": "q:2",
+        "question": "Does PostFormService.resetForm() also mark all controls as pristine and untouched when populating an existing post's values? If it does, validation error messages will not appear immediately when editing a post with pre-existing values. If it does not, errors may appear for any field whose existing value is invalid.",
+        "blocking": false,
+        "evidence": ["dep:postFormService", "method:updateForm", "tpl:48", "tpl:70", "tpl:96"]
+      },
+      {
+        "id": "q:3",
+        "question": "What happens when blogService.query() or tagService.query() returns a server error? The unit has no observable error handler for these calls. Does the behavior silently result in empty option lists, surface an error via the alert-error child component, or produce an unhandled error?",
+        "blocking": false,
+        "evidence": ["method:loadRelationshipsOptions", "dep:blogService", "dep:tagService", "tpl:15"]
+      },
+      {
+        "id": "q:4",
+        "question": "Is the activatedRoute.data subscription in ngOnInit cleaned up when the user navigates away? The component has no ngOnDestroy hook. If Angular's router does not destroy the component on navigation (or if the component is reused), this subscription may persist and react to future route data, causing unintended state mutations.",
+        "blocking": false,
+        "evidence": ["method:ngOnInit", "dep:activatedRoute"]
+      }
+    ]
+  },
+  "provenance": {
+    "source": "llm",
+    "synthesizerModel": "claude-sonnet-4-6",
+    "synthesizerVersion": "synthesizer-v1",
+    "generatedAt": "2026-08-02T00:00:00.000Z"
+  }
+}

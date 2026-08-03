@@ -1,0 +1,385 @@
+{
+  "schemaVersion": "0.4.0",
+  "unitId": "component:account/activate:ActivateComponent",
+  "templateFile": "activate.component.html",
+  "parse": {
+    "status": "ok",
+    "parser": "@angular/compiler",
+    "angularVersion": null,
+    "diagnostics": [],
+    "nodesParsed": 31,
+    "nodesUnrecognized": 0
+  },
+  "ast": {
+    "elements": [
+      {
+        "id": "tpl:0",
+        "tag": "div",
+        "attributes": [],
+        "depth": 0,
+        "loc": {
+          "file": "activate.component.html",
+          "line": 1,
+          "endLine": 18
+        }
+      },
+      {
+        "id": "tpl:1",
+        "tag": "div",
+        "attributes": [
+          "class"
+        ],
+        "depth": 1,
+        "loc": {
+          "file": "activate.component.html",
+          "line": 2,
+          "endLine": 17
+        }
+      },
+      {
+        "id": "tpl:3",
+        "tag": "div",
+        "attributes": [
+          "class"
+        ],
+        "depth": 2,
+        "loc": {
+          "file": "activate.component.html",
+          "line": 3,
+          "endLine": 16
+        }
+      },
+      {
+        "id": "tpl:5",
+        "tag": "h1",
+        "attributes": [
+          "jhiTranslate"
+        ],
+        "depth": 3,
+        "loc": {
+          "file": "activate.component.html",
+          "line": 4,
+          "endLine": 4
+        }
+      },
+      {
+        "id": "tpl:10",
+        "tag": "div",
+        "attributes": [
+          "class"
+        ],
+        "depth": 4,
+        "loc": {
+          "file": "activate.component.html",
+          "line": 6,
+          "endLine": 9
+        }
+      },
+      {
+        "id": "tpl:12",
+        "tag": "span",
+        "attributes": [
+          "jhiTranslate"
+        ],
+        "depth": 5,
+        "loc": {
+          "file": "activate.component.html",
+          "line": 7,
+          "endLine": 7
+        }
+      },
+      {
+        "id": "tpl:14",
+        "tag": "strong",
+        "attributes": [],
+        "depth": 6,
+        "loc": {
+          "file": "activate.component.html",
+          "line": 7,
+          "endLine": 7
+        }
+      },
+      {
+        "id": "tpl:17",
+        "tag": "a",
+        "attributes": [
+          "class",
+          "routerLink",
+          "jhiTranslate"
+        ],
+        "depth": 5,
+        "loc": {
+          "file": "activate.component.html",
+          "line": 8,
+          "endLine": 8
+        }
+      },
+      {
+        "id": "tpl:25",
+        "tag": "div",
+        "attributes": [
+          "class",
+          "jhiTranslate"
+        ],
+        "depth": 4,
+        "loc": {
+          "file": "activate.component.html",
+          "line": 12,
+          "endLine": 14
+        }
+      },
+      {
+        "id": "tpl:28",
+        "tag": "strong",
+        "attributes": [],
+        "depth": 5,
+        "loc": {
+          "file": "activate.component.html",
+          "line": 13,
+          "endLine": 13
+        }
+      }
+    ],
+    "controlFlow": [
+      {
+        "id": "tpl:9",
+        "construct": "@if",
+        "expression": "success()",
+        "itemAlias": null,
+        "trackBy": null,
+        "aliases": [],
+        "dependsOn": [
+          "field:success"
+        ],
+        "parent": null,
+        "depth": 3,
+        "loc": {
+          "file": "activate.component.html",
+          "line": 5,
+          "endLine": 10
+        }
+      },
+      {
+        "id": "tpl:24",
+        "construct": "@if",
+        "expression": "error()",
+        "itemAlias": null,
+        "trackBy": null,
+        "aliases": [],
+        "dependsOn": [
+          "field:error"
+        ],
+        "parent": null,
+        "depth": 3,
+        "loc": {
+          "file": "activate.component.html",
+          "line": 11,
+          "endLine": 15
+        }
+      }
+    ],
+    "propertyBindings": [],
+    "eventBindings": [],
+    "twoWayBindings": [],
+    "interpolations": [],
+    "childComponents": [],
+    "templateRefs": [],
+    "ngTemplates": [],
+    "contentProjection": [],
+    "hostBindings": [],
+    "hostListeners": [],
+    "accessibility": [],
+    "i18n": [
+      {
+        "id": "tpl:5",
+        "mechanism": "translate-directive",
+        "key": "activate.title",
+        "params": []
+      },
+      {
+        "id": "tpl:12",
+        "mechanism": "translate-directive",
+        "key": "activate.messages.success",
+        "params": []
+      },
+      {
+        "id": "tpl:17",
+        "mechanism": "translate-directive",
+        "key": "global.messages.info.authenticated.link",
+        "params": []
+      },
+      {
+        "id": "tpl:25",
+        "mechanism": "translate-directive",
+        "key": "activate.messages.error",
+        "params": []
+      }
+    ],
+    "staticText": [
+      {
+        "id": "tpl:7",
+        "text": "Activation",
+        "host": "h1",
+        "attribute": null,
+        "loc": {
+          "file": "activate.component.html",
+          "line": 4,
+          "endLine": 4
+        }
+      },
+      {
+        "id": "tpl:15",
+        "text": "Your user account has been activated.",
+        "host": "strong",
+        "attribute": null,
+        "loc": {
+          "file": "activate.component.html",
+          "line": 7,
+          "endLine": 7
+        }
+      },
+      {
+        "id": "tpl:16",
+        "text": "Please",
+        "host": "span",
+        "attribute": null,
+        "loc": {
+          "file": "activate.component.html",
+          "line": 7,
+          "endLine": 7
+        }
+      },
+      {
+        "id": "tpl:21",
+        "text": "sign in",
+        "host": "a",
+        "attribute": null,
+        "loc": {
+          "file": "activate.component.html",
+          "line": 8,
+          "endLine": 8
+        }
+      },
+      {
+        "id": "tpl:22",
+        "text": ".",
+        "host": "div",
+        "attribute": null,
+        "loc": {
+          "file": "activate.component.html",
+          "line": 8,
+          "endLine": 9
+        }
+      },
+      {
+        "id": "tpl:29",
+        "text": "Your user could not be activated.",
+        "host": "strong",
+        "attribute": null,
+        "loc": {
+          "file": "activate.component.html",
+          "line": 13,
+          "endLine": 13
+        }
+      },
+      {
+        "id": "tpl:30",
+        "text": "Please use the registration form to sign up.",
+        "host": "div",
+        "attribute": null,
+        "loc": {
+          "file": "activate.component.html",
+          "line": 13,
+          "endLine": 14
+        }
+      }
+    ],
+    "rawHtmlSinks": [],
+    "directivesUsed": [
+      {
+        "selector": "jhiTranslate",
+        "origin": "internal",
+        "resolvedUnitId": null,
+        "inputsPassed": [],
+        "occurrences": [
+          "tpl:5",
+          "tpl:12",
+          "tpl:17",
+          "tpl:25"
+        ]
+      },
+      {
+        "selector": "routerLink",
+        "origin": "internal",
+        "resolvedUnitId": null,
+        "inputsPassed": [
+          {
+            "name": "routerLink",
+            "expression": "/login"
+          }
+        ],
+        "occurrences": [
+          "tpl:17"
+        ]
+      }
+    ],
+    "pipesUsed": [],
+    "viewQueries": [],
+    "styles": {
+      "files": [],
+      "encapsulation": null,
+      "usesEncapsulationEscapes": false,
+      "escapeSelectors": [],
+      "usesHostSelectors": false,
+      "importsGlobalStyles": [],
+      "classesToggledFromTs": []
+    }
+  },
+  "uiRequirements": [],
+  "coverage": {
+    "$comment": "nodesTotal counts nodes this tier RECORDS. parse.nodesParsed counts everything the compiler produced -- ids are numbered over that larger set (D13a), so recorded ids are sparse. uncoveredNodeIds lists recorded nodes no uiRequirement cites, never unrecorded ones: citing those was the original dangling bug.",
+    "nodesTotal": 19,
+    "nodesCoveredByRequirements": 0,
+    "uncoveredNodeIds": [
+      "tpl:0",
+      "tpl:1",
+      "tpl:3",
+      "tpl:5",
+      "tpl:7",
+      "tpl:9",
+      "tpl:10",
+      "tpl:12",
+      "tpl:14",
+      "tpl:15",
+      "tpl:16",
+      "tpl:17",
+      "tpl:21",
+      "tpl:22",
+      "tpl:24",
+      "tpl:25",
+      "tpl:28",
+      "tpl:29",
+      "tpl:30"
+    ]
+  },
+  "provenance": {
+    "source": "ast",
+    "astInputHash": "edca2538bd5d4af2",
+    "docInputHash": null,
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "parseStatus": "ok",
+    "warnings": [
+      {
+        "code": "empty-by-design",
+        "severity": "info",
+        "message": "uiRequirements is empty by design: it is doc content, written by the Synthesizer, not extracted."
+      },
+      {
+        "code": "parser-selected",
+        "severity": "info",
+        "message": "parsed with @angular/compiler from INPUT/jhipster-ng17-fixture/node_modules/@angular/compiler/fesm2022/compiler.mjs"
+      }
+    ]
+  }
+}

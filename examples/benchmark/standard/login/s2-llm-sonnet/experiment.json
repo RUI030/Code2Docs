@@ -1,0 +1,11 @@
+{
+  "setting": "s2-llm-sonnet",
+  "unit": "login",
+  "tier": "standard",
+  "model": "claude-sonnet-4-6",
+  "runDate": "2026-08-02",
+  "elapsedSeconds": null,
+  "tokensConsumed": null,
+  "subagentsSpawned": 0,
+  "notes": "Phase A path: read source directly, no AST tools. specTitleCoverage=100% (7/7). screenLabelCoverage=null (no template.json in S2). frameworkNeutral=yes. 9/9 sections. 2 blocking, 2 non-blocking open questions. One inline fix applied: ngOnInit/ngAfterViewInit appeared unquoted in §7 When clauses → replaced with 'initialization runs' / 'view initialization completes'."
+}

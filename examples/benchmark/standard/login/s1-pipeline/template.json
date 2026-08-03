@@ -1,0 +1,731 @@
+{
+  "schemaVersion": "0.4.0",
+  "unitId": "component:login:LoginComponent",
+  "templateFile": "login.component.html",
+  "parse": {
+    "status": "ok",
+    "parser": "@angular/compiler",
+    "angularVersion": null,
+    "diagnostics": [],
+    "nodesParsed": 90,
+    "nodesUnrecognized": 0
+  },
+  "ast": {
+    "elements": [
+      {
+        "id": "tpl:0",
+        "tag": "div",
+        "attributes": [],
+        "depth": 0,
+        "loc": {
+          "file": "login.component.html",
+          "line": 1,
+          "endLine": 59
+        }
+      },
+      {
+        "id": "tpl:1",
+        "tag": "div",
+        "attributes": [
+          "class"
+        ],
+        "depth": 1,
+        "loc": {
+          "file": "login.component.html",
+          "line": 2,
+          "endLine": 58
+        }
+      },
+      {
+        "id": "tpl:3",
+        "tag": "div",
+        "attributes": [
+          "class"
+        ],
+        "depth": 2,
+        "loc": {
+          "file": "login.component.html",
+          "line": 3,
+          "endLine": 57
+        }
+      },
+      {
+        "id": "tpl:5",
+        "tag": "h1",
+        "attributes": [
+          "data-cy",
+          "jhiTranslate"
+        ],
+        "depth": 3,
+        "loc": {
+          "file": "login.component.html",
+          "line": 4,
+          "endLine": 4
+        }
+      },
+      {
+        "id": "tpl:11",
+        "tag": "div",
+        "attributes": [
+          "class",
+          "data-cy",
+          "jhiTranslate"
+        ],
+        "depth": 4,
+        "loc": {
+          "file": "login.component.html",
+          "line": 6,
+          "endLine": 8
+        }
+      },
+      {
+        "id": "tpl:15",
+        "tag": "strong",
+        "attributes": [],
+        "depth": 5,
+        "loc": {
+          "file": "login.component.html",
+          "line": 7,
+          "endLine": 7
+        }
+      },
+      {
+        "id": "tpl:18",
+        "tag": "form",
+        "attributes": [
+          "class"
+        ],
+        "depth": 3,
+        "loc": {
+          "file": "login.component.html",
+          "line": 10,
+          "endLine": 46
+        }
+      },
+      {
+        "id": "tpl:22",
+        "tag": "div",
+        "attributes": [
+          "class"
+        ],
+        "depth": 4,
+        "loc": {
+          "file": "login.component.html",
+          "line": 11,
+          "endLine": 23
+        }
+      },
+      {
+        "id": "tpl:24",
+        "tag": "label",
+        "attributes": [
+          "class",
+          "for",
+          "jhiTranslate"
+        ],
+        "depth": 5,
+        "loc": {
+          "file": "login.component.html",
+          "line": 12,
+          "endLine": 12
+        }
+      },
+      {
+        "id": "tpl:29",
+        "tag": "input",
+        "attributes": [
+          "type",
+          "class",
+          "name",
+          "id",
+          "formControlName",
+          "data-cy"
+        ],
+        "depth": 5,
+        "loc": {
+          "file": "login.component.html",
+          "line": 13,
+          "endLine": 22
+        }
+      },
+      {
+        "id": "tpl:38",
+        "tag": "div",
+        "attributes": [
+          "class"
+        ],
+        "depth": 4,
+        "loc": {
+          "file": "login.component.html",
+          "line": 25,
+          "endLine": 36
+        }
+      },
+      {
+        "id": "tpl:40",
+        "tag": "label",
+        "attributes": [
+          "for",
+          "jhiTranslate"
+        ],
+        "depth": 5,
+        "loc": {
+          "file": "login.component.html",
+          "line": 26,
+          "endLine": 26
+        }
+      },
+      {
+        "id": "tpl:44",
+        "tag": "input",
+        "attributes": [
+          "type",
+          "class",
+          "name",
+          "id",
+          "formControlName",
+          "data-cy"
+        ],
+        "depth": 5,
+        "loc": {
+          "file": "login.component.html",
+          "line": 27,
+          "endLine": 35
+        }
+      },
+      {
+        "id": "tpl:52",
+        "tag": "div",
+        "attributes": [
+          "class"
+        ],
+        "depth": 4,
+        "loc": {
+          "file": "login.component.html",
+          "line": 38,
+          "endLine": 43
+        }
+      },
+      {
+        "id": "tpl:54",
+        "tag": "label",
+        "attributes": [
+          "class",
+          "for"
+        ],
+        "depth": 5,
+        "loc": {
+          "file": "login.component.html",
+          "line": 39,
+          "endLine": 42
+        }
+      },
+      {
+        "id": "tpl:57",
+        "tag": "input",
+        "attributes": [
+          "class",
+          "type",
+          "name",
+          "id",
+          "formControlName"
+        ],
+        "depth": 6,
+        "loc": {
+          "file": "login.component.html",
+          "line": 40,
+          "endLine": 40
+        }
+      },
+      {
+        "id": "tpl:63",
+        "tag": "span",
+        "attributes": [
+          "jhiTranslate"
+        ],
+        "depth": 6,
+        "loc": {
+          "file": "login.component.html",
+          "line": 41,
+          "endLine": 41
+        }
+      },
+      {
+        "id": "tpl:66",
+        "tag": "button",
+        "attributes": [
+          "type",
+          "class",
+          "data-cy",
+          "jhiTranslate"
+        ],
+        "depth": 4,
+        "loc": {
+          "file": "login.component.html",
+          "line": 45,
+          "endLine": 45
+        }
+      },
+      {
+        "id": "tpl:72",
+        "tag": "div",
+        "attributes": [
+          "class"
+        ],
+        "depth": 3,
+        "loc": {
+          "file": "login.component.html",
+          "line": 47,
+          "endLine": 51
+        }
+      },
+      {
+        "id": "tpl:74",
+        "tag": "a",
+        "attributes": [
+          "class",
+          "routerLink",
+          "data-cy",
+          "jhiTranslate"
+        ],
+        "depth": 4,
+        "loc": {
+          "file": "login.component.html",
+          "line": 48,
+          "endLine": 50
+        }
+      },
+      {
+        "id": "tpl:80",
+        "tag": "div",
+        "attributes": [
+          "class"
+        ],
+        "depth": 3,
+        "loc": {
+          "file": "login.component.html",
+          "line": 53,
+          "endLine": 56
+        }
+      },
+      {
+        "id": "tpl:82",
+        "tag": "span",
+        "attributes": [
+          "jhiTranslate"
+        ],
+        "depth": 4,
+        "loc": {
+          "file": "login.component.html",
+          "line": 54,
+          "endLine": 54
+        }
+      },
+      {
+        "id": "tpl:85",
+        "tag": "a",
+        "attributes": [
+          "class",
+          "routerLink",
+          "jhiTranslate"
+        ],
+        "depth": 4,
+        "loc": {
+          "file": "login.component.html",
+          "line": 55,
+          "endLine": 55
+        }
+      }
+    ],
+    "controlFlow": [
+      {
+        "id": "tpl:10",
+        "construct": "@if",
+        "expression": "authenticationError()",
+        "itemAlias": null,
+        "trackBy": null,
+        "aliases": [],
+        "dependsOn": [
+          "field:authenticationError"
+        ],
+        "parent": null,
+        "depth": 3,
+        "loc": {
+          "file": "login.component.html",
+          "line": 5,
+          "endLine": 9
+        }
+      }
+    ],
+    "propertyBindings": [
+      {
+        "id": "tpl:21",
+        "target": "form",
+        "property": "formGroup",
+        "bindingKind": "property",
+        "expression": "loginForm",
+        "dependsOn": [
+          "field:loginForm"
+        ],
+        "loc": {
+          "file": "login.component.html",
+          "line": 10,
+          "endLine": 10
+        }
+      },
+      {
+        "id": "tpl:34",
+        "target": "input",
+        "property": "placeholder",
+        "bindingKind": "property",
+        "expression": "{{ 'global.form.username.placeholder' | translate }}",
+        "dependsOn": [],
+        "loc": {
+          "file": "login.component.html",
+          "line": 18,
+          "endLine": 18
+        }
+      },
+      {
+        "id": "tpl:49",
+        "target": "input",
+        "property": "placeholder",
+        "bindingKind": "property",
+        "expression": "{{ 'login.form.password.placeholder' | translate }}",
+        "dependsOn": [],
+        "loc": {
+          "file": "login.component.html",
+          "line": 32,
+          "endLine": 32
+        }
+      }
+    ],
+    "eventBindings": [
+      {
+        "id": "tpl:20",
+        "target": "form",
+        "event": "ngSubmit",
+        "handlerExpression": "login()",
+        "handlerMethod": "method:login",
+        "passesEvent": false,
+        "loc": {
+          "file": "login.component.html",
+          "line": 10,
+          "endLine": 10
+        }
+      }
+    ],
+    "twoWayBindings": [],
+    "interpolations": [],
+    "childComponents": [],
+    "templateRefs": [
+      {
+        "id": "tpl:36",
+        "name": "username",
+        "onElement": "input",
+        "referencedBy": []
+      }
+    ],
+    "ngTemplates": [],
+    "contentProjection": [],
+    "hostBindings": [],
+    "hostListeners": [],
+    "accessibility": [],
+    "i18n": [
+      {
+        "id": "tpl:5",
+        "mechanism": "translate-directive",
+        "key": "login.title",
+        "params": []
+      },
+      {
+        "id": "tpl:11",
+        "mechanism": "translate-directive",
+        "key": "login.messages.error.authentication",
+        "params": []
+      },
+      {
+        "id": "tpl:24",
+        "mechanism": "translate-directive",
+        "key": "global.form.username.label",
+        "params": []
+      },
+      {
+        "id": "tpl:40",
+        "mechanism": "translate-directive",
+        "key": "login.form.password",
+        "params": []
+      },
+      {
+        "id": "tpl:63",
+        "mechanism": "translate-directive",
+        "key": "login.form.rememberme",
+        "params": []
+      },
+      {
+        "id": "tpl:66",
+        "mechanism": "translate-directive",
+        "key": "login.form.button",
+        "params": []
+      },
+      {
+        "id": "tpl:74",
+        "mechanism": "translate-directive",
+        "key": "login.password.forgot",
+        "params": []
+      },
+      {
+        "id": "tpl:82",
+        "mechanism": "translate-directive",
+        "key": "global.messages.info.register.noaccount",
+        "params": []
+      },
+      {
+        "id": "tpl:85",
+        "mechanism": "translate-directive",
+        "key": "global.messages.info.register.link",
+        "params": []
+      }
+    ],
+    "staticText": [
+      {
+        "id": "tpl:8",
+        "text": "Sign in",
+        "host": "h1",
+        "attribute": null,
+        "loc": {
+          "file": "login.component.html",
+          "line": 4,
+          "endLine": 4
+        }
+      },
+      {
+        "id": "tpl:16",
+        "text": "Failed to sign in!",
+        "host": "strong",
+        "attribute": null,
+        "loc": {
+          "file": "login.component.html",
+          "line": 7,
+          "endLine": 7
+        }
+      },
+      {
+        "id": "tpl:17",
+        "text": "Please check your credentials and try again.",
+        "host": "div",
+        "attribute": null,
+        "loc": {
+          "file": "login.component.html",
+          "line": 7,
+          "endLine": 8
+        }
+      },
+      {
+        "id": "tpl:28",
+        "text": "Username",
+        "host": "label",
+        "attribute": null,
+        "loc": {
+          "file": "login.component.html",
+          "line": 12,
+          "endLine": 12
+        }
+      },
+      {
+        "id": "tpl:43",
+        "text": "Password",
+        "host": "label",
+        "attribute": null,
+        "loc": {
+          "file": "login.component.html",
+          "line": 26,
+          "endLine": 26
+        }
+      },
+      {
+        "id": "tpl:65",
+        "text": "Remember me",
+        "host": "span",
+        "attribute": null,
+        "loc": {
+          "file": "login.component.html",
+          "line": 41,
+          "endLine": 41
+        }
+      },
+      {
+        "id": "tpl:71",
+        "text": "Sign in",
+        "host": "button",
+        "attribute": null,
+        "loc": {
+          "file": "login.component.html",
+          "line": 45,
+          "endLine": 45
+        }
+      },
+      {
+        "id": "tpl:79",
+        "text": "Did you forget your password?",
+        "host": "a",
+        "attribute": null,
+        "loc": {
+          "file": "login.component.html",
+          "line": 49,
+          "endLine": 49
+        }
+      },
+      {
+        "id": "tpl:84",
+        "text": "You don't have an account yet?",
+        "host": "span",
+        "attribute": null,
+        "loc": {
+          "file": "login.component.html",
+          "line": 54,
+          "endLine": 54
+        }
+      },
+      {
+        "id": "tpl:89",
+        "text": "Register a new account",
+        "host": "a",
+        "attribute": null,
+        "loc": {
+          "file": "login.component.html",
+          "line": 55,
+          "endLine": 55
+        }
+      }
+    ],
+    "rawHtmlSinks": [],
+    "directivesUsed": [
+      {
+        "selector": "jhiTranslate",
+        "origin": "internal",
+        "resolvedUnitId": null,
+        "inputsPassed": [],
+        "occurrences": [
+          "tpl:5",
+          "tpl:11",
+          "tpl:24",
+          "tpl:40",
+          "tpl:63",
+          "tpl:66",
+          "tpl:74",
+          "tpl:82",
+          "tpl:85"
+        ]
+      },
+      {
+        "selector": "formControlName",
+        "origin": "internal",
+        "resolvedUnitId": null,
+        "inputsPassed": [],
+        "occurrences": [
+          "tpl:29",
+          "tpl:44",
+          "tpl:57"
+        ]
+      },
+      {
+        "selector": "routerLink",
+        "origin": "internal",
+        "resolvedUnitId": null,
+        "inputsPassed": [
+          {
+            "name": "routerLink",
+            "expression": "/account/reset/request"
+          },
+          {
+            "name": "routerLink",
+            "expression": "/account/register"
+          }
+        ],
+        "occurrences": [
+          "tpl:74",
+          "tpl:85"
+        ]
+      }
+    ],
+    "pipesUsed": [],
+    "viewQueries": [],
+    "styles": {
+      "files": [],
+      "encapsulation": null,
+      "usesEncapsulationEscapes": false,
+      "escapeSelectors": [],
+      "usesHostSelectors": false,
+      "importsGlobalStyles": [],
+      "classesToggledFromTs": []
+    }
+  },
+  "uiRequirements": [],
+  "coverage": {
+    "$comment": "nodesTotal counts nodes this tier RECORDS. parse.nodesParsed counts everything the compiler produced -- ids are numbered over that larger set (D13a), so recorded ids are sparse. uncoveredNodeIds lists recorded nodes no uiRequirement cites, never unrecorded ones: citing those was the original dangling bug.",
+    "nodesTotal": 39,
+    "nodesCoveredByRequirements": 0,
+    "uncoveredNodeIds": [
+      "tpl:0",
+      "tpl:1",
+      "tpl:3",
+      "tpl:5",
+      "tpl:8",
+      "tpl:10",
+      "tpl:11",
+      "tpl:15",
+      "tpl:16",
+      "tpl:17",
+      "tpl:18",
+      "tpl:20",
+      "tpl:21",
+      "tpl:22",
+      "tpl:24",
+      "tpl:28",
+      "tpl:29",
+      "tpl:34",
+      "tpl:36",
+      "tpl:38",
+      "tpl:40",
+      "tpl:43",
+      "tpl:44",
+      "tpl:49",
+      "tpl:52",
+      "tpl:54",
+      "tpl:57",
+      "tpl:63",
+      "tpl:65",
+      "tpl:66",
+      "tpl:71",
+      "tpl:72",
+      "tpl:74",
+      "tpl:79",
+      "tpl:80",
+      "tpl:82",
+      "tpl:84",
+      "tpl:85",
+      "tpl:89"
+    ]
+  },
+  "provenance": {
+    "source": "ast",
+    "astInputHash": "664ff5a12a383aa9",
+    "docInputHash": null,
+    "resolverVersion": "0.1.0",
+    "generatedAt": "1970-01-01T00:00:00.000Z",
+    "parseStatus": "ok",
+    "warnings": [
+      {
+        "code": "empty-by-design",
+        "severity": "info",
+        "message": "uiRequirements is empty by design: it is doc content, written by the Synthesizer, not extracted."
+      },
+      {
+        "code": "parser-selected",
+        "severity": "info",
+        "message": "parsed with @angular/compiler from INPUT/jhipster-ng17-fixture/node_modules/@angular/compiler/fesm2022/compiler.mjs"
+      }
+    ]
+  }
+}

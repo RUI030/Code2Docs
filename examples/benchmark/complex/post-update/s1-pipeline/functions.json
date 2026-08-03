@@ -1,0 +1,867 @@
+{
+  "schemaVersion": "0.5.0",
+  "unitId": "component:entities/post/update:PostUpdateComponent",
+  "callGraph": {
+    "method:ngOnInit": [
+      "method:updateForm",
+      "method:loadRelationshipsOptions"
+    ],
+    "method:save": [
+      "method:subscribeToSaveResponse"
+    ],
+    "method:subscribeToSaveResponse": [
+      "method:onSaveFinalize",
+      "method:onSaveSuccess",
+      "method:onSaveError"
+    ],
+    "method:onSaveSuccess": [
+      "method:previousState"
+    ]
+  },
+  "symbols": {
+    "method:ngOnInit": {
+      "ast": {
+        "id": "method:ngOnInit",
+        "name": "ngOnInit",
+        "symbolKind": "method",
+        "visibility": "public",
+        "static": false,
+        "isAsync": false,
+        "lifecycleHook": "ngOnInit",
+        "params": [],
+        "returnType": "void",
+        "isLeaf": false,
+        "cyclomaticComplexity": 2,
+        "lineCount": 10,
+        "loc": {
+          "file": "post-update.component.ts",
+          "line": 49,
+          "endLine": 58
+        },
+        "sourceExcerpt": null,
+        "existingComments": {
+          "jsDoc": null,
+          "inline": []
+        },
+        "sideEffectHints": {
+          "touchesDom": false,
+          "domApis": [],
+          "subscribes": true,
+          "usesTimers": false,
+          "usesLocalOrSessionStorage": false,
+          "navigates": false,
+          "mutatesInjectedServiceState": false,
+          "throws": false,
+          "hasTryCatch": false
+        },
+        "subscriptions": [
+          {
+            "index": 0,
+            "sourceExpression": "this.activatedRoute.data",
+            "operators": [],
+            "consumption": "explicit-subscribe",
+            "unsubscribeStrategy": "none",
+            "loc": {
+              "file": "post-update.component.ts",
+              "line": 50,
+              "endLine": 57
+            }
+          }
+        ]
+      },
+      "doc": {
+        "explanation": "On first display, reads the post record supplied by the current route — an existing post when editing, or nothing when creating — and, if a post was found, populates the form with its data; then loads the available blog and tag options regardless of mode.",
+        "confidence": "high"
+      }
+    },
+    "method:byteSize": {
+      "ast": {
+        "id": "method:byteSize",
+        "name": "byteSize",
+        "symbolKind": "method",
+        "visibility": "public",
+        "static": false,
+        "isAsync": false,
+        "lifecycleHook": null,
+        "params": [
+          {
+            "name": "base64String",
+            "type": "string",
+            "optional": false,
+            "defaultExpression": null
+          }
+        ],
+        "returnType": "string",
+        "isLeaf": true,
+        "cyclomaticComplexity": 1,
+        "lineCount": 3,
+        "loc": {
+          "file": "post-update.component.ts",
+          "line": 60,
+          "endLine": 62
+        },
+        "sourceExcerpt": null,
+        "existingComments": {
+          "jsDoc": null,
+          "inline": []
+        },
+        "sideEffectHints": {
+          "touchesDom": false,
+          "domApis": [],
+          "subscribes": false,
+          "usesTimers": false,
+          "usesLocalOrSessionStorage": false,
+          "navigates": false,
+          "mutatesInjectedServiceState": false,
+          "throws": false,
+          "hasTryCatch": false
+        },
+        "subscriptions": []
+      },
+      "doc": {
+        "explanation": "Returns the human-readable byte size of a base64-encoded string by delegating to the data utility service.",
+        "confidence": "high"
+      }
+    },
+    "method:openFile": {
+      "ast": {
+        "id": "method:openFile",
+        "name": "openFile",
+        "symbolKind": "method",
+        "visibility": "public",
+        "static": false,
+        "isAsync": false,
+        "lifecycleHook": null,
+        "params": [
+          {
+            "name": "base64String",
+            "type": "string",
+            "optional": false,
+            "defaultExpression": null
+          },
+          {
+            "name": "contentType",
+            "type": "string | null | undefined",
+            "optional": false,
+            "defaultExpression": null
+          }
+        ],
+        "returnType": "void",
+        "isLeaf": true,
+        "cyclomaticComplexity": 1,
+        "lineCount": 3,
+        "loc": {
+          "file": "post-update.component.ts",
+          "line": 64,
+          "endLine": 66
+        },
+        "sourceExcerpt": null,
+        "existingComments": {
+          "jsDoc": null,
+          "inline": []
+        },
+        "sideEffectHints": {
+          "touchesDom": false,
+          "domApis": [],
+          "subscribes": false,
+          "usesTimers": false,
+          "usesLocalOrSessionStorage": false,
+          "navigates": false,
+          "mutatesInjectedServiceState": false,
+          "throws": false,
+          "hasTryCatch": false
+        },
+        "subscriptions": []
+      },
+      "doc": {
+        "explanation": "Triggers the browser to open or download a base64-encoded file with the given content type by delegating to the data utility service.",
+        "confidence": "high"
+      }
+    },
+    "method:setFileData": {
+      "ast": {
+        "id": "method:setFileData",
+        "name": "setFileData",
+        "symbolKind": "method",
+        "visibility": "public",
+        "static": false,
+        "isAsync": false,
+        "lifecycleHook": null,
+        "params": [
+          {
+            "name": "event",
+            "type": "Event",
+            "optional": false,
+            "defaultExpression": null
+          },
+          {
+            "name": "field",
+            "type": "string",
+            "optional": false,
+            "defaultExpression": null
+          },
+          {
+            "name": "isImage",
+            "type": "boolean",
+            "optional": false,
+            "defaultExpression": null
+          }
+        ],
+        "returnType": "void",
+        "isLeaf": true,
+        "cyclomaticComplexity": 1,
+        "lineCount": 8,
+        "loc": {
+          "file": "post-update.component.ts",
+          "line": 68,
+          "endLine": 75
+        },
+        "sourceExcerpt": null,
+        "existingComments": {
+          "jsDoc": null,
+          "inline": []
+        },
+        "sideEffectHints": {
+          "touchesDom": false,
+          "domApis": [],
+          "subscribes": true,
+          "usesTimers": false,
+          "usesLocalOrSessionStorage": false,
+          "navigates": false,
+          "mutatesInjectedServiceState": false,
+          "throws": false,
+          "hasTryCatch": false
+        },
+        "subscriptions": [
+          {
+            "index": 0,
+            "sourceExpression": "this.dataUtils.loadFileToForm(event, this.editForm, field, isImage)",
+            "operators": [],
+            "consumption": "explicit-subscribe",
+            "unsubscribeStrategy": "none",
+            "loc": {
+              "file": "post-update.component.ts",
+              "line": 69,
+              "endLine": 74
+            }
+          }
+        ]
+      },
+      "doc": {
+        "explanation": "Reads the file selected by the user and writes its contents into the specified form field; if the file cannot be loaded, broadcasts an application-level error notification.",
+        "confidence": "high"
+      }
+    },
+    "method:previousState": {
+      "ast": {
+        "id": "method:previousState",
+        "name": "previousState",
+        "symbolKind": "method",
+        "visibility": "public",
+        "static": false,
+        "isAsync": false,
+        "lifecycleHook": null,
+        "params": [],
+        "returnType": "void",
+        "isLeaf": true,
+        "cyclomaticComplexity": 1,
+        "lineCount": 3,
+        "loc": {
+          "file": "post-update.component.ts",
+          "line": 77,
+          "endLine": 79
+        },
+        "sourceExcerpt": null,
+        "existingComments": {
+          "jsDoc": null,
+          "inline": []
+        },
+        "sideEffectHints": {
+          "touchesDom": true,
+          "domApis": [
+            "window.history.back"
+          ],
+          "subscribes": false,
+          "usesTimers": false,
+          "usesLocalOrSessionStorage": false,
+          "navigates": false,
+          "mutatesInjectedServiceState": false,
+          "throws": false,
+          "hasTryCatch": false
+        },
+        "subscriptions": []
+      },
+      "doc": {
+        "explanation": "Navigates the browser back to the previous page; called both by the Cancel button and automatically after a successful save.",
+        "confidence": "high"
+      }
+    },
+    "method:save": {
+      "ast": {
+        "id": "method:save",
+        "name": "save",
+        "symbolKind": "method",
+        "visibility": "public",
+        "static": false,
+        "isAsync": false,
+        "lifecycleHook": null,
+        "params": [],
+        "returnType": "void",
+        "isLeaf": false,
+        "cyclomaticComplexity": 2,
+        "lineCount": 9,
+        "loc": {
+          "file": "post-update.component.ts",
+          "line": 81,
+          "endLine": 89
+        },
+        "sourceExcerpt": null,
+        "existingComments": {
+          "jsDoc": null,
+          "inline": []
+        },
+        "sideEffectHints": {
+          "touchesDom": false,
+          "domApis": [],
+          "subscribes": false,
+          "usesTimers": false,
+          "usesLocalOrSessionStorage": false,
+          "navigates": false,
+          "mutatesInjectedServiceState": false,
+          "throws": false,
+          "hasTryCatch": false
+        },
+        "subscriptions": []
+      },
+      "doc": {
+        "explanation": "Called when the user submits the form: marks the save as in progress, extracts the post data from the form, then sends an update request if the post already exists or a creation request if it is new, passing the result to the response handler.",
+        "confidence": "high"
+      }
+    },
+    "method:subscribeToSaveResponse": {
+      "ast": {
+        "id": "method:subscribeToSaveResponse",
+        "name": "subscribeToSaveResponse",
+        "symbolKind": "method",
+        "visibility": "protected",
+        "static": false,
+        "isAsync": false,
+        "lifecycleHook": null,
+        "params": [
+          {
+            "name": "result",
+            "type": "Observable<HttpResponse<IPost>>",
+            "optional": false,
+            "defaultExpression": null
+          }
+        ],
+        "returnType": "void",
+        "isLeaf": false,
+        "cyclomaticComplexity": 1,
+        "lineCount": 6,
+        "loc": {
+          "file": "post-update.component.ts",
+          "line": 91,
+          "endLine": 96
+        },
+        "sourceExcerpt": null,
+        "existingComments": {
+          "jsDoc": null,
+          "inline": []
+        },
+        "sideEffectHints": {
+          "touchesDom": false,
+          "domApis": [],
+          "subscribes": true,
+          "usesTimers": false,
+          "usesLocalOrSessionStorage": false,
+          "navigates": false,
+          "mutatesInjectedServiceState": false,
+          "throws": false,
+          "hasTryCatch": false
+        },
+        "subscriptions": [
+          {
+            "index": 0,
+            "sourceExpression": "result.pipe(finalize(() => this.onSaveFinalize()))",
+            "operators": [
+              "finalize"
+            ],
+            "consumption": "explicit-subscribe",
+            "unsubscribeStrategy": "none",
+            "loc": {
+              "file": "post-update.component.ts",
+              "line": 92,
+              "endLine": 95
+            }
+          }
+        ]
+      },
+      "doc": {
+        "explanation": "Wires the result of a save request to its outcome handlers: routes a successful response to the success handler, a failed response to the error handler, and guarantees the finalize handler runs regardless of outcome.",
+        "confidence": "high"
+      }
+    },
+    "method:onSaveSuccess": {
+      "ast": {
+        "id": "method:onSaveSuccess",
+        "name": "onSaveSuccess",
+        "symbolKind": "method",
+        "visibility": "protected",
+        "static": false,
+        "isAsync": false,
+        "lifecycleHook": null,
+        "params": [],
+        "returnType": "void",
+        "isLeaf": false,
+        "cyclomaticComplexity": 1,
+        "lineCount": 3,
+        "loc": {
+          "file": "post-update.component.ts",
+          "line": 98,
+          "endLine": 100
+        },
+        "sourceExcerpt": null,
+        "existingComments": {
+          "jsDoc": null,
+          "inline": []
+        },
+        "sideEffectHints": {
+          "touchesDom": false,
+          "domApis": [],
+          "subscribes": false,
+          "usesTimers": false,
+          "usesLocalOrSessionStorage": false,
+          "navigates": false,
+          "mutatesInjectedServiceState": false,
+          "throws": false,
+          "hasTryCatch": false
+        },
+        "subscriptions": []
+      },
+      "doc": {
+        "explanation": "Navigates away from the form after a save succeeds, returning the user to the previous page.",
+        "confidence": "high"
+      }
+    },
+    "method:onSaveError": {
+      "ast": {
+        "id": "method:onSaveError",
+        "name": "onSaveError",
+        "symbolKind": "method",
+        "visibility": "protected",
+        "static": false,
+        "isAsync": false,
+        "lifecycleHook": null,
+        "params": [],
+        "returnType": "void",
+        "isLeaf": true,
+        "cyclomaticComplexity": 1,
+        "lineCount": 3,
+        "loc": {
+          "file": "post-update.component.ts",
+          "line": 102,
+          "endLine": 104
+        },
+        "sourceExcerpt": null,
+        "existingComments": {
+          "jsDoc": null,
+          "inline": []
+        },
+        "sideEffectHints": {
+          "touchesDom": false,
+          "domApis": [],
+          "subscribes": false,
+          "usesTimers": false,
+          "usesLocalOrSessionStorage": false,
+          "navigates": false,
+          "mutatesInjectedServiceState": false,
+          "throws": false,
+          "hasTryCatch": false
+        },
+        "subscriptions": []
+      },
+      "doc": {
+        "explanation": "Called when a save request fails; the body is intentionally empty, providing an extension point for subclasses to add error-specific behavior.",
+        "confidence": "high"
+      }
+    },
+    "method:onSaveFinalize": {
+      "ast": {
+        "id": "method:onSaveFinalize",
+        "name": "onSaveFinalize",
+        "symbolKind": "method",
+        "visibility": "protected",
+        "static": false,
+        "isAsync": false,
+        "lifecycleHook": null,
+        "params": [],
+        "returnType": "void",
+        "isLeaf": true,
+        "cyclomaticComplexity": 1,
+        "lineCount": 3,
+        "loc": {
+          "file": "post-update.component.ts",
+          "line": 106,
+          "endLine": 108
+        },
+        "sourceExcerpt": null,
+        "existingComments": {
+          "jsDoc": null,
+          "inline": []
+        },
+        "sideEffectHints": {
+          "touchesDom": false,
+          "domApis": [],
+          "subscribes": false,
+          "usesTimers": false,
+          "usesLocalOrSessionStorage": false,
+          "navigates": false,
+          "mutatesInjectedServiceState": false,
+          "throws": false,
+          "hasTryCatch": false
+        },
+        "subscriptions": []
+      },
+      "doc": {
+        "explanation": "Clears the saving-in-progress flag after a save attempt completes, whether it succeeded or failed.",
+        "confidence": "high"
+      }
+    },
+    "method:updateForm": {
+      "ast": {
+        "id": "method:updateForm",
+        "name": "updateForm",
+        "symbolKind": "method",
+        "visibility": "protected",
+        "static": false,
+        "isAsync": false,
+        "lifecycleHook": null,
+        "params": [
+          {
+            "name": "post",
+            "type": "IPost",
+            "optional": false,
+            "defaultExpression": null
+          }
+        ],
+        "returnType": "void",
+        "isLeaf": true,
+        "cyclomaticComplexity": 2,
+        "lineCount": 7,
+        "loc": {
+          "file": "post-update.component.ts",
+          "line": 110,
+          "endLine": 116
+        },
+        "sourceExcerpt": null,
+        "existingComments": {
+          "jsDoc": null,
+          "inline": []
+        },
+        "sideEffectHints": {
+          "touchesDom": false,
+          "domApis": [],
+          "subscribes": false,
+          "usesTimers": false,
+          "usesLocalOrSessionStorage": false,
+          "navigates": false,
+          "mutatesInjectedServiceState": false,
+          "throws": false,
+          "hasTryCatch": false
+        },
+        "subscriptions": []
+      },
+      "doc": {
+        "explanation": "Stores the post record locally, resets the form fields to match the post's current data, and ensures the post's associated blog and tags are present in the dropdown option lists so they appear as pre-selected choices.",
+        "confidence": "high"
+      }
+    },
+    "method:loadRelationshipsOptions": {
+      "ast": {
+        "id": "method:loadRelationshipsOptions",
+        "name": "loadRelationshipsOptions",
+        "symbolKind": "method",
+        "visibility": "protected",
+        "static": false,
+        "isAsync": false,
+        "lifecycleHook": null,
+        "params": [],
+        "returnType": "void",
+        "isLeaf": true,
+        "cyclomaticComplexity": 4,
+        "lineCount": 13,
+        "loc": {
+          "file": "post-update.component.ts",
+          "line": 118,
+          "endLine": 130
+        },
+        "sourceExcerpt": null,
+        "existingComments": {
+          "jsDoc": null,
+          "inline": []
+        },
+        "sideEffectHints": {
+          "touchesDom": false,
+          "domApis": [],
+          "subscribes": true,
+          "usesTimers": false,
+          "usesLocalOrSessionStorage": false,
+          "navigates": false,
+          "mutatesInjectedServiceState": false,
+          "throws": false,
+          "hasTryCatch": false
+        },
+        "subscriptions": [
+          {
+            "index": 0,
+            "sourceExpression": "this.blogService\n      .query()\n      .pipe(map((res: HttpResponse<IBlog[]>) => res.body ?? []))\n      .pipe(map((blogs: IBlog[]) => this.blogService.addBlogToCollectionIfMissing<IBlog>(blogs, this.post?.blog)))",
+            "operators": [
+              "map",
+              "map"
+            ],
+            "consumption": "explicit-subscribe",
+            "unsubscribeStrategy": "none",
+            "loc": {
+              "file": "post-update.component.ts",
+              "line": 119,
+              "endLine": 123
+            }
+          },
+          {
+            "index": 1,
+            "sourceExpression": "this.tagService\n      .query()\n      .pipe(map((res: HttpResponse<ITag[]>) => res.body ?? []))\n      .pipe(map((tags: ITag[]) => this.tagService.addTagToCollectionIfMissing<ITag>(tags, ...(this.post?.tags ?? []))))",
+            "operators": [
+              "map",
+              "map"
+            ],
+            "consumption": "explicit-subscribe",
+            "unsubscribeStrategy": "none",
+            "loc": {
+              "file": "post-update.component.ts",
+              "line": 125,
+              "endLine": 129
+            }
+          }
+        ]
+      },
+      "doc": {
+        "explanation": "Fetches the full list of available blogs and tags from the server, merging in the post's currently assigned associations so the form dropdowns include all relevant options even if the current selections fall outside the default query results.",
+        "confidence": "high"
+      }
+    }
+  },
+  "forms": {
+    "approach": "none",
+    "groups": [],
+    "ngModelBindings": []
+  },
+  "streams": [],
+  "signals": [],
+  "tests": {
+    "files": [
+      "post-update.component.spec.ts"
+    ],
+    "framework": "jest",
+    "cases": [
+      {
+        "id": "test:1",
+        "suitePath": [
+          "Post Management Update Component",
+          "ngOnInit"
+        ],
+        "title": "Should call Blog query and add missing value",
+        "targets": [],
+        "mocks": [
+          "dep:blogService",
+          "dep:activatedRoute"
+        ],
+        "isSkipped": false,
+        "loc": {
+          "file": "post-update.component.spec.ts",
+          "line": 54,
+          "endLine": 74
+        }
+      },
+      {
+        "id": "test:2",
+        "suitePath": [
+          "Post Management Update Component",
+          "ngOnInit"
+        ],
+        "title": "Should call Tag query and add missing value",
+        "targets": [],
+        "mocks": [
+          "dep:tagService",
+          "dep:activatedRoute"
+        ],
+        "isSkipped": false,
+        "loc": {
+          "file": "post-update.component.spec.ts",
+          "line": 76,
+          "endLine": 93
+        }
+      },
+      {
+        "id": "test:3",
+        "suitePath": [
+          "Post Management Update Component",
+          "ngOnInit"
+        ],
+        "title": "Should update editForm",
+        "targets": [],
+        "mocks": [
+          "dep:activatedRoute"
+        ],
+        "isSkipped": false,
+        "loc": {
+          "file": "post-update.component.spec.ts",
+          "line": 95,
+          "endLine": 108
+        }
+      },
+      {
+        "id": "test:4",
+        "suitePath": [
+          "Post Management Update Component",
+          "save"
+        ],
+        "title": "Should call update service on save for existing entity",
+        "targets": [],
+        "mocks": [
+          "dep:postService",
+          "dep:postFormService",
+          "dep:activatedRoute"
+        ],
+        "isSkipped": false,
+        "loc": {
+          "file": "post-update.component.spec.ts",
+          "line": 112,
+          "endLine": 133
+        }
+      },
+      {
+        "id": "test:5",
+        "suitePath": [
+          "Post Management Update Component",
+          "save"
+        ],
+        "title": "Should call create service on save for new entity",
+        "targets": [],
+        "mocks": [
+          "dep:postService",
+          "dep:postFormService",
+          "dep:activatedRoute"
+        ],
+        "isSkipped": false,
+        "loc": {
+          "file": "post-update.component.spec.ts",
+          "line": 135,
+          "endLine": 156
+        }
+      },
+      {
+        "id": "test:6",
+        "suitePath": [
+          "Post Management Update Component",
+          "save"
+        ],
+        "title": "Should set isSaving to false on error",
+        "targets": [],
+        "mocks": [
+          "dep:postService",
+          "dep:activatedRoute"
+        ],
+        "isSkipped": false,
+        "loc": {
+          "file": "post-update.component.spec.ts",
+          "line": 158,
+          "endLine": 176
+        }
+      },
+      {
+        "id": "test:7",
+        "suitePath": [
+          "Post Management Update Component",
+          "Compare relationships",
+          "compareBlog"
+        ],
+        "title": "Should forward to blogService",
+        "targets": [],
+        "mocks": [
+          "dep:blogService"
+        ],
+        "isSkipped": false,
+        "loc": {
+          "file": "post-update.component.spec.ts",
+          "line": 181,
+          "endLine": 187
+        }
+      },
+      {
+        "id": "test:8",
+        "suitePath": [
+          "Post Management Update Component",
+          "Compare relationships",
+          "compareTag"
+        ],
+        "title": "Should forward to tagService",
+        "targets": [],
+        "mocks": [
+          "dep:tagService"
+        ],
+        "isSkipped": false,
+        "loc": {
+          "file": "post-update.component.spec.ts",
+          "line": 191,
+          "endLine": 197
+        }
+      }
+    ]
+  },
+  "coverage": {
+    "symbolsTotal": 12,
+    "symbolsExplained": 12,
+    "symbolsTrivialSkipped": 0
+  },
+  "executionOrder": [
+    "method:updateForm",
+    "method:loadRelationshipsOptions",
+    "method:ngOnInit",
+    "method:byteSize",
+    "method:openFile",
+    "method:setFileData",
+    "method:previousState",
+    "method:onSaveFinalize",
+    "method:onSaveSuccess",
+    "method:onSaveError",
+    "method:subscribeToSaveResponse",
+    "method:save",
+    "field:compareBlog",
+    "field:compareTag"
+  ],
+  "fieldSymbols": {
+    "field:compareBlog": {
+      "doc": {
+        "explanation": "Determines whether two blog records represent the same entity by delegating to the blog service's comparison function; used by the blog dropdown to match pre-selected values.",
+        "confidence": "high"
+      }
+    },
+    "field:compareTag": {
+      "doc": {
+        "explanation": "Determines whether two tag records represent the same entity by delegating to the tag service's comparison function; used by the tag dropdown to match pre-selected values.",
+        "confidence": "high"
+      }
+    }
+  },
+  "provenance": {
+    "source": "ast",
+    "astInputHash": "8b431991afec7510",
+    "docInputHash": null,
+    "resolverVersion": "0.1.0",
+    "explainerModel": "claude-sonnet-4-6",
+    "generatedAt": "2026-08-02T00:00:00.000Z",
+    "parseStatus": "ok",
+    "warnings": []
+  }
+}

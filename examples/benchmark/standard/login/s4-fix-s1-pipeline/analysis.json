@@ -1,0 +1,601 @@
+{
+  "schemaVersion": "0.4.0",
+  "unitId": "component:login:LoginComponent",
+  "rendersTo": {
+    "requirement": "requirement.md",
+    "migrationNotes": "migration_notes.md"
+  },
+  "notes": [
+    {
+      "id": "ui:1",
+      "statement": "This is a standalone, page-level authentication screen. It has no parent-component API surface (no inputs, outputs, or two-way bindings) and receives its context solely from the routing layer. Its only outward effects are navigation side-effects and updates to shared authentication state managed by LoginService and AccountService.",
+      "evidence": ["method:ngOnInit", "method:login", "dep:accountService", "dep:loginService"]
+    }
+  ],
+  "purpose": {
+    "statement": "Enables a visitor to authenticate by submitting credentials, and redirects users who are already authenticated away from the login screen without requiring them to log in again.",
+    "responsibilities": [
+      {
+        "id": "resp:1",
+        "statement": "Collect a username, password, and optional 'remember me' flag, and submit them to the authentication service.",
+        "evidence": ["form:loginForm", "method:login", "tpl:20"]
+      },
+      {
+        "id": "resp:2",
+        "statement": "Display an error message when authentication fails and leave the form accessible for retry.",
+        "evidence": ["field:authenticationError", "tpl:10"]
+      },
+      {
+        "id": "resp:3",
+        "statement": "After successful authentication, navigate the user to the home page or to a URL they had been trying to reach before being redirected to login.",
+        "evidence": ["method:login", "dep:router", "nav:2"]
+      },
+      {
+        "id": "resp:4",
+        "statement": "At startup, detect whether the current visitor is already authenticated and, if so, redirect them to the home page without displaying the form.",
+        "evidence": ["method:ngOnInit", "dep:accountService", "nav:1"]
+      },
+      {
+        "id": "resp:5",
+        "statement": "Automatically place keyboard focus in the username field when the form first renders.",
+        "evidence": ["method:ngAfterViewInit", "field:username", "tpl:36"]
+      }
+    ]
+  },
+  "stateModel": {
+    "notes": [
+      {
+        "id": "state:1",
+        "statement": "This unit accepts no data from a parent and emits no events to one. It is a standalone screen; its effective inputs arrive through the routing context and through the shared authentication state managed by external services."
+      }
+    ],
+    "propsAndEvents": [],
+    "local": [
+      {
+        "id": "state:2",
+        "member": "field:authenticationError",
+        "statement": "A boolean flag, initially false, indicating whether the most recent login attempt failed. When true, an error banner reading 'Failed to sign in! Please check your credentials and try again.' is shown above the form. The login method writes this flag on every authentication response — true on failure, false on success.",
+        "mutatedBy": ["method:login"],
+        "evidence": ["field:authenticationError", "tpl:10", "tpl:16", "tpl:17"]
+      },
+      {
+        "id": "state:3",
+        "member": "field:loginForm",
+        "statement": "A credential form grouping the username, password, and rememberMe controls. Its current values are submitted to the authentication service when the user triggers sign-in.",
+        "mutatedBy": [],
+        "evidence": ["field:loginForm", "tpl:21", "method:login"]
+      },
+      {
+        "id": "state:4",
+        "member": "field:username",
+        "statement": "A reference to the rendered username input element, used solely after initial rendering to programmatically move keyboard focus to that field.",
+        "mutatedBy": [],
+        "evidence": ["field:username", "method:ngAfterViewInit", "tpl:36"]
+      }
+    ],
+    "form": [
+      {
+        "id": "state:5",
+        "form": "form:loginForm",
+        "statement": "A reactive form collecting authentication credentials. Both username and password are required. The form is submitted via the ngSubmit event on the form element.",
+        "controls": [
+          {
+            "control": "control:loginForm.username",
+            "statement": "The user's account name. Required — submission is blocked when blank.",
+            "evidence": ["control:loginForm.username", "tpl:29", "tpl:28"]
+          },
+          {
+            "control": "control:loginForm.password",
+            "statement": "The user's password. Required — submission is blocked when blank.",
+            "evidence": ["control:loginForm.password", "tpl:44", "tpl:43"]
+          },
+          {
+            "control": "control:loginForm.rememberMe",
+            "statement": "A boolean toggle (rendered as a checkbox) requesting a persistent session. Defaults to false (unchecked). A 'required' validator is applied — see suspected defects for the implications of requiring a boolean field.",
+            "evidence": ["control:loginForm.rememberMe", "tpl:57", "tpl:65"]
+          }
+        ],
+        "evidence": ["form:loginForm", "field:loginForm"]
+      }
+    ],
+    "async": [
+      {
+        "id": "state:6",
+        "stream": "accountService.identity()",
+        "trigger": "First display of the login screen (ngOnInit lifecycle phase)",
+        "loadingIndicator": null,
+        "errorHandling": null,
+        "evidence": ["method:ngOnInit", "dep:accountService"]
+      },
+      {
+        "id": "state:7",
+        "stream": "loginService.login(credentials)",
+        "trigger": "User submits the login form",
+        "loadingIndicator": null,
+        "errorHandling": "On failure the authentication-error flag is set to true, displaying the error banner. The form remains accessible for another attempt.",
+        "evidence": ["method:login", "dep:loginService", "field:authenticationError"]
+      }
+    ],
+    "external": [
+      {
+        "id": "state:8",
+        "name": "User authentication state",
+        "owner": "AccountService",
+        "statement": "The current visitor's identity and authentication status, managed by AccountService and outliving this screen. This unit reads these values at initialization to decide whether to show the form or redirect.",
+        "evidence": ["dep:accountService", "method:ngOnInit"]
+      },
+      {
+        "id": "state:9",
+        "name": "Active router navigation",
+        "owner": "Router",
+        "statement": "The router's in-progress navigation state, read when login succeeds to decide whether an additional home-page navigation is needed or whether an existing redirect (to a previously attempted URL) should be allowed to complete.",
+        "evidence": ["dep:router", "method:login"]
+      }
+    ]
+  },
+  "publicContract": {
+    "consumedBy": [],
+    "inputContracts": [],
+    "outputContracts": [],
+    "methods": [
+      {
+        "id": "api:1",
+        "symbol": "method:login",
+        "signature": "login(): void",
+        "contract": "Reads the current credential form values and submits them to the authentication service. On success, navigates the user away from the login screen. On failure, sets the error flag so the failure message appears above the form.",
+        "preconditions": ["The login form is displayed and contains values entered by the user."],
+        "postconditions": [
+          "On success: the user is no longer on the login screen.",
+          "On failure: the authentication-error state is true and the error message is visible."
+        ],
+        "evidence": ["method:login", "tpl:20"]
+      }
+    ],
+    "notes": [
+      {
+        "id": "api:2",
+        "statement": "login() is invoked by the form's submit event and is not intended as a callable API for a parent component. No parent-facing inputs, outputs, or two-way bindings exist on this unit.",
+        "evidence": ["tpl:20"]
+      }
+    ]
+  },
+  "externalIntegrations": {
+    "services": [
+      {
+        "id": "ext:1",
+        "dep": "dep:accountService",
+        "purpose": "Provides the current visitor's identity and authentication status, checked at startup to redirect already-authenticated users without showing the form.",
+        "operations": ["identity()", "isAuthenticated()"],
+        "evidence": ["dep:accountService", "method:ngOnInit"]
+      },
+      {
+        "id": "ext:2",
+        "dep": "dep:loginService",
+        "purpose": "Performs the authentication operation, submitting credentials and signalling success or failure.",
+        "operations": ["login(credentials)"],
+        "evidence": ["dep:loginService", "method:login"]
+      },
+      {
+        "id": "ext:3",
+        "dep": "dep:router",
+        "purpose": "Provides navigation: redirects an already-authenticated user to the home page on startup; navigates to the home page after successful login; reads the current navigation to detect whether a cached-URL redirect is already in progress.",
+        "operations": ["navigate([''])", "getCurrentNavigation()"],
+        "evidence": ["dep:router", "method:ngOnInit", "method:login", "nav:1", "nav:2"]
+      }
+    ],
+    "apis": [],
+    "packages": [],
+    "notes": [
+      {
+        "id": "ext:4",
+        "statement": "No direct server calls are made from this unit. All server communication is delegated to LoginService and AccountService. Because those services' implementations are not visible from this component, the actual HTTP traffic they generate is unknown at component scope.",
+        "evidence": ["dep:loginService", "dep:accountService"]
+      }
+    ]
+  },
+  "serviceLayer": {
+    "applicable": true,
+    "sharedState": [
+      {
+        "id": "svc:1",
+        "service": "dep:accountService",
+        "state": "Current user identity and authentication status (identity(), isAuthenticated())",
+        "lifetime": "unknown",
+        "readByThisUnit": true,
+        "mutatedByThisUnit": false,
+        "consumersKnown": false,
+        "evidence": ["dep:accountService", "method:ngOnInit"]
+      },
+      {
+        "id": "svc:2",
+        "service": "dep:router",
+        "state": "Active navigation and routing tree",
+        "lifetime": "app-singleton",
+        "readByThisUnit": true,
+        "mutatedByThisUnit": true,
+        "mutatingMethods": ["method:ngOnInit", "method:login"],
+        "consumersKnown": false,
+        "evidence": ["dep:router", "method:ngOnInit", "method:login", "nav:1", "nav:2"]
+      }
+    ],
+    "statelessOperations": [
+      {
+        "id": "svcop:1",
+        "service": "dep:loginService",
+        "operation": "Dispatches login credentials and signals success or failure. Internal state effects of this service (token storage, AccountService update) are not visible from this unit.",
+        "evidence": ["dep:loginService", "method:login"]
+      }
+    ],
+    "couplingNotes": [
+      {
+        "id": "svccoupling:1",
+        "statement": "LoginService is listed as a stateless operation because its internal state effects cannot be confirmed from this unit. It is likely that on success it updates AccountService or a shared authentication store — any rebuild must replicate those side effects for the post-login authentication state to be correct.",
+        "evidence": ["dep:loginService", "dep:accountService"]
+      }
+    ],
+    "notes": [
+      {
+        "id": "ui:2",
+        "statement": "AccountService lifetime is marked unknown because its injection scope cannot be determined from this unit alone (resolvedUnitId is null). Whether it is an application-level singleton or has narrower scope requires the repository index (Phase 2).",
+        "evidence": ["dep:accountService"]
+      }
+    ]
+  },
+  "workflows": [
+    {
+      "id": "flow:1",
+      "name": "Submit login credentials",
+      "trigger": "The user submits the login form, by clicking the 'Sign in' button or by pressing Enter while focus is within the form.",
+      "preconditions": [
+        "The login screen is visible — the current visitor is not already authenticated."
+      ],
+      "steps": [
+        {
+          "order": 1,
+          "action": "The unit reads the current username, password, and rememberMe values from the credential form.",
+          "evidence": ["method:login", "field:loginForm"]
+        },
+        {
+          "order": 2,
+          "action": "The unit calls the login service with those values. No in-progress indicator is shown to the user.",
+          "evidence": ["method:login", "dep:loginService"]
+        },
+        {
+          "order": 3,
+          "action": "On success: the unit checks whether the router has a navigation already in progress (indicating a cached-URL redirect was triggered before login). If a navigation is in progress, no further navigation is issued and that navigation completes. If no navigation is in progress, the unit navigates to the home page.",
+          "evidence": ["method:login", "dep:router", "nav:2"]
+        },
+        {
+          "order": 4,
+          "action": "On failure: the unit sets the authentication-error flag to true, causing the error banner to appear above the form. The form fields remain populated.",
+          "evidence": ["method:login", "field:authenticationError", "tpl:10"]
+        }
+      ],
+      "successOutcome": "The user is navigated away from the login screen to the home page or to the URL they originally tried to reach.",
+      "failureOutcomes": [
+        {
+          "condition": "The login service reports authentication failure.",
+          "result": "The user remains on the login screen. The message 'Failed to sign in! Please check your credentials and try again.' appears above the form. The credential fields retain their values so the user can correct and resubmit."
+        }
+      ],
+      "evidence": ["tpl:20", "method:login"]
+    }
+  ],
+  "lifecycleBehavior": {
+    "onInitialization": "On first display, the screen contacts the account service to retrieve the current visitor's identity and check whether they are already authenticated. If authenticated, the visitor is immediately redirected to the home page without seeing the form. If not authenticated, no further action is taken and the login form is shown. No loading indicator is displayed during this check, and if the identity operation fails no error is surfaced — the subscription ends silently and the form remains visible in its default state.",
+    "onDestroy": null,
+    "orderingConstraints": [
+      {
+        "statement": "Keyboard focus is placed on the username input only after the view has been fully rendered. The focus step runs in a lifecycle phase after initialization — specifically, the phase when DOM elements for the template first exist. Any rebuild must replicate this ordering: attempting to set focus before the input element exists has no effect.",
+        "evidence": ["method:ngAfterViewInit", "method:ngOnInit", "field:username", "tpl:36"]
+      }
+    ],
+    "notes": [
+      {
+        "id": "ui:3",
+        "statement": "The subscription to accountService.identity() opened in ngOnInit has no explicit teardown. There is no ngOnDestroy hook. Whether this is safe depends on whether the observable completes after its first emission. If it is a long-lived stream, the subscription leaks when the user navigates away from the login screen. See open questions and migration risks.",
+        "evidence": ["method:ngOnInit", "dep:accountService"]
+      }
+    ]
+  },
+  "behavioralInvariants": [
+    {
+      "id": "inv:1",
+      "statement": "The authentication-error banner is hidden when the screen loads and appears only after the user submits credentials that are rejected. It disappears if the user navigates away and returns (because the component is recreated with the flag initialised to false).",
+      "whyItMatters": "A rebuild that persists error state across navigations (e.g., through a shared store) would show stale errors on re-entry.",
+      "evidence": ["field:authenticationError", "tpl:10"]
+    },
+    {
+      "id": "inv:2",
+      "statement": "After a successful sign-in, the user is never left on the login screen. They are always redirected — either to the home page or to a URL that triggered the login requirement.",
+      "whyItMatters": "A rebuild that skips post-login navigation would strand the user on the login screen in a logged-in state.",
+      "evidence": ["method:login", "dep:router", "nav:2"]
+    },
+    {
+      "id": "inv:3",
+      "statement": "A user who is already authenticated is redirected away from the login screen on first load, without interacting with the form.",
+      "whyItMatters": "Without this guard, authenticated users can reach the login form, potentially re-authenticating or seeing confusing UI.",
+      "evidence": ["method:ngOnInit", "dep:accountService", "nav:1"]
+    },
+    {
+      "id": "inv:4",
+      "statement": "On first display, keyboard focus is automatically placed in the username field so the user can begin typing without an explicit click.",
+      "whyItMatters": "A rebuild that omits auto-focus degrades accessibility and keyboard-first usability.",
+      "evidence": ["method:ngAfterViewInit", "field:username", "tpl:36"]
+    }
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "ac:1",
+      "scenario": "Account service identity check on initialization",
+      "given": ["The login screen is being displayed for the first time."],
+      "when": ["The screen finishes initializing."],
+      "then": ["The account service's identity operation is called."],
+      "coveredByExistingTest": "test:1",
+      "derivedFrom": ["method:ngOnInit"],
+      "evidence": ["method:ngOnInit", "dep:accountService"]
+    },
+    {
+      "id": "ac:2",
+      "scenario": "Authentication status check on initialization",
+      "given": ["The login screen is being displayed for the first time."],
+      "when": ["The screen finishes initializing."],
+      "then": ["The account service's isAuthenticated check is performed."],
+      "coveredByExistingTest": "test:2",
+      "derivedFrom": ["method:ngOnInit"],
+      "evidence": ["method:ngOnInit", "dep:accountService"]
+    },
+    {
+      "id": "ac:3",
+      "scenario": "Already-authenticated visitor is redirected on load",
+      "given": ["The current visitor is already authenticated when the login screen loads."],
+      "when": ["The screen initializes."],
+      "then": ["The visitor is redirected to the home page without interacting with the login form."],
+      "coveredByExistingTest": "test:3",
+      "derivedFrom": ["method:ngOnInit"],
+      "evidence": ["method:ngOnInit", "dep:accountService", "nav:1"]
+    },
+    {
+      "id": "ac:4",
+      "scenario": "Keyboard focus on username field after rendering",
+      "given": ["The login form is displayed to an unauthenticated visitor."],
+      "when": ["The form has finished rendering."],
+      "then": ["Keyboard focus is placed in the username input field automatically."],
+      "coveredByExistingTest": "test:4",
+      "derivedFrom": ["method:ngAfterViewInit"],
+      "evidence": ["method:ngAfterViewInit", "field:username", "tpl:36"]
+    },
+    {
+      "id": "ac:5",
+      "scenario": "Successful login navigates to home page",
+      "given": ["The visitor has entered credentials and the router has no pending navigation."],
+      "when": ["The visitor submits the form and authentication succeeds."],
+      "then": ["The visitor is navigated to the home page."],
+      "coveredByExistingTest": "test:5",
+      "derivedFrom": ["method:login"],
+      "evidence": ["method:login", "dep:router", "nav:2"]
+    },
+    {
+      "id": "ac:6",
+      "scenario": "Successful login with an in-progress router navigation does not re-navigate",
+      "given": ["The visitor has entered credentials and the router already has a navigation in progress (a previously requested URL is being restored)."],
+      "when": ["The visitor submits the form and authentication succeeds."],
+      "then": ["No additional navigation to the home page is triggered; the existing navigation to the cached URL completes."],
+      "coveredByExistingTest": "test:6",
+      "derivedFrom": ["method:login"],
+      "evidence": ["method:login", "dep:router"]
+    },
+    {
+      "id": "ac:7",
+      "scenario": "Failed login shows error message and keeps form",
+      "given": ["The visitor has entered credentials."],
+      "when": ["The visitor submits the form and authentication fails."],
+      "then": [
+        "The visitor remains on the login screen.",
+        "The message 'Failed to sign in! Please check your credentials and try again.' is visible above the form."
+      ],
+      "coveredByExistingTest": "test:7",
+      "derivedFrom": ["method:login"],
+      "evidence": ["method:login", "field:authenticationError", "tpl:10", "tpl:16", "tpl:17"]
+    },
+    {
+      "id": "ac:8",
+      "scenario": "Login form submits all three credential fields",
+      "given": ["The login screen is displayed to an unauthenticated visitor."],
+      "when": ["The visitor fills in username, password, and optionally checks 'Remember me', then submits the form."],
+      "then": ["All three values (username, password, rememberMe) are included in the authentication request."],
+      "coveredByExistingTest": null,
+      "derivedFrom": ["form:loginForm"],
+      "evidence": ["form:loginForm", "control:loginForm.username", "control:loginForm.password", "control:loginForm.rememberMe", "method:login"]
+    }
+  ],
+  "domainRules": {
+    "businessConstraints": [
+      {
+        "id": "rule:1",
+        "statement": "A non-empty username is required to attempt sign-in.",
+        "confidence": "high",
+        "evidence": ["control:loginForm.username"]
+      },
+      {
+        "id": "rule:2",
+        "statement": "A non-empty password is required to attempt sign-in.",
+        "confidence": "high",
+        "evidence": ["control:loginForm.password"]
+      },
+      {
+        "id": "rule:3",
+        "statement": "An authenticated visitor is not permitted to view the login form — they are automatically redirected to the home page upon reaching the login URL.",
+        "confidence": "high",
+        "evidence": ["method:ngOnInit", "dep:accountService", "nav:1"]
+      }
+    ],
+    "edgeCases": [
+      {
+        "id": "edge:1",
+        "situation": "Visitor reaches the login URL while already authenticated.",
+        "currentBehavior": "The unit detects the authenticated state during initialization and immediately redirects to the home page. The login form is never rendered for this visitor.",
+        "confidence": "high",
+        "evidence": ["method:ngOnInit", "dep:accountService", "nav:1"]
+      },
+      {
+        "id": "edge:2",
+        "situation": "Submitted credentials are rejected by the server.",
+        "currentBehavior": "The authentication-error flag is set to true and the error banner appears above the form. The form remains populated and accessible. No automatic retry occurs.",
+        "confidence": "high",
+        "evidence": ["method:login", "field:authenticationError", "tpl:10"]
+      },
+      {
+        "id": "edge:3",
+        "situation": "Login succeeds while the router already has a navigation in progress (e.g., a guard redirected to login while the user tried to reach a protected URL).",
+        "currentBehavior": "The unit detects the in-progress navigation via getCurrentNavigation() and does not issue a second navigation to the home page. The user arrives at the URL they originally tried to reach.",
+        "confidence": "high",
+        "evidence": ["method:login", "dep:router"]
+      }
+    ],
+    "terminology": [
+      {
+        "term": "Sign in",
+        "definition": "The action of authenticating with the system using a username and password. Used as both the page heading and the submit button label.",
+        "evidence": ["tpl:8", "tpl:71"]
+      },
+      {
+        "term": "Username",
+        "definition": "The account identifier used for authentication.",
+        "evidence": ["tpl:28"]
+      },
+      {
+        "term": "Password",
+        "definition": "The secret credential used for authentication.",
+        "evidence": ["tpl:43"]
+      },
+      {
+        "term": "Remember me",
+        "definition": "A user preference that, when selected, requests a persistent session across browser restarts. The exact session-duration behavior is delegated to the login service.",
+        "evidence": ["tpl:65", "control:loginForm.rememberMe"]
+      }
+    ],
+    "formulas": [],
+    "notes": [
+      {
+        "id": "ui:4",
+        "statement": "The login screen provides two additional navigation links: 'Did you forget your password?' (destination: /account/reset/request) and 'Register a new account' (destination: /account/register). These are static links — this unit plays no role in those flows beyond providing the links.",
+        "evidence": ["tpl:74", "tpl:79", "tpl:85", "tpl:89"]
+      }
+    ]
+  },
+  "migration": {
+    "isLowerBound": true,
+    "risks": [
+      {
+        "id": "risk:1",
+        "category": "subscription-leak",
+        "severity": "high",
+        "description": "ngOnInit subscribes to accountService.identity() using an explicit subscribe() call with no unsubscribe strategy. No ngOnDestroy is implemented. If the source observable does not complete after one emission, the subscription remains active indefinitely after the component is destroyed.",
+        "behaviorAtRisk": "On repeated visits to the login screen, stale subscriptions accumulate. Callbacks from stale subscriptions can trigger unexpected redirects or state updates in whatever screen the user has navigated to.",
+        "evidence": ["method:ngOnInit", "dep:accountService"]
+      },
+      {
+        "id": "risk:2",
+        "category": "subscription-leak",
+        "severity": "medium",
+        "description": "method:login subscribes to loginService.login(...) with no unsubscribe strategy. Rapid form submissions or navigation away mid-request leave the subscription active.",
+        "behaviorAtRisk": "If the user submits the form and then navigates away before the response arrives, the response callback still runs. It may trigger a navigation or flip state in the destination screen.",
+        "evidence": ["method:login", "dep:loginService"]
+      },
+      {
+        "id": "risk:3",
+        "category": "lifecycle-ordering",
+        "severity": "medium",
+        "description": "The username ElementRef is accessed in ngAfterViewInit to set focus. Any rebuild that attempts to focus the field earlier in the initialization sequence will silently fail because the DOM element does not exist at that point.",
+        "behaviorAtRisk": "Setting focus too early in the initialization sequence means the username field is not focused on load, degrading keyboard accessibility.",
+        "evidence": ["method:ngAfterViewInit", "field:username", "tpl:36"]
+      },
+      {
+        "id": "risk:4",
+        "category": "routing",
+        "severity": "medium",
+        "description": "method:login calls router.getCurrentNavigation() to detect a cached-URL redirect already in progress. This relies on Angular Router's ability to report in-flight navigation at the moment of the login success callback.",
+        "behaviorAtRisk": "Without an equivalent mechanism in the target environment, successful login always navigates to the home page and ignores any URL the user was originally trying to reach. The 'return to destination after login' behavior is lost.",
+        "evidence": ["method:login", "dep:router"]
+      }
+    ],
+    "deadCode": {
+      "methods": [],
+      "dependencies": [],
+      "statement": "No unreachable methods identified. All three methods are either lifecycle hooks (called by the framework) or template entry points. Reachability from the functions.json call graph could not be verified because that graph is empty for this unit; lifecycle hooks and template event handlers are confirmed reachable via the template and framework, not the intra-class call graph.",
+      "verified": false,
+      "evidence": ["method:ngOnInit", "method:ngAfterViewInit", "method:login"]
+    },
+    "notes": [
+      {
+        "id": "ui:5",
+        "statement": "The risk list is a lower bound. HTTP traffic through LoginService and AccountService is not visible from component scope; additional migration risks (session token storage, CSRF handling, cookie management) may exist inside those services.",
+        "evidence": ["dep:loginService", "dep:accountService"]
+      }
+    ]
+  },
+  "review": {
+    "status": "pending",
+    "openQuestions": [
+      {
+        "id": "q:1",
+        "question": "What does LoginService.login() do internally on success? Specifically: does it set authentication tokens, update AccountService, or trigger other shared-state changes? A rebuild must replicate these side effects exactly for the post-login authentication state to be correct.",
+        "blocking": true,
+        "evidence": ["dep:loginService"]
+      },
+      {
+        "id": "q:2",
+        "question": "What kind of observable does AccountService.identity() return? If it emits multiple values (e.g., a BehaviorSubject that never completes), the ngOnInit subscription will run its callback on every emission — potentially triggering repeated redirects. If it completes after one emission the subscription is self-contained. A rebuild cannot safely resolve the subscription-leak risk without this answer.",
+        "blocking": true,
+        "evidence": ["dep:accountService", "method:ngOnInit"]
+      },
+      {
+        "id": "q:3",
+        "question": "Is the Validators.required constraint on the rememberMe control intentional? For a boolean FormControl, 'required' passes only when the value is truthy, meaning the form is technically invalid whenever 'Remember me' is unchecked (the default). This would block submission unless the user checks the box — which contradicts the expected behavior of an optional preference.",
+        "blocking": false,
+        "evidence": ["control:loginForm.rememberMe", "field:loginForm"]
+      },
+      {
+        "id": "q:4",
+        "question": "Does the login form enforce validity before submission? The submit button has no visible disabled binding tied to form validity. If the form can be submitted while invalid (e.g., empty password field), what does the login service do with the empty value?",
+        "blocking": false,
+        "evidence": ["tpl:66", "tpl:20", "method:login", "form:loginForm"]
+      },
+      {
+        "id": "q:5",
+        "question": "What is AccountService's injection scope (application-wide singleton, or narrower)? This determines whether authentication state is shared across the whole application or is scoped to a subtree, which affects the coupling analysis.",
+        "blocking": false,
+        "evidence": ["dep:accountService"]
+      },
+      {
+        "id": "q:6",
+        "question": "Is the absence of error handling on the accountService.identity() subscription intentional? If identity() throws, the subscription ends silently and the login form is shown in its default state. Is there a global error handler that catches this instead, or is silent failure the intended behavior?",
+        "blocking": false,
+        "evidence": ["method:ngOnInit", "dep:accountService"]
+      }
+    ],
+    "suspectedDefects": [
+      {
+        "id": "bug:1",
+        "description": "The rememberMe control is declared with Validators.required applied (initialValueExpression: new FormControl(false, { nonNullable: true, validators: [Validators.required] })). For a boolean FormControl, Validators.required passes only when the value is truthy. Since the control defaults to false (unchecked), the form is invalid at rest, which would technically prevent submission unless the user checks 'Remember me'. This appears unintentional for an optional user preference.",
+        "confidence": "medium",
+        "evidence": ["control:loginForm.rememberMe", "field:loginForm"]
+      }
+    ]
+  },
+  "coverageAssessment": {
+    "symbolsTotal": 3,
+    "symbolsExplained": 3,
+    "templateNodesCovered": 20,
+    "templateNodesTotal": 39,
+    "overallConfidence": "medium"
+  },
+  "provenance": {
+    "source": "llm",
+    "synthesizerVersion": "synthesizer-v1",
+    "synthesizerModel": "claude-sonnet-4-6",
+    "inputHash": "664ff5a12a383aa9",
+    "generatedAt": "2026-08-02T00:00:00.000Z"
+  }
+}

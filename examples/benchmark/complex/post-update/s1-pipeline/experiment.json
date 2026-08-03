@@ -1,0 +1,11 @@
+{
+  "setting": "s1-pipeline",
+  "unit": "post-update",
+  "tier": "complex",
+  "model": "claude-sonnet-4-6",
+  "runDate": "2026-08-02",
+  "elapsedSeconds": 5584,
+  "tokensConsumed": 16041,
+  "subagentsSpawned": 3,
+  "notes": "Complex path: Resolver + Explainer (14 symbols, all high confidence) + Synthesizer. Validation pass, integrity pass (126 ids, 627 refs). 1 blocking + 3 non-blocking questions. specTitleCoverage=63% (5/8) — missing 3 spec titles. screenLabelCoverage=100%. frameworkNeutral=NO (ngOnInit, ngOnDestroy, FormGroup, ActivatedRoute, HttpClient in prose). Sections metric: 1/9 — S1 section IDs differ from Phase A format."
+}
