@@ -54,7 +54,14 @@ export function classifyUnit(sig, deps) {
     Array.isArray(deps?.httpInteractions) && deps.httpInteractions.length > 0;
   const fewMethods = (m.methodCount ?? 0) <= TRIVIAL_MAX_METHODS;
 
-  if (!hasForms && !hasStreams && !hasHttp && fewMethods) {
+  // A unit that actively calls methods on an injected service is orchestrating
+  // behaviour, not just rendering — even if HTTP is indirect (via the service).
+  const callsService = Array.isArray(deps?.dependencyUsage) &&
+    deps.dependencyUsage.some(
+      d => Array.isArray(d.calledMembers) && d.calledMembers.length > 0
+    );
+
+  if (!hasForms && !hasStreams && !hasHttp && !callsService && fewMethods) {
     return "trivial";
   }
 

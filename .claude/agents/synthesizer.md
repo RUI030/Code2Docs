@@ -37,6 +37,23 @@ Load both skill files. They are the authoritative rules this agent must follow:
 - **`angular-semantics`** — how to read Angular constructs and translate them to observable
   behavior. Reference it whenever a tier field contains Angular-specific syntax.
 
+**Framework-neutrality pre-check (read this before writing any prose):**
+Every `statement`, `steps`, `trigger`, `successOutcome`, `failureOutcome`, and description
+field you write goes into `requirement.md` verbatim via the renderer. None of these prose
+fields may contain Angular (or React, Vue) API names. Specifically banned from prose:
+
+- Lifecycle methods: `ngOnInit`, `ngOnDestroy`, `ngOnChanges`, `ngAfterViewInit`, `ngAfterContentInit`
+- RxJS types: `BehaviorSubject`, `Subject`, `ReplaySubject`, `Observable` (as a class name), `takeUntil`, `switchMap`, `mergeMap`, `combineLatest`
+- Angular form types: `FormGroup`, `FormControl`, `FormBuilder`, `AbstractControl`
+- Angular DI / HTTP: `ActivatedRoute`, `HttpClient`, `Router` (as a class name), `ChangeDetectorRef`
+- Angular decorators used as prose nouns: `@Component`, `@Injectable`, `@Input`, `@Output`
+
+**Allowed in prose:** behavioural descriptions of what these do. "On first display, the unit
+reads the activation key from the URL and calls the activation service" is correct. "In
+`ngOnInit`, `ActivatedRoute.params` is subscribed via `takeUntil`" is a framework violation.
+Angular API names belong only in `evidence` id arrays (e.g. `"method:ngOnInit"`) and in
+backtick citations — never in flowing prose.
+
 ---
 
 ## Sub-agent decomposition
@@ -162,14 +179,16 @@ For each entry in `template.json.eventBindings`:
 Lifecycle hooks and initialization paths are **not** workflows — they go in `lifecycleBehavior`.
 
 **`lifecycleBehavior`:**
-- `onInitialization`: describe what `ngOnInit` does in behavioral terms, using
-  `doc.explanation`. Frame as "On first display, ...". If multiple things happen, write them
-  as an ordered list in the prose. Evidence: cite `method:ngOnInit` and any called methods.
-- `onInputChange`: only if `ngOnChanges` is present.
-- `onDestroy`: if `ngOnDestroy` is present; include what is cleaned up and why it matters
-  for a rebuild (subscription teardown = important for memory/correctness).
+- `onInitialization`: describe what the initialization hook does in behavioral terms, using
+  `doc.explanation`. Frame as "On first display, ...". Do NOT write the hook name (`ngOnInit`)
+  in prose — write what the user observes instead. Evidence: cite `method:ngOnInit`.
+- `onInputChange`: only if an input-change hook is present. Describe the behavioral effect,
+  not the hook name.
+- `onDestroy`: if a cleanup hook is present; describe what is cleaned up and why it matters
+  for a rebuild (subscription teardown = important for memory/correctness). Do NOT name
+  `ngOnDestroy` in prose.
 - `orderingConstraints`: anything that must happen before something else (e.g., "relationships
-  must load before the form is populated"). Derive from the callGraph of `ngOnInit`.
+  must load before the form is populated"). Derive from the initialization callGraph.
 
 **`acceptanceCriteria`:**
 - Start with the spec file. If `signature.json.files.specs` is non-null, read the spec file
@@ -325,8 +344,13 @@ Report to the orchestrator:
 
 - **No fabrication** — every claim traces to a field in the tier files. Untraceable claim →
   open question.
-- **No target framework** — `requirement.md` must be framework-independent. No React, Vue,
-  hooks, stores, or components in prose.
+- **No target framework** — `requirement.md` must be framework-independent. Angular lifecycle
+  names (`ngOnInit`, `ngOnDestroy`, …), RxJS type names (`BehaviorSubject`, `takeUntil`, …),
+  Angular form types (`FormGroup`, `FormControl`, …), and Angular service/DI names
+  (`ActivatedRoute`, `HttpClient`, …) must not appear in any prose field. See the
+  "Framework-neutrality pre-check" section above for the full banned list. React and Vue API
+  names are equally banned. Evidence id arrays (e.g. `"method:ngOnInit"`) and backtick
+  citations are exempt.
 - **Evidence ids are mandatory** — dangling evidence is a hard failure. Pre-validate before
   writing. Use only the id patterns defined in `templates/schema/common.schema.json`: `field:X`,
   `method:X`, `dep:X`, `tpl:N`, `test:N`, `http:N`, `input:X`, `output:X`, `form:X`,
