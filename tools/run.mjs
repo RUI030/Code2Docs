@@ -223,6 +223,7 @@ async function processUnit(unit, { srcRoot, outRoot, dryRun, manifest }) {
   const unitId = unit.id;
   const unitFile = resolvePath(srcRoot, unit.path, unit.files.typescript);
   const unitOutDir = join(outRoot, unit.path);
+  const unitStartMs = Date.now();
 
   mkdirSync(unitOutDir, { recursive: true });
 
@@ -259,7 +260,7 @@ async function processUnit(unit, { srcRoot, outRoot, dryRun, manifest }) {
     tier = null;
   }
 
-  const initialEntry = { status: "pending", unitPath: unit.path, tier: tier ?? "unknown" };
+  const initialEntry = { status: "pending", unitPath: unit.path, tier: tier ?? "unknown", startedAt: new Date(unitStartMs).toISOString() };
   saveManifestEntry(outRoot, unitId, initialEntry);
 
   if (dryRun) {
@@ -283,35 +284,42 @@ async function processUnit(unit, { srcRoot, outRoot, dryRun, manifest }) {
       saveManifestEntry(outRoot, unitId, { tier: resolvedTier });
 
       const remainingSteps = stepsForTier(resolvedTier, unitFile, unitOutDir, unit).slice(1);
-      return await runSteps(remainingSteps, { unitId, outRoot, resolvedTier, degraded, hash, sourceFiles });
+      return await runSteps(remainingSteps, { unitId, outRoot, resolvedTier, degraded, hash, unitStartMs, unitOutDir });
     } catch (err) {
-      saveManifestEntry(outRoot, unitId, { status: "failed", failedStep: "resolve", error: err.message });
+      saveManifestEntry(outRoot, unitId, { status: "failed", failedStep: "resolve", error: err.message, elapsedMs: Date.now() - unitStartMs });
       return { unitId, status: "failed", tier: "unknown", error: err.message };
     }
   }
 
-  return await runSteps(steps, { unitId, outRoot, resolvedTier: tier, degraded, hash, sourceFiles });
+  return await runSteps(steps, { unitId, outRoot, resolvedTier: tier, degraded, hash, unitStartMs, unitOutDir });
 }
 
-async function runSteps(steps, { unitId, outRoot, resolvedTier, degraded, hash, sourceFiles }) {
+async function runSteps(steps, { unitId, outRoot, resolvedTier, degraded, hash, unitStartMs, unitOutDir }) {
   if (degraded) {
-    // Degraded: only run resolve (already done) and stop
-    saveManifestEntry(outRoot, unitId, { status: "degraded", tier: resolvedTier });
+    saveManifestEntry(outRoot, unitId, { status: "degraded", tier: resolvedTier, elapsedMs: Date.now() - unitStartMs });
     return { unitId, status: "degraded", tier: resolvedTier };
   }
 
+  const stepTimings = [];
+
   for (const step of steps) {
+    const stepStart = Date.now();
     try {
       saveManifestEntry(outRoot, unitId, { currentStep: step.name });
       step.run();
+      const stepElapsed = Date.now() - stepStart;
+      stepTimings.push({ step: step.name, elapsedMs: stepElapsed });
       saveManifestEntry(outRoot, unitId, { lastCompletedStep: step.name });
     } catch (err) {
+      const stepElapsed = Date.now() - stepStart;
       // LLM steps are deferred — mark as pending-agent rather than failed
       if (err.message.includes("requires Agent invocation")) {
         saveManifestEntry(outRoot, unitId, {
           status: "pending-agent",
           pendingStep: step.name,
           tier: resolvedTier,
+          elapsedMs: Date.now() - unitStartMs,
+          stepTimings,
         });
         return { unitId, status: "pending-agent", tier: resolvedTier, pendingStep: step.name };
       }
@@ -320,17 +328,42 @@ async function runSteps(steps, { unitId, outRoot, resolvedTier, degraded, hash, 
         failedStep: step.name,
         error: err.message,
         tier: resolvedTier,
+        elapsedMs: Date.now() - unitStartMs,
+        stepTimings,
       });
       return { unitId, status: "failed", tier: resolvedTier, error: err.message };
     }
   }
 
-  // unitOutDir is passed implicitly through the steps closure; use manifest to find path
+  const totalElapsedMs = Date.now() - unitStartMs;
   const unitManifest = loadManifest(outRoot);
   const unitPath = unitManifest[unitId]?.unitPath ?? unitId.split(":").slice(1).join("/");
-  writeCache(join(outRoot, unitPath), hash, resolvedTier);
-  saveManifestEntry(outRoot, unitId, { status: "completed", tier: resolvedTier });
-  return { unitId, status: "completed", tier: resolvedTier };
+  const resolvedUnitOutDir = unitOutDir ?? join(outRoot, unitPath);
+
+  writeCache(resolvedUnitOutDir, hash, resolvedTier);
+  saveManifestEntry(outRoot, unitId, {
+    status: "completed",
+    tier: resolvedTier,
+    elapsedMs: totalElapsedMs,
+    stepTimings,
+    completedAt: new Date().toISOString(),
+  });
+
+  // Write experiment.json with real elapsed timing (tokens not measurable here)
+  const experimentPath = join(resolvedUnitOutDir, "experiment.json");
+  const existing = existsSync(experimentPath)
+    ? JSON.parse(readFileSync(experimentPath, "utf8"))
+    : {};
+  writeFileSync(experimentPath, JSON.stringify({
+    ...existing,
+    elapsedSeconds: Math.round(totalElapsedMs / 1000),
+    elapsedMs: totalElapsedMs,
+    stepTimings,
+    measuredAt: new Date().toISOString(),
+    _timingNote: "elapsedSeconds is real wall-clock time from run.mjs. tokensConsumed requires external instrumentation.",
+  }, null, 2));
+
+  return { unitId, status: "completed", tier: resolvedTier, elapsedMs: totalElapsedMs };
 }
 
 // ── Topological batching ──────────────────────────────────────────────────────
@@ -404,6 +437,12 @@ function writeSummary(outRoot, results, startMs) {
     } catch { /* unit may be trivial (no analysis.json) or failed */ }
   }
 
+  // Collect per-unit elapsed from manifest
+  const manifest = loadManifest(outRoot);
+  const unitTimings = results
+    .filter(r => r.elapsedMs != null)
+    .map(r => ({ unitId: r.unitId, tier: r.tier, elapsedMs: r.elapsedMs }));
+
   const summary = {
     generatedAt: new Date().toISOString(),
     elapsedMs: elapsed,
@@ -412,6 +451,7 @@ function writeSummary(outRoot, results, startMs) {
     byTier,
     openQuestions: { blocking: blockingQuestions, nonBlocking: nonBlockingQuestions },
     risksBySeverity,
+    unitTimings,
   };
 
   writeFileSync(join(outRoot, "run-summary.json"), JSON.stringify(summary, null, 2));
