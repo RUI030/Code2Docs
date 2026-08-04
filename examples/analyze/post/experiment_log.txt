@@ -1,0 +1,5 @@
+Time: ~20 min
+Cost: $2.13
+Model: Sonnet 4.6
+Instruction: /code2docs-analyze /<some-path>/jhipster-ng17-fixture/src/main/webapp/app/entities/post
+Note: this is the result of skills only setting

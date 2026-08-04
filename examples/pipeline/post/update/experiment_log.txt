@@ -1,0 +1,4 @@
+Cost: $2.35
+Model: Sonnet 4.6
+Instruction: /code2docs-pipeline /<some-path>/jhipster-ng17-fixture/src/main/webapp/app/entities/post/update
+Note: this is the result of complete harness (with tools)
