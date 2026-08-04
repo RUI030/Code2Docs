@@ -1,0 +1,309 @@
+{
+  "schemaVersion": "0.5.0",
+  "unitId": "component:app/entities/post/update/post-update.component.ts:PostUpdateComponent",
+  "callGraph": {
+    "$comment": "Phase A hand-derived. Leaf-first order. Edges are within-class calls only; external service calls are captured in dependencyUsage. Arrow-function fields (compareBlog, compareTag) are not method nodes — they appear only as edges originating from template bindings.",
+    "nodes": [
+      "method:byteSize",
+      "method:openFile",
+      "method:previousState",
+      "method:onSaveError",
+      "method:onSaveFinalize",
+      "method:onSaveSuccess",
+      "method:setFileData",
+      "method:subscribeToSaveResponse",
+      "method:updateForm",
+      "method:loadRelationshipsOptions",
+      "method:save",
+      "method:ngOnInit"
+    ],
+    "edges": [
+      {
+        "from": "method:ngOnInit",
+        "to": "method:updateForm",
+        "conditional": true,
+        "loc": { "file": "post-update.component.ts", "line": 53 }
+      },
+      {
+        "from": "method:ngOnInit",
+        "to": "method:loadRelationshipsOptions",
+        "conditional": false,
+        "loc": { "file": "post-update.component.ts", "line": 56 }
+      },
+      {
+        "from": "method:save",
+        "to": "method:subscribeToSaveResponse",
+        "conditional": false,
+        "loc": { "file": "post-update.component.ts", "line": 85 }
+      },
+      {
+        "from": "method:subscribeToSaveResponse",
+        "to": "method:onSaveFinalize",
+        "conditional": false,
+        "$comment": "Called unconditionally via finalize() operator",
+        "loc": { "file": "post-update.component.ts", "line": 92 }
+      },
+      {
+        "from": "method:subscribeToSaveResponse",
+        "to": "method:onSaveSuccess",
+        "conditional": true,
+        "$comment": "Called in the 'next' callback — only on success",
+        "loc": { "file": "post-update.component.ts", "line": 93 }
+      },
+      {
+        "from": "method:subscribeToSaveResponse",
+        "to": "method:onSaveError",
+        "conditional": true,
+        "$comment": "Called in the 'error' callback — only on failure",
+        "loc": { "file": "post-update.component.ts", "line": 94 }
+      },
+      {
+        "from": "method:onSaveSuccess",
+        "to": "method:previousState",
+        "conditional": false,
+        "loc": { "file": "post-update.component.ts", "line": 99 }
+      }
+    ],
+    "calls": {
+      "method:ngOnInit": ["method:updateForm", "method:loadRelationshipsOptions"],
+      "method:save": ["method:subscribeToSaveResponse"],
+      "method:subscribeToSaveResponse": ["method:onSaveFinalize", "method:onSaveSuccess", "method:onSaveError"],
+      "method:onSaveSuccess": ["method:previousState"]
+    },
+    "calledBy": {
+      "method:updateForm": ["method:ngOnInit"],
+      "method:loadRelationshipsOptions": ["method:ngOnInit"],
+      "method:subscribeToSaveResponse": ["method:save"],
+      "method:onSaveFinalize": ["method:subscribeToSaveResponse"],
+      "method:onSaveSuccess": ["method:subscribeToSaveResponse"],
+      "method:onSaveError": ["method:subscribeToSaveResponse"],
+      "method:previousState": ["method:onSaveSuccess"]
+    },
+    "entryPoints": [
+      "method:ngOnInit",
+      "method:save",
+      "method:previousState",
+      "method:byteSize",
+      "method:openFile",
+      "method:setFileData"
+    ],
+    "executionOrder": [
+      "method:byteSize",
+      "method:openFile",
+      "method:previousState",
+      "method:onSaveError",
+      "method:onSaveFinalize",
+      "method:onSaveSuccess",
+      "method:setFileData",
+      "method:subscribeToSaveResponse",
+      "method:updateForm",
+      "method:loadRelationshipsOptions",
+      "method:save",
+      "method:ngOnInit"
+    ],
+    "leafMethods": [
+      "method:byteSize",
+      "method:openFile",
+      "method:previousState",
+      "method:onSaveError",
+      "method:onSaveFinalize"
+    ],
+    "unreachableMethods": [],
+    "$comment-unreachable": "byteSize, openFile, setFileData are not called from the current template and are not reached from ngOnInit, but they are declared public and callable; they are not strictly unreachable — they may be called from external contexts not visible here."
+  },
+  "fieldAccess": {
+    "reads": {
+      "method:ngOnInit": ["field:post", "field:activatedRoute"],
+      "method:save": ["field:postFormService", "field:editForm", "field:postService"],
+      "method:subscribeToSaveResponse": [],
+      "method:updateForm": ["field:post", "field:postFormService", "field:editForm", "field:blogService", "field:blogsSharedCollection", "field:tagService", "field:tagsSharedCollection"],
+      "method:loadRelationshipsOptions": ["field:blogService", "field:post", "field:tagsSharedCollection", "field:tagService", "field:blogsSharedCollection"],
+      "method:byteSize": ["field:dataUtils"],
+      "method:openFile": ["field:dataUtils"],
+      "method:setFileData": ["field:dataUtils", "field:editForm", "field:eventManager"],
+      "method:onSaveFinalize": [],
+      "method:onSaveSuccess": [],
+      "method:onSaveError": []
+    },
+    "writes": {
+      "method:ngOnInit": ["field:post"],
+      "method:save": ["field:isSaving"],
+      "method:onSaveFinalize": ["field:isSaving"],
+      "method:updateForm": ["field:post", "field:blogsSharedCollection", "field:tagsSharedCollection"],
+      "method:loadRelationshipsOptions": ["field:blogsSharedCollection", "field:tagsSharedCollection"]
+    },
+    "readBy": {
+      "field:isSaving": ["method:save"],
+      "field:post": ["method:ngOnInit", "method:updateForm", "method:loadRelationshipsOptions"],
+      "field:blogsSharedCollection": ["method:updateForm", "method:loadRelationshipsOptions"],
+      "field:tagsSharedCollection": ["method:updateForm", "method:loadRelationshipsOptions"],
+      "field:editForm": ["method:save", "method:updateForm", "method:setFileData"],
+      "field:dataUtils": ["method:byteSize", "method:openFile", "method:setFileData"],
+      "field:eventManager": ["method:setFileData"],
+      "field:postService": ["method:save"],
+      "field:postFormService": ["method:save", "method:updateForm"],
+      "field:blogService": ["method:updateForm", "method:loadRelationshipsOptions"],
+      "field:tagService": ["method:updateForm", "method:loadRelationshipsOptions"],
+      "field:activatedRoute": ["method:ngOnInit"]
+    },
+    "writtenBy": {
+      "field:isSaving": ["method:save", "method:onSaveFinalize"],
+      "field:post": ["method:ngOnInit", "method:updateForm"],
+      "field:blogsSharedCollection": ["method:updateForm", "method:loadRelationshipsOptions"],
+      "field:tagsSharedCollection": ["method:updateForm", "method:loadRelationshipsOptions"]
+    }
+  },
+  "dependencyUsage": [
+    {
+      "dep": "dep:postService",
+      "calledMembers": [
+        {
+          "member": "update",
+          "argTypes": ["IPost"],
+          "returnType": "Observable<HttpResponse<IPost>>",
+          "fromMethods": ["method:save"],
+          "loc": { "file": "post-update.component.ts", "line": 85 }
+        },
+        {
+          "member": "create",
+          "argTypes": ["NewPost"],
+          "returnType": "Observable<HttpResponse<IPost>>",
+          "fromMethods": ["method:save"],
+          "loc": { "file": "post-update.component.ts", "line": 87 }
+        }
+      ]
+    },
+    {
+      "dep": "dep:blogService",
+      "calledMembers": [
+        {
+          "member": "query",
+          "argTypes": [],
+          "returnType": "Observable<HttpResponse<IBlog[]>>",
+          "fromMethods": ["method:loadRelationshipsOptions"],
+          "loc": { "file": "post-update.component.ts", "line": 119 }
+        },
+        {
+          "member": "addBlogToCollectionIfMissing",
+          "argTypes": ["IBlog[]", "IBlog | null | undefined"],
+          "fromMethods": ["method:updateForm", "method:loadRelationshipsOptions"],
+          "loc": { "file": "post-update.component.ts", "line": 114 }
+        },
+        {
+          "member": "compareBlog",
+          "argTypes": ["IBlog | null", "IBlog | null"],
+          "returnType": "boolean",
+          "fromMethods": ["field:compareBlog"],
+          "loc": { "file": "post-update.component.ts", "line": 45 }
+        }
+      ]
+    },
+    {
+      "dep": "dep:tagService",
+      "calledMembers": [
+        {
+          "member": "query",
+          "argTypes": [],
+          "returnType": "Observable<HttpResponse<ITag[]>>",
+          "fromMethods": ["method:loadRelationshipsOptions"],
+          "loc": { "file": "post-update.component.ts", "line": 125 }
+        },
+        {
+          "member": "addTagToCollectionIfMissing",
+          "argTypes": ["ITag[]", "...ITag[]"],
+          "fromMethods": ["method:updateForm", "method:loadRelationshipsOptions"],
+          "loc": { "file": "post-update.component.ts", "line": 115 }
+        },
+        {
+          "member": "compareTag",
+          "argTypes": ["ITag | null", "ITag | null"],
+          "returnType": "boolean",
+          "fromMethods": ["field:compareTag"],
+          "loc": { "file": "post-update.component.ts", "line": 47 }
+        }
+      ]
+    },
+    {
+      "dep": "dep:postFormService",
+      "calledMembers": [
+        {
+          "member": "createPostFormGroup",
+          "argTypes": [],
+          "returnType": "PostFormGroup",
+          "fromMethods": ["field:editForm"],
+          "$comment": "Called at field initializer (construction time, line 43), not from a method",
+          "loc": { "file": "post-update.component.ts", "line": 43 }
+        },
+        {
+          "member": "resetForm",
+          "argTypes": ["PostFormGroup", "IPost"],
+          "fromMethods": ["method:updateForm"],
+          "loc": { "file": "post-update.component.ts", "line": 112 }
+        },
+        {
+          "member": "getPost",
+          "argTypes": ["PostFormGroup"],
+          "returnType": "IPost | NewPost",
+          "fromMethods": ["method:save"],
+          "loc": { "file": "post-update.component.ts", "line": 83 }
+        }
+      ]
+    },
+    {
+      "dep": "dep:dataUtils",
+      "calledMembers": [
+        {
+          "member": "byteSize",
+          "argTypes": ["string"],
+          "returnType": "string",
+          "fromMethods": ["method:byteSize"],
+          "loc": { "file": "post-update.component.ts", "line": 61 }
+        },
+        {
+          "member": "openFile",
+          "argTypes": ["string", "string | null | undefined"],
+          "fromMethods": ["method:openFile"],
+          "loc": { "file": "post-update.component.ts", "line": 65 }
+        },
+        {
+          "member": "loadFileToForm",
+          "argTypes": ["Event", "PostFormGroup", "string", "boolean"],
+          "returnType": "Observable<void>",
+          "fromMethods": ["method:setFileData"],
+          "loc": { "file": "post-update.component.ts", "line": 69 }
+        }
+      ]
+    },
+    {
+      "dep": "dep:eventManager",
+      "calledMembers": [
+        {
+          "member": "broadcast",
+          "argTypes": ["EventWithContent<AlertError>"],
+          "fromMethods": ["method:setFileData"],
+          "loc": { "file": "post-update.component.ts", "line": 71 }
+        }
+      ]
+    },
+    {
+      "dep": "dep:activatedRoute",
+      "readProperties": ["data"],
+      "usedByMethods": ["method:ngOnInit"]
+    }
+  ],
+  "routing": {
+    "isRoutedComponent": true,
+    "routePaths": [],
+    "$comment": "Route paths and resolver names not visible from this folder",
+    "routeDataConsumed": ["post"],
+    "navigations": []
+  },
+  "provenance": {
+    "source": "phase-a-hand",
+    "generatedAt": "2026-08-03",
+    "resolverVersion": null,
+    "inputHash": null,
+    "parseStatus": "partial",
+    "$comment": "Phase A hand-derived. Call graph edges are approximate; field read/write sets are derived by reading source without AST tooling."
+  }
+}
