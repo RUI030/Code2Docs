@@ -1,0 +1,278 @@
+{
+  "schemaVersion": "0.4.0",
+  "unit": {
+    "id": "component:entities/post/list/post.component.ts:PostComponent",
+    "kind": "component",
+    "className": "PostComponent",
+    "selector": "jhi-post",
+    "path": "entities/post/list/post.component.ts",
+    "standalone": true,
+    "declaredInModule": null,
+    "isDefaultExport": false,
+    "siblings": [
+      "entities/post/list/post.component.html",
+      "entities/post/list/post.component.spec.ts"
+    ],
+    "files": {
+      "typescript": "entities/post/list/post.component.ts",
+      "template": "entities/post/list/post.component.html",
+      "templateInline": false,
+      "styles": [],
+      "specs": ["entities/post/list/post.component.spec.ts"]
+    }
+  },
+  "manifest": {
+    "dependencies": "dependencies.json",
+    "functions": null,
+    "template": null,
+    "analysis": null,
+    "requirement": "requirement.md",
+    "migrationNotes": "migration_notes.md",
+    "repoIndex": null
+  },
+  "publicApi": {
+    "inputs": [],
+    "outputs": [],
+    "publicMethods": [
+      "method:ngOnInit",
+      "method:reset",
+      "method:loadNextPage",
+      "method:byteSize",
+      "method:openFile",
+      "method:delete",
+      "method:load",
+      "method:navigateToWithComponentValues"
+    ],
+    "templateReachableMembers": [
+      "method:load",
+      "method:loadNextPage",
+      "method:delete",
+      "method:navigateToWithComponentValues",
+      "method:byteSize",
+      "method:openFile",
+      "field:posts",
+      "field:isLoading",
+      "field:sortState",
+      "field:hasMorePage",
+      "field:trackId"
+    ]
+  },
+  "injectedDependencies": [
+    {
+      "id": "dep:router",
+      "propertyName": "router",
+      "token": "Router",
+      "origin": "angular",
+      "injectionStyle": "inject-fn",
+      "visibility": "public",
+      "loc": { "file": "entities/post/list/post.component.ts", "line": 49 }
+    },
+    {
+      "id": "dep:postService",
+      "propertyName": "postService",
+      "token": "PostService",
+      "origin": "internal",
+      "injectionStyle": "inject-fn",
+      "visibility": "protected",
+      "loc": { "file": "entities/post/list/post.component.ts", "line": 50 }
+    },
+    {
+      "id": "dep:activatedRoute",
+      "propertyName": "activatedRoute",
+      "token": "ActivatedRoute",
+      "origin": "angular",
+      "injectionStyle": "inject-fn",
+      "visibility": "protected",
+      "loc": { "file": "entities/post/list/post.component.ts", "line": 51 }
+    },
+    {
+      "id": "dep:sortService",
+      "propertyName": "sortService",
+      "token": "SortService",
+      "origin": "internal",
+      "injectionStyle": "inject-fn",
+      "visibility": "protected",
+      "loc": { "file": "entities/post/list/post.component.ts", "line": 52 }
+    },
+    {
+      "id": "dep:parseLinks",
+      "propertyName": "parseLinks",
+      "token": "ParseLinks",
+      "origin": "internal",
+      "injectionStyle": "inject-fn",
+      "visibility": "protected",
+      "loc": { "file": "entities/post/list/post.component.ts", "line": 53 }
+    },
+    {
+      "id": "dep:dataUtils",
+      "propertyName": "dataUtils",
+      "token": "DataUtils",
+      "origin": "internal",
+      "injectionStyle": "inject-fn",
+      "visibility": "protected",
+      "loc": { "file": "entities/post/list/post.component.ts", "line": 54 }
+    },
+    {
+      "id": "dep:modalService",
+      "propertyName": "modalService",
+      "token": "NgbModal",
+      "origin": "third-party",
+      "injectionStyle": "inject-fn",
+      "visibility": "protected",
+      "loc": { "file": "entities/post/list/post.component.ts", "line": 55 }
+    },
+    {
+      "id": "dep:ngZone",
+      "propertyName": "ngZone",
+      "token": "NgZone",
+      "origin": "angular",
+      "injectionStyle": "inject-fn",
+      "visibility": "protected",
+      "loc": { "file": "entities/post/list/post.component.ts", "line": 56 }
+    }
+  ],
+  "lifecycle": {
+    "implementedHooks": ["ngOnInit"],
+    "declaredInterfaces": ["OnInit"],
+    "constructorDoesWork": false,
+    "cleanupStrategy": "none"
+  },
+  "stateOutline": {
+    "fields": [
+      {
+        "id": "field:subscription",
+        "name": "subscription",
+        "type": "Subscription | null",
+        "visibility": "public",
+        "initializerExpression": "null",
+        "roleHints": { "isRxjs": true, "rxjsKind": "Subscription" },
+        "loc": { "file": "entities/post/list/post.component.ts", "line": 38 }
+      },
+      {
+        "id": "field:posts",
+        "name": "posts",
+        "type": "IPost[] | undefined",
+        "visibility": "public",
+        "initializerExpression": null,
+        "roleHints": {},
+        "loc": { "file": "entities/post/list/post.component.ts", "line": 39 }
+      },
+      {
+        "id": "field:isLoading",
+        "name": "isLoading",
+        "type": "boolean",
+        "visibility": "public",
+        "initializerExpression": "false",
+        "roleHints": {},
+        "loc": { "file": "entities/post/list/post.component.ts", "line": 40 }
+      },
+      {
+        "id": "field:sortState",
+        "name": "sortState",
+        "type": "WritableSignal<SortState>",
+        "visibility": "public",
+        "initializerExpression": "sortStateSignal({})",
+        "roleHints": { "isSignal": true, "signalKind": "signal" },
+        "loc": { "file": "entities/post/list/post.component.ts", "line": 42 }
+      },
+      {
+        "id": "field:itemsPerPage",
+        "name": "itemsPerPage",
+        "type": "number",
+        "visibility": "public",
+        "initializerExpression": "ITEMS_PER_PAGE",
+        "roleHints": { "isConstant": true },
+        "loc": { "file": "entities/post/list/post.component.ts", "line": 44 }
+      },
+      {
+        "id": "field:links",
+        "name": "links",
+        "type": "WritableSignal<{ [key: string]: undefined | { [key: string]: string | undefined } }>",
+        "visibility": "public",
+        "initializerExpression": "signal({})",
+        "roleHints": { "isSignal": true, "signalKind": "signal" },
+        "loc": { "file": "entities/post/list/post.component.ts", "line": 45 }
+      },
+      {
+        "id": "field:hasMorePage",
+        "name": "hasMorePage",
+        "type": "Signal<boolean>",
+        "visibility": "public",
+        "initializerExpression": "computed(() => !!this.links().next)",
+        "roleHints": { "isSignal": true, "signalKind": "computed" },
+        "loc": { "file": "entities/post/list/post.component.ts", "line": 46 }
+      },
+      {
+        "id": "field:isFirstFetch",
+        "name": "isFirstFetch",
+        "type": "Signal<boolean>",
+        "visibility": "public",
+        "initializerExpression": "computed(() => Object.keys(this.links()).length === 0)",
+        "roleHints": { "isSignal": true, "signalKind": "computed" },
+        "loc": { "file": "entities/post/list/post.component.ts", "line": 47 }
+      },
+      {
+        "id": "field:trackId",
+        "name": "trackId",
+        "type": "(_index: number, item: IPost) => number",
+        "visibility": "public",
+        "initializerExpression": "(_index, item) => this.postService.getPostIdentifier(item)",
+        "isArrowFunctionProperty": true,
+        "roleHints": {},
+        "loc": { "file": "entities/post/list/post.component.ts", "line": 58 }
+      }
+    ],
+    "methodIds": [
+      "method:ngOnInit",
+      "method:reset",
+      "method:loadNextPage",
+      "method:byteSize",
+      "method:openFile",
+      "method:delete",
+      "method:load",
+      "method:navigateToWithComponentValues",
+      "method:fillComponentAttributeFromRoute",
+      "method:onResponseSuccess",
+      "method:fillComponentAttributesFromResponseBody",
+      "method:fillComponentAttributesFromResponseHeader",
+      "method:queryBackend",
+      "method:handleNavigation"
+    ]
+  },
+  "decorator": {
+    "changeDetection": null,
+    "encapsulation": null,
+    "imports": [
+      "RouterModule",
+      "FormsModule",
+      "SharedModule",
+      "SortDirective",
+      "SortByDirective",
+      "DurationPipe",
+      "FormatMediumDatetimePipe",
+      "FormatMediumDatePipe",
+      "InfiniteScrollModule"
+    ]
+  },
+  "metrics": {
+    "tsLineCount": 174,
+    "templateLineCount": 115,
+    "methodCount": 14,
+    "publicApiSurface": 0,
+    "injectedDependencyCount": 8,
+    "maxCyclomaticComplexity": 4,
+    "maxTemplateNestingDepth": 7
+  },
+  "provenance": {
+    "source": "hand-derived",
+    "generatedAt": "2026-08-03",
+    "parseStatus": "ok",
+    "warnings": [
+      {
+        "code": "lower-bound-only",
+        "severity": "info",
+        "message": "Phase A hand-derived: call graph and field access are approximations; call counts and conditional edge flags are unverified."
+      }
+    ]
+  }
+}

@@ -1,0 +1,146 @@
+{
+  "schemaVersion": "0.5.0",
+  "unitId": "component:entities/post/list/post.component.ts:PostComponent",
+  "callGraph": {
+    "nodes": [
+      "method:ngOnInit",
+      "method:reset",
+      "method:loadNextPage",
+      "method:byteSize",
+      "method:openFile",
+      "method:delete",
+      "method:load",
+      "method:navigateToWithComponentValues",
+      "method:fillComponentAttributeFromRoute",
+      "method:onResponseSuccess",
+      "method:fillComponentAttributesFromResponseBody",
+      "method:fillComponentAttributesFromResponseHeader",
+      "method:queryBackend",
+      "method:handleNavigation"
+    ],
+    "edges": [
+      { "from": "method:ngOnInit", "to": "method:fillComponentAttributeFromRoute" },
+      { "from": "method:ngOnInit", "to": "method:reset" },
+      { "from": "method:ngOnInit", "to": "method:load" },
+      { "from": "method:load", "to": "method:queryBackend" },
+      { "from": "method:load", "to": "method:onResponseSuccess" },
+      { "from": "method:onResponseSuccess", "to": "method:fillComponentAttributesFromResponseHeader" },
+      { "from": "method:onResponseSuccess", "to": "method:fillComponentAttributesFromResponseBody" },
+      { "from": "method:loadNextPage", "to": "method:load" },
+      { "from": "method:delete", "to": "method:load", "conditional": true },
+      { "from": "method:navigateToWithComponentValues", "to": "method:handleNavigation" }
+    ],
+    "calls": {
+      "method:ngOnInit": ["method:fillComponentAttributeFromRoute", "method:reset", "method:load"],
+      "method:load": ["method:queryBackend", "method:onResponseSuccess"],
+      "method:onResponseSuccess": ["method:fillComponentAttributesFromResponseHeader", "method:fillComponentAttributesFromResponseBody"],
+      "method:loadNextPage": ["method:load"],
+      "method:delete": ["method:load"],
+      "method:navigateToWithComponentValues": ["method:handleNavigation"]
+    },
+    "calledBy": {
+      "method:fillComponentAttributeFromRoute": ["method:ngOnInit"],
+      "method:reset": ["method:ngOnInit"],
+      "method:load": ["method:ngOnInit", "method:loadNextPage", "method:delete"],
+      "method:queryBackend": ["method:load"],
+      "method:onResponseSuccess": ["method:load"],
+      "method:fillComponentAttributesFromResponseHeader": ["method:onResponseSuccess"],
+      "method:fillComponentAttributesFromResponseBody": ["method:onResponseSuccess"],
+      "method:handleNavigation": ["method:navigateToWithComponentValues"]
+    },
+    "entryPoints": [
+      "method:ngOnInit",
+      "method:load",
+      "method:loadNextPage",
+      "method:delete",
+      "method:navigateToWithComponentValues",
+      "method:byteSize",
+      "method:openFile"
+    ],
+    "executionOrder": [
+      "method:byteSize",
+      "method:openFile",
+      "method:reset",
+      "method:fillComponentAttributeFromRoute",
+      "method:fillComponentAttributesFromResponseHeader",
+      "method:fillComponentAttributesFromResponseBody",
+      "method:handleNavigation",
+      "method:queryBackend",
+      "method:onResponseSuccess",
+      "method:navigateToWithComponentValues",
+      "method:loadNextPage",
+      "method:load",
+      "method:delete",
+      "method:ngOnInit"
+    ],
+    "leafMethods": [
+      "method:byteSize",
+      "method:openFile",
+      "method:reset",
+      "method:fillComponentAttributeFromRoute",
+      "method:fillComponentAttributesFromResponseHeader",
+      "method:fillComponentAttributesFromResponseBody",
+      "method:handleNavigation",
+      "method:queryBackend"
+    ]
+  },
+  "fieldAccess": {
+    "reads": {
+      "method:queryBackend": [
+        "field:itemsPerPage",
+        "field:hasMorePage",
+        "field:isFirstFetch",
+        "field:links",
+        "field:sortState"
+      ],
+      "method:fillComponentAttributesFromResponseBody": [
+        "field:links",
+        "field:posts"
+      ]
+    },
+    "writes": {
+      "method:reset": ["field:posts"],
+      "method:onResponseSuccess": ["field:posts"],
+      "method:fillComponentAttributesFromResponseHeader": ["field:links"],
+      "method:handleNavigation": ["field:links"],
+      "method:queryBackend": ["field:isLoading"],
+      "method:ngOnInit": ["field:subscription"],
+      "method:fillComponentAttributeFromRoute": ["field:sortState"]
+    },
+    "readBy": {
+      "field:posts": ["method:fillComponentAttributesFromResponseBody"],
+      "field:sortState": ["method:queryBackend"],
+      "field:links": ["method:queryBackend", "method:fillComponentAttributesFromResponseBody"],
+      "field:hasMorePage": ["method:queryBackend"],
+      "field:isFirstFetch": ["method:queryBackend"],
+      "field:itemsPerPage": ["method:queryBackend"]
+    },
+    "writtenBy": {
+      "field:posts": ["method:reset", "method:onResponseSuccess"],
+      "field:isLoading": ["method:queryBackend"],
+      "field:links": ["method:fillComponentAttributesFromResponseHeader", "method:handleNavigation"],
+      "field:subscription": ["method:ngOnInit"],
+      "field:sortState": ["method:fillComponentAttributeFromRoute"]
+    },
+    "derivedFrom": {
+      "field:hasMorePage": ["field:links"],
+      "field:isFirstFetch": ["field:links"]
+    },
+    "signalDependencies": {
+      "field:hasMorePage": ["field:links"],
+      "field:isFirstFetch": ["field:links"]
+    }
+  },
+  "provenance": {
+    "source": "hand-derived",
+    "generatedAt": "2026-08-03",
+    "parseStatus": "ok",
+    "warnings": [
+      {
+        "code": "lower-bound-only",
+        "severity": "info",
+        "message": "Phase A hand-derived: call graph and field access are approximations; call counts and conditional edge flags are unverified."
+      }
+    ]
+  }
+}

@@ -1,0 +1,3 @@
+Time: ~20 min
+Cost: $2.13
+Model: Sonnet 4.6
